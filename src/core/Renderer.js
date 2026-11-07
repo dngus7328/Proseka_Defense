@@ -7,7 +7,7 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const point=(x,y)=>({x,y});
 export class Renderer {
  constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;}
- setMap(map){if(this.currentMap?.id===map.id)return;this.currentMap=map;this.canvas.width=map.w*TILE;this.canvas.height=map.h*TILE;this.canvas.style.aspectRatio=`${map.w}/${map.h}`;this.ctx.imageSmoothingEnabled=false;}
+ setMap(map){if(this.currentMap?.id===map.id)return;this.currentMap=map;this.canvas.width=map.w*TILE;this.canvas.height=map.h*TILE;this.canvas.style.aspectRatio=`${map.w}/${map.h}`;this.canvas.style.setProperty("--map-aspect",`${map.w}/${map.h}`);this.ctx.imageSmoothingEnabled=false;}
  mapClick(event){
   const r=this.canvas.getBoundingClientRect();const cx=event.clientX-r.left,cy=event.clientY-r.top;
   return {x:Math.floor(cx/r.width*this.currentMap.w),y:Math.floor(cy/r.height*this.currentMap.h)};
