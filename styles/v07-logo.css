@@ -1,0 +1,41 @@
+/* v0.7 — Creator-supplied trilingual artwork. Title screen ONLY.
+   The battlefield, lobby, result, notice and interactions remain unchanged. */
+#titleOverlay { background: #111c2c !important; }
+.title-screen { max-width: none; background: #fff; }
+.title-header { background: #132437; }
+.title-main {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 32px) clamp(12px, 3.5vw, 44px);
+}
+.title-main:before, .title-number, .title-ellipse { display:none; }
+.title-backdrop { pointer-events:none; }
+.title-backdrop canvas { opacity:.07; filter:grayscale(1); mix-blend-mode:multiply; }
+.title-backdrop-filter {background:linear-gradient(90deg,#fff 0%,#ffffffbb 65%,#ffffff55 100%);}
+.title-logo-wrap {
+  position: relative; z-index: 2;
+  width: min(100%, 1000px);
+  min-width: 0;
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.title-logo-image {
+  display: block;
+  width: 100%; height: auto;
+  max-width: 100%; max-height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  mix-blend-mode: multiply;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.title-bottom { background: #132437; }
+@media (orientation:landscape) and (max-height:540px) {
+  .title-main { padding: 5px 18px; }
+  .title-header { min-height: 36px; padding: 3px 16px; }
+  .title-small-control { min-height: 29px; }
+  .title-bottom { padding: 6px max(15px,env(safe-area-inset-left)) max(6px,env(safe-area-inset-bottom)); }
+  .title-enter { min-height: 44px; }
+}

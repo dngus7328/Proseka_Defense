@@ -1,97 +1,78 @@
 import {CHARACTER_BY_ID,STAR_SCALE} from '../data/characters.js';
 import {ENEMIES} from '../data/enemies.js';
 import {tileKey} from '../data/maps.js';
+import {drawSekaiWorld} from './SekaiMapArt.js';
 const TILE=32;
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
 const lerp=(a,b,t)=>a+(b-a)*t;
 const point=(x,y)=>({x,y});
 export class Renderer {
  constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;}
- setMap(map){if(this.currentMap?.id===map.id)return;this.currentMap=map;this.canvas.width=map.w*TILE;this.canvas.height=map.h*TILE;this.canvas.style.aspectRatio=`${map.w}/${map.h}`;this.canvas.style.setProperty("--map-aspect",`${map.w}/${map.h}`);this.ctx.imageSmoothingEnabled=false;}
+ setMap(map){
+  // A portrait-oriented map stays one logical world in every orientation.
+  // For landscape we rotate its camera, not the units or the enemy path.
+  const rotated=window.innerWidth>window.innerHeight;
+  if(this.currentMap?.id===map.id&&this.rotated===rotated)return;
+  this.currentMap=map;this.rotated=rotated;
+  this.canvas.width=(rotated?map.h:map.w)*TILE;
+  this.canvas.height=(rotated?map.w:map.h)*TILE;
+  this.canvas.style.aspectRatio=`${this.canvas.width}/${this.canvas.height}`;
+  this.canvas.style.setProperty('--map-aspect',`${this.canvas.width}/${this.canvas.height}`);
+  document.querySelector('.board-frame')?.style.setProperty('--map-aspect',`${this.canvas.width}/${this.canvas.height}`);
+  document.querySelector('.board-frame')?.style.setProperty('--map-ratio',String(this.canvas.width/this.canvas.height));
+  this.ctx.imageSmoothingEnabled=false;
+ }
  mapClick(event){
-  const r=this.canvas.getBoundingClientRect();const cx=event.clientX-r.left,cy=event.clientY-r.top;
-  return {x:Math.floor(cx/r.width*this.currentMap.w),y:Math.floor(cy/r.height*this.currentMap.h)};
+  const r=this.canvas.getBoundingClientRect();
+  const px=(event.clientX-r.left)/r.width,py=(event.clientY-r.top)/r.height;
+  // Clockwise camera rotation: displayed [x,y] maps back to [y,1-x].
+  if(this.rotated)return {x:Math.floor(py*this.currentMap.w),y:Math.floor((1-px)*this.currentMap.h)};
+  return {x:Math.floor(px*this.currentMap.w),y:Math.floor(py*this.currentMap.h)};
  }
  draw(game){
   if(!game)return;this.setMap(game.map);
-  const c=this.ctx,m=game.map,t=TILE,p=m.palette;const time=game.visualTime;
+  const c=this.ctx,m=game.map,time=game.visualTime;
+  c.setTransform(1,0,0,1,0,0);
   c.clearRect(0,0,this.canvas.width,this.canvas.height);
-  this.drawTiles(c,m,time);
-  this.drawPath(c,m,time);
+  c.save();
+  if(this.rotated){c.translate(this.canvas.width,0);c.rotate(Math.PI/2);}
+  drawSekaiWorld(c,m,time);
   this.drawPlacement(c,m,game);
   if(game.selected)this.drawRange(c,game.selected,game);
   const bodies=[...game.enemies.map(e=>({y:game.enemyPos(e).y,enemy:e})),...game.units.map(u=>({y:u.y,hero:u}))].sort((a,b)=>a.y-b.y);
   for(const item of bodies){if(item.enemy)this.drawEnemy(c,game,item.enemy,time);else this.drawHero(c,game,item.hero,time);}
   this.drawEffects(c,game,time);
-  if(game.phase==='ending'){const k=Math.min(1,game.endReal/1.5);c.fillStyle=`rgba(14,23,33,${k*.34})`;c.fillRect(0,0,this.canvas.width,this.canvas.height);}
- }
- drawTiles(c,m,time){
-  const p=m.palette,t=TILE;
-  for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
-   const sx=x*t,sy=y*t,v=hash(x,y);
-   const isPath=m.pathSet.has(tileKey(x,y));
-   c.fillStyle=isPath?(v%3===0?p.pathAlt:p.path):(v%4===0?p.alt:p.base);
-   c.fillRect(sx,sy,t,t);
-   if(isPath)continue;
-   if(v%7===0){c.fillStyle=p.edge;c.fillRect(sx+7+v%7,sy+11,5,2);c.fillRect(sx+10+v%6,sy+13,2,2);}
-   if(v%9===0){c.fillStyle=p.detail;c.fillRect(sx+15,sy+8,2,2);c.fillRect(sx+18,sy+11,2,2);}
-   if(v%13===0){c.fillStyle=p.edge;c.fillRect(sx+3,sy+25,10,2);c.fillRect(sx+11,sy+27,3,2);}
-   // subtle tiled top-left highlight gives a painted pixel-map rather than flat debug squares.
-   c.fillStyle='#f2f0e50c';c.fillRect(sx+1,sy+1,t-2,1);
-   c.fillStyle='#172b2b12';c.fillRect(sx+t-2,sy+1,1,t-2);
+  if(game.phase==='ending'){
+   const k=Math.min(1,game.endReal/1.5);
+   c.fillStyle=`rgba(14,21,31,${k*.42})`;
+   c.fillRect(0,0,m.w*TILE,m.h*TILE);
   }
-  // edge vignette built from pixel blocks, not a bitmap.
-  for(let x=0;x<m.w;x++)for(const y of [0,m.h-1]){const sx=x*t,sy=y*t;c.fillStyle='#0f25301c';c.fillRect(sx,sy,t,t);}
-  for(let y=0;y<m.h;y++)for(const x of [0,m.w-1]){const sx=x*t,sy=y*t;c.fillStyle='#0f25301c';c.fillRect(sx,sy,t,t);}
- }
- drawPath(c,m,time){
-  const t=TILE,p=m.palette;
-  for(const {x,y} of m.path){
-   const sx=x*t,sy=y*t;
-   c.fillStyle='#f1eee624';c.fillRect(sx+2,sy+2,28,1);
-   c.fillStyle='#31474d1b';c.fillRect(sx+2,sy+27,28,3);
-   for(const [dx,dy] of [[0,-1],[1,0],[0,1],[-1,0]]){
-    if(!m.pathSet.has(tileKey(x+dx,y+dy))){
-     c.fillStyle=p.edge;
-     if(dx===0&&dy===-1)c.fillRect(sx,sy,32,3);
-     if(dx===0&&dy===1)c.fillRect(sx,sy+29,32,3);
-     if(dx===1)c.fillRect(sx+29,sy,3,32);
-     if(dx===-1)c.fillRect(sx,sy,3,32);
-     c.fillStyle='#eae8d34a';
-     if(dx===0&&dy===-1)c.fillRect(sx+3,sy+3,26,1);
-     if(dx===-1)c.fillRect(sx+3,sy+3,1,26);
-    }
-   }
-   if(hash(x,y)%4===0){c.fillStyle='#6a7a7470';c.fillRect(sx+11,sy+14,4,2);c.fillRect(sx+18,sy+17,2,2);}
-  }
-  // Flow direction arrows every 9 tiles.
-  for(let i=7;i<m.path.length;i+=9){
-   const a=m.path[i],b=m.path[(i+1)%m.path.length],cx=(a.x+.5)*t,cy=(a.y+.5)*t;
-   c.save();c.translate(cx,cy);c.rotate(Math.atan2(b.y-a.y,b.x-a.x));c.fillStyle='#f2f3e3a8';
-   c.fillRect(-6,-1,7,2);c.fillRect(0,-4,2,8);c.fillRect(2,-2,2,4);c.restore();
-  }
-  const sp=m.spawn;const x=sp.x*t,y=sp.y*t;
-  c.fillStyle='#533b3b';c.fillRect(x+1,y+1,30,30);
-  c.fillStyle=p.spawn;c.fillRect(x+4,y+4,24,24);
-  c.fillStyle='#64473a';c.fillRect(x+7,y+7,18,18);
-  const pulse=Math.round((Math.sin(time*3)+1)*1.4);
-  c.fillStyle='#ffe0a8';c.fillRect(x+11-pulse,y+11-pulse,10+pulse*2,10+pulse*2);
-  c.fillStyle='#795045';c.font='bold 8px monospace';c.textAlign='center';c.textBaseline='middle';c.fillText('IN',x+16,y+17);
+  c.restore();
  }
  drawPlacement(c,m,game){
   const used=new Set(game.units.map(u=>tileKey(u.x,u.y)));
   for(const {x,y} of m.available){
    if(used.has(tileKey(x,y)))continue;
    const sx=x*TILE,sy=y*TILE;
-   c.strokeStyle='#e2f6e82e';c.lineWidth=1;c.strokeRect(sx+8.5,sy+8.5,15,15);
-   if(game.moveMode){c.fillStyle='#b1efdf37';c.fillRect(sx+4,sy+4,24,24);}
+   if(game.moveMode){
+    c.fillStyle='#c4f7cc37';c.fillRect(sx+2,sy+2,28,28);
+    c.strokeStyle='#ecffe8d4';c.lineWidth=1;c.strokeRect(sx+4.5,sy+4.5,23,23);
+   }else{
+    // Quiet placement marker keeps the map art readable until the user chooses to move a unit.
+    c.fillStyle=m.theme==='empty'?'#728d9a77':'#c3eee384';
+    c.fillRect(sx+14,sy+14,4,4);
+   }
   }
  }
  drawRange(c,u,game){
   const r=(CHARACTER_BY_ID[u.id].range+.11*(u.star-1))*TILE;
   const x=(u.x+.5)*TILE,y=(u.y+.5)*TILE;
-  c.save();c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fillStyle='#d5f8ee23';c.fill();c.setLineDash([5,5]);c.strokeStyle='#e4fff0a8';c.lineWidth=1.5;c.stroke();c.setLineDash([]);
-  c.fillStyle='#f4f1d6';for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const qx=x+Math.cos(a)*r,qy=y+Math.sin(a)*r;c.fillRect(Math.floor(qx)-2,Math.floor(qy)-2,4,4);}
+  c.save();c.beginPath();c.arc(x,y,r,0,Math.PI*2);
+  c.fillStyle='#d5f8ee24';c.fill();c.setLineDash([5,5]);c.strokeStyle='#e4fff0bf';c.lineWidth=1.5;c.stroke();c.setLineDash([]);
+  c.fillStyle='#f4f1d6';for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
+   const qx=x+Math.cos(a)*r,qy=y+Math.sin(a)*r;
+   c.fillRect(Math.floor(qx)-2,Math.floor(qy)-2,4,4);
+  }
   c.restore();
  }
  drawHero(c,game,u,time){
@@ -186,11 +167,14 @@ export class Renderer {
   }
  }
  drawThumbnail(canvas,map){
-  canvas.width=map.w*8;canvas.height=map.h*8;const c=canvas.getContext('2d');
-  c.fillStyle=map.palette.base;c.fillRect(0,0,canvas.width,canvas.height);
-  for(const p of map.path){c.fillStyle=map.palette.path;c.fillRect(p.x*8,p.y*8,8,8);}
-  for(const p of map.available){if(hash(p.x,p.y)%3===0){c.fillStyle=map.palette.alt;c.fillRect(p.x*8+2,p.y*8+2,4,4);}}
-  c.fillStyle=map.palette.spawn;c.fillRect(map.spawn.x*8,map.spawn.y*8,8,8);
+  // Preview uses the exact same procedural map artwork as battle, turned to
+  // landscape to fit the map picker without distorting the square tiles.
+  const w=map.w*TILE,h=map.h*TILE;
+  canvas.width=h;canvas.height=w;
+  const c=canvas.getContext('2d');c.imageSmoothingEnabled=false;
+  c.save();c.translate(h,0);c.rotate(Math.PI/2);
+  drawSekaiWorld(c,map,0);
+  c.restore();
  }
  drawPortrait(canvas,unit){
   const c=canvas.getContext('2d');canvas.width=60;canvas.height=60;c.clearRect(0,0,60,60);

@@ -3,6 +3,7 @@ import {MAPS} from '../data/maps.js';
 import {HEARTS} from '../data/hearts.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
+import {TITLE_LOGOS} from '../data/branding.js';
 import {persistSave} from '../core/Save.js';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
@@ -35,6 +36,13 @@ export class Interface {
  overlayVisible(id){return !!el(id)?.classList.contains('visible');}
  renderLanguages(){
   document.documentElement.lang=this.save.language;
+  // Keep the title artwork synchronized with the selected UI language.
+  const titleLogo=el('titleLanguageLogo');
+  if(titleLogo){
+   const logo=TITLE_LOGOS[this.save.language]||TITLE_LOGOS.ko;
+   if(titleLogo.getAttribute('src')!==logo.src)titleLogo.setAttribute('src',logo.src);
+   titleLogo.alt=logo.alt;
+  }
   for(const e of document.querySelectorAll('[data-i18n]'))e.textContent=this.t(e.dataset.i18n);
   for(const e of document.querySelectorAll('[data-lang]'))e.classList.toggle('active',e.dataset.lang===this.save.language);
   el('languageSelect').value=this.save.language;

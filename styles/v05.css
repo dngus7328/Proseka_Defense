@@ -1,0 +1,41 @@
+/* 0.5 — Make the world the focal point on every screen ratio. */
+.board-frame{overflow:hidden;position:relative;--map-aspect:13 / 21}
+#gameCanvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+@media (orientation:portrait){
+ .app{gap:3px}
+ .game-layout{gap:3px}
+ .battle{gap:4px;padding:3px;background:transparent;border:0}
+ .battle-header{min-height:30px;padding:3px 8px}
+ .wave-panel{min-height:31px;padding:5px 7px}
+ .board-frame{
+  flex:0 1 auto;
+  width:min(100%,calc(61.9dvh - 186px));
+  max-width:100%;height:auto;
+  aspect-ratio:var(--map-aspect);
+  max-height:calc(100dvh - 257px);
+  margin:auto;
+  border-width:2px;
+ }
+ #gameCanvas{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
+ .resource-row{max-height:44px}
+ .resource-card{min-height:39px}
+}
+@media (orientation:landscape) and (max-height:600px){
+ .game-layout{grid-template-columns:minmax(0,1fr) clamp(196px,27vw,260px);gap:6px}
+ .battle{padding:2px;gap:3px}
+ .battle-header{height:27px;min-height:27px;padding:2px 6px}
+ .wave-panel{min-height:24px;padding:3px 7px}
+ .board-frame{
+  flex:1 1 auto;
+  width:auto;height:auto;
+  max-height:calc(100dvh - 101px);
+  margin:auto;
+  aspect-ratio:var(--map-aspect);
+ }
+ #gameCanvas{max-height:calc(100dvh - 103px);width:auto!important;height:auto!important;max-width:100%;object-fit:contain}
+}
+@media (orientation:landscape) and (min-height:601px){
+ .battle{padding:5px;gap:5px}
+ .board-frame{max-height:calc(100dvh - 125px)}
+ #gameCanvas{max-height:calc(100dvh - 130px)}
+}

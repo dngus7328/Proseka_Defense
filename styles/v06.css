@@ -1,0 +1,117 @@
+/* v0.6 - Game viewport gets priority. Mobile portrait/landscape are separately composed. */
+:root { --hud-edge:#526977; --hud-dark:#182a3b; --hud-pale:#e8e9e4; }
+.app {background:#101b2b;box-shadow:none}
+.app::before {opacity:.3;background-size:48px 48px}
+.board-frame {--map-aspect:13 / 19;--map-ratio:.6842;aspect-ratio:var(--map-aspect);background:#243443;border:2px solid #a8bab4;outline:1px solid #1c293c;box-shadow:0 0 0 2px #1b3243;overflow:hidden;min-height:0}
+.board-frame::after {display:none}
+.board-grain{display:none}
+#gameCanvas {width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:fill;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+.battle{justify-content:flex-start;min-width:0}
+.wave-panel{border:1px solid #50677d;border-radius:3px;background:#1c2d41;color:#f4f1e9;box-shadow:none}
+.battle-header{border:1px solid #435a71;border-radius:3px;background:#22364b;box-shadow:none}
+.speed-button,.head-controls .icon-button{border-radius:3px;box-shadow:none}
+.resource-row{border-radius:3px;background:#1b3042;border:1px solid #43586a}
+.resource-card{border-radius:1px}
+.summon-action{border-radius:4px;box-shadow:inset 0 -3px 0 #cb8769,0 2px 0 #121e2e}
+.square-action{border-radius:3px;box-shadow:inset 0 -2px 0 #0d263c}
+.selection-panel,.upgrades{border-radius:3px;box-shadow:0 10px 30px #091521ab}
+
+@media (orientation:portrait) {
+ .app {padding:calc(4px + env(safe-area-inset-top)) max(5px,env(safe-area-inset-right)) calc(77px + env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left));gap:3px}
+ .masthead{height:30px;min-height:30px;padding-bottom:2px}
+ .brand-copy strong{font-size:12px}
+ .head-controls .icon-button{height:27px;width:27px}
+ .game-layout{display:flex;flex-direction:column;justify-content:flex-start;gap:3px;min-height:0;flex:1}
+ .sidepanel{display:contents}
+ .resource-row{order:0;flex:none;max-height:38px;min-height:38px;gap:0;padding:0;border-radius:2px}
+ .resource-card{min-height:36px;padding:3px 9px;gap:6px}
+ .resource-card strong{font-size:16px}
+ .resource-icon.currency-crystal,.resource-icon.currency-fragment{height:28px!important;width:28px!important;flex-basis:28px!important}
+ .battle{order:1;flex:1 1 auto;width:100%;min-height:0;gap:3px;padding:0;border:none;background:none;justify-content:flex-start;align-items:center}
+ .battle-header{width:100%;min-height:30px;height:30px;padding:3px 6px;flex:none}
+ .stage-id{font-size:10px}
+ .speed-button{height:25px;min-width:48px;font-size:11px}
+ .board-frame{flex:none;align-self:center;margin:0 auto;min-height:0;width:min(100%,calc((100dvh - 197px) * var(--map-ratio, .6842)));height:auto;max-height:calc(100dvh - 197px);max-width:100%;aspect-ratio:var(--map-aspect)}
+ .wave-panel{width:100%;flex:none;min-height:28px;padding:4px 8px}
+ .main-actions{min-height:69px;bottom:0;padding:5px max(6px,env(safe-area-inset-right)) max(7px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));gap:4px;grid-template-columns:minmax(112px,1fr) minmax(0,1.5fr);border-top:1px solid #506a73}
+ .summon-action{min-height:55px;padding:5px 8px}
+ .secondary-actions{gap:4px}
+ .square-action{min-height:55px;padding:4px 2px}
+ .selection-panel,.upgrades{bottom:calc(73px + env(safe-area-inset-bottom))}
+}
+@media (orientation:landscape) and (max-height:650px) {
+ .app {padding:3px max(5px,env(safe-area-inset-right)) 3px max(5px,env(safe-area-inset-left));gap:3px}
+ .masthead{height:27px;min-height:27px;padding:0 0 2px}
+ .head-controls .icon-button{width:26px;height:25px}
+ .game-layout{display:grid;grid-template-columns:minmax(0,1fr) clamp(190px,28vw,260px);gap:5px;min-height:0;max-height:100%;flex:1}
+ .battle{order:0;min-width:0;min-height:0;display:flex;flex-direction:column;gap:2px;padding:1px;background:none;border:0;justify-content:flex-start;align-items:center}
+ .battle-header{width:100%;height:25px;min-height:25px;padding:1px 5px}
+ .stage-id{font-size:9px}
+ .speed-button{min-width:46px;height:23px}
+ .board-frame{align-self:center;flex:none;width:auto;height:min(calc(100dvh - 87px),100%);max-height:calc(100dvh - 87px);max-width:100%;min-height:0;margin:0 auto;aspect-ratio:var(--map-aspect)}
+ .wave-panel{width:100%;height:25px;min-height:25px;padding:3px 6px;flex:none}
+ .sidepanel{display:flex;flex-direction:column;gap:4px;max-height:calc(100dvh - 33px);overflow:visible;min-width:0}
+ .resource-row{order:0;min-height:38px;max-height:38px;padding:0;gap:0;flex:none}
+ .resource-card{min-height:36px;padding:2px 5px;gap:4px}
+ .resource-card strong{font-size:15px}
+ .resource-icon.currency-crystal,.resource-icon.currency-fragment{height:26px!important;width:26px!important;flex-basis:26px!important}
+ .main-actions{position:static!important;order:1;display:grid;grid-template-columns:1fr;gap:4px;background:none;border:0;box-shadow:none;padding:0;flex:none}
+ .summon-action{min-height:58px;padding:6px}
+ .summon-text strong{font-size:17px}
+ .secondary-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+ .square-action{min-height:51px;padding:4px 1px}
+ .selection-panel{order:2;position:static!important;display:none;max-height:calc(100dvh - 225px);overflow:auto;flex:0 1 auto;max-width:none;min-height:0;padding:7px;margin:0}
+ .selection-panel.has-selection{display:block}
+ .upgrades{order:3;position:fixed!important;display:none;left:auto;right:6px;top:40px;bottom:6px;width:clamp(190px,28vw,260px);max-height:none;margin:0;padding:7px;z-index:45;overflow:auto}
+ .upgrade-open .upgrades{display:block}
+ .upgrade-scrim{display:none!important}
+}
+@media (orientation:landscape) and (min-height:651px) {
+ .game-layout{display:grid;grid-template-columns:minmax(0,1fr) clamp(260px,26vw,330px)}
+ .battle{align-items:center;justify-content:center}
+ .board-frame{width:auto;height:calc(100dvh - 170px);max-height:calc(100dvh - 170px);aspect-ratio:var(--map-aspect)}
+}
+@media (max-height:620px) and (orientation:portrait){
+ .app{padding-bottom:calc(69px + env(safe-area-inset-bottom))}
+ .board-frame{width:min(100%,calc((100dvh - 180px) * var(--map-ratio, .6842)));max-height:calc(100dvh - 180px)}
+ .main-actions{min-height:62px}.summon-action,.square-action{min-height:47px}
+}
+/* Empty information panels must never occupy the playable area. */
+.selection-panel:not(.has-selection){display:none!important}
+.upgrades:not(.force-visible){display:none}
+.upgrade-open .upgrades{display:block}
+@media (orientation:portrait) and (min-width:600px){
+ .app{padding-bottom:calc(102px + env(safe-area-inset-bottom))}
+ .board-frame{width:min(100%,calc((100dvh - 285px) * var(--map-ratio,.6842)));max-height:calc(100dvh - 285px)}
+ .wave-panel{width:100%}
+}
+@media (orientation:landscape) and (min-height:651px){
+ .battle-header,.wave-panel{width:100%}
+ .sidepanel{justify-content:flex-start}
+}
+/* Compact result screen: actions remain visible on short landscape phones. */
+@media (orientation:landscape) and (max-height:650px){
+ #resultOverlay{align-items:center;justify-content:center;padding:6px}
+ .result-dialog{
+  width:min(96vw,720px)!important;max-width:none!important;
+  max-height:calc(100dvh - 12px)!important;
+  overflow:hidden!important;
+  padding:12px 15px!important;
+  display:grid;grid-template-columns:minmax(155px,.9fr) minmax(220px,1.3fr);
+  grid-template-rows:minmax(80px,1fr) 42px 42px;
+  grid-template-areas:'title summary' 'time summary' 'actions actions';
+  gap:7px 14px;
+ }
+ .result-dialog .result-art,.result-dialog .dialog-overline{display:none}
+ .result-dialog h2{grid-area:title;margin:0!important;align-self:center;font-size:clamp(25px,5vw,36px)!important;text-align:left}
+ .result-dialog .result-time{grid-area:time;padding:5px 2px;margin:0}
+ .result-dialog .result-time strong{font-size:17px}
+ .result-dialog .result-summary{grid-area:summary;min-width:0;min-height:0;max-height:none;display:flex;flex-direction:column;margin:0;overflow:hidden}
+ .result-dialog .result-table-head{flex:none;padding-bottom:7px}
+ .result-dialog .damage-list{flex:1 1 auto;max-height:none;min-height:0;overflow-y:auto}
+ .result-dialog .damage-row{padding:5px 2px;font-size:11px}
+ .result-dialog .result-actions{grid-area:actions;margin:0;gap:5px;align-self:stretch}
+ .result-dialog .result-actions>*{padding:7px 3px;font-size:11px;min-height:38px}
+}
+/* The upgrade button must be available on wide screens too. */
+@media (min-width:851px){.upgrade-trigger{display:flex!important}}

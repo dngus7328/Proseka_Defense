@@ -1,8 +1,10 @@
 {
   "name": "sekai-random-defense-fan-prototype",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.7.0",
   "type": "module",
-  "scripts": {"test": "node tests/validate.mjs"},
-  "description": "Image-free static HTML5 fan game prototype"
+  "scripts": {
+    "test": "node tests/validate.mjs && node tests/validate-logos.mjs"
+  },
+  "description": "Mobile HTML5 fan-defense prototype with creator-supplied title logos"
 }
