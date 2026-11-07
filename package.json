@@ -1,0 +1,8 @@
+{
+  "name": "sekai-random-defense-fan-prototype",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {"test": "node tests/validate.mjs"},
+  "description": "Image-free static HTML5 fan game prototype"
+}
