@@ -59,7 +59,7 @@ export class Renderer {
     c.strokeStyle='#ecffe8d4';c.lineWidth=1;c.strokeRect(sx+4.5,sy+4.5,23,23);
    }else{
     // Quiet placement marker keeps the map art readable until the user chooses to move a unit.
-    c.fillStyle=m.theme==='empty'?'#728d9a77':'#c3eee384';
+    c.fillStyle=m.theme==='empty'?'#728d9a77':m.theme==='wonderland'?'#f3e4b6a5':m.theme==='stage'?'#f2d4dca5':'#c3eee384';
     c.fillRect(sx+14,sy+14,4,4);
    }
   }
@@ -174,6 +174,25 @@ export class Renderer {
   const c=canvas.getContext('2d');c.imageSmoothingEnabled=false;
   c.save();c.translate(h,0);c.rotate(Math.PI/2);
   drawSekaiWorld(c,map,0);
+  c.restore();
+ }
+ drawTitleScene(canvas,map){
+  // Pixel figures are drawn with the same renderer as the battle, not image assets.
+  this.drawThumbnail(canvas,map);
+  const c=canvas.getContext('2d');
+  const w=canvas.width,h=canvas.height;
+  const roster=['miku','ichika','emu','kanade'];
+  const positions=[[.395,.73],[.465,.67],[.545,.73],[.615,.68]];
+  c.save();
+  for(let i=0;i<roster.length;i++){
+    const ch=CHARACTER_BY_ID[roster[i]],x=Math.round(w*positions[i][0]),y=Math.round(h*positions[i][1]);
+    c.fillStyle='#071a2b77';c.fillRect(x-12,y+17,24,4);
+    c.fillStyle='#f9df8366';c.fillRect(x-13,y+12,26,2);
+    c.save();c.translate(x,y);c.scale(1.1,1.1);
+    this.drawPixelPerson(c,ch,'front',3);c.restore();
+    c.fillStyle=['#41cbc1','#77a8e9','#f4c567','#b7a1dc','#e0c765'][i];
+    c.fillRect(x-2,y-22,4,3);
+  }
   c.restore();
  }
  drawPortrait(canvas,unit){

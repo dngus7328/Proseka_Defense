@@ -1,18 +1,26 @@
-// Each map is a rectangular grid of square tiles; only the enemy path is a closed loop.
-// Landmarks explicitly reserve tiles so heroes never appear on top of furniture/structures.
+// Five compact, hand-designed loops. The individual tiles are square; the world need not be.
+// Roughly half the tile footprint of v1.1. Dedicated scenery cells never overlap paths.
 const SOURCE_MAPS = [
- {id:'roof',order:'01',w:13,h:19,theme:'school',names:{ko:'교실의 세카이',ja:'教室のセカイ',en:'School SEKAI'},
-  palette:{base:'#aa8178',alt:'#b58a7d',edge:'#6b596d',path:'#636077',pathAlt:'#6d687f',line:'#ddd0ba',detail:'#e9be96',spawn:'#f0d08a'},
-  vertices:[[2,2],[10,2],[10,5],[8,5],[8,8],[10,8],[10,15],[2,15],[2,12],[4,12],[4,10],[2,10],[2,7],[4,7],[4,5],[2,5]],
-  landmarks:[{x:5,y:3},{x:6,y:3},{x:6,y:6},{x:6,y:7},{x:6,y:11},{x:6,y:12},{x:6,y:13},{x:5,y:17},{x:6,y:17},{x:7,y:17}]},
- {id:'city',order:'02',w:14,h:19,theme:'street',names:{ko:'스트리트의 세카이',ja:'ストリートのセカイ',en:'Street SEKAI'},
-  palette:{base:'#aca39b',alt:'#bdb0a0',edge:'#58546b',path:'#464d61',pathAlt:'#50566b',line:'#e1c49d',detail:'#d6b98d',spawn:'#e6b477'},
-  vertices:[[2,2],[11,2],[11,6],[9,6],[9,9],[11,9],[11,16],[2,16],[2,13],[5,13],[5,11],[2,11],[2,8],[4,8],[4,5],[2,5]],
-  landmarks:[{x:6,y:4},{x:7,y:4},{x:6,y:5},{x:7,y:5},{x:6,y:10},{x:7,y:10},{x:6,y:11},{x:7,y:11},{x:6,y:14}]},
- {id:'night',order:'03',w:13,h:19,theme:'empty',names:{ko:'아무도 없는 세카이',ja:'誰もいないセカイ',en:'Empty SEKAI'},
-  palette:{base:'#dddce3',alt:'#e6e5eb',edge:'#bdbdc7',path:'#858b9d',pathAlt:'#9296a6',line:'#f4f1e9',detail:'#c0bdce',spawn:'#ddbdcd'},
-  vertices:[[3,2],[10,2],[10,6],[8,6],[8,9],[10,9],[10,16],[3,16],[3,13],[5,13],[5,11],[2,11],[2,8],[4,8],[4,5],[3,5]],
-  landmarks:[{x:6,y:3},{x:6,y:4},{x:6,y:5},{x:6,y:7},{x:6,y:8},{x:6,y:12},{x:6,y:14},{x:6,y:15},{x:7,y:17}]}
+ {id:'roof',order:'01',w:11,h:12,theme:'school',names:{ko:'교실의 세카이',ja:'教室のセカイ',en:'School SEKAI'},
+  palette:{base:'#b58f79',alt:'#c49a82',edge:'#745c6c',path:'#5d6478',pathAlt:'#696f81',line:'#d4c6b8',detail:'#e9bc9e',spawn:'#ffcf84'},
+  vertices:[[2,2],[8,2],[8,4],[7,4],[7,6],[9,6],[9,9],[6,9],[6,10],[2,10],[2,7],[3,7],[3,5],[2,5]],
+  landmarks:[{x:4,y:3},{x:5,y:3},{x:5,y:5},{x:6,y:5},{x:5,y:7},{x:6,y:7},{x:4,y:8}]},
+ {id:'stage',order:'02',w:11,h:12,theme:'stage',names:{ko:'스테이지의 세카이',ja:'ステージのセカイ',en:'Stage SEKAI'},
+  palette:{base:'#c7bbd5',alt:'#d3c8dd',edge:'#62566c',path:'#626078',pathAlt:'#726b84',line:'#d5c9c4',detail:'#efdfaa',spawn:'#fbdb94'},
+  vertices:[[2,2],[5,2],[5,3],[8,3],[8,7],[7,7],[7,9],[3,9],[3,8],[2,8],[2,5],[3,5],[3,3],[2,3]],
+  landmarks:[{x:4,y:4},{x:5,y:4},{x:6,y:4},{x:4,y:5},{x:5,y:5},{x:6,y:5},{x:4,y:6},{x:5,y:6},{x:6,y:6}]},
+ {id:'city',order:'03',w:11,h:12,theme:'street',names:{ko:'스트리트의 세카이',ja:'ストリートのセカイ',en:'Street SEKAI'},
+  palette:{base:'#b3ada4',alt:'#c3b7aa',edge:'#5b4e66',path:'#434c62',pathAlt:'#51566b',line:'#e4bd94',detail:'#e4b69a',spawn:'#efc07a'},
+  vertices:[[2,2],[8,2],[8,5],[6,5],[6,7],[8,7],[8,10],[2,10],[2,8],[4,8],[4,6],[2,6]],
+  landmarks:[{x:4,y:3},{x:5,y:3},{x:6,y:3},{x:5,y:4},{x:5,y:6},{x:5,y:8},{x:6,y:9}]},
+ {id:'wonderland',order:'04',w:11,h:12,theme:'wonderland',names:{ko:'원더랜드의 세카이',ja:'ワンダーランドのセカイ',en:'Wonderland SEKAI'},
+  palette:{base:'#e7c6a5',alt:'#f2d6b2',edge:'#a67796',path:'#7d7796',pathAlt:'#9087a2',line:'#f4e5cc',detail:'#f4b2a1',spawn:'#ffe085'},
+  vertices:[[2,2],[7,2],[7,4],[9,4],[9,9],[6,9],[6,10],[2,10],[2,7],[4,7],[4,5],[2,5]],
+  landmarks:[{x:5,y:4},{x:5,y:5},{x:6,y:5},{x:5,y:6},{x:6,y:6},{x:7,y:7},{x:7,y:8}]},
+ {id:'night',order:'05',w:11,h:12,theme:'empty',names:{ko:'아무도 없는 세카이',ja:'誰もいないセカイ',en:'Empty SEKAI'},
+  palette:{base:'#dddee5',alt:'#eaebef',edge:'#afb4c2',path:'#838a9d',pathAlt:'#9297a7',line:'#f4f3f1',detail:'#bfc1cc',spawn:'#dec5d2'},
+  vertices:[[2,2],[8,2],[8,4],[7,4],[7,7],[8,7],[8,10],[3,10],[3,8],[2,8],[2,5],[4,5],[4,3],[2,3]],
+  landmarks:[{x:5,y:4},{x:6,y:4},{x:5,y:6},{x:6,y:6},{x:5,y:8},{x:6,y:9}]}
 ];
 const key=(x,y)=>`${x},${y}`;
 function expand(vertices){
@@ -29,6 +37,7 @@ export const MAPS=SOURCE_MAPS.map(m=>{
  const path=expand(m.vertices),pathSet=new Set(path.map(p=>key(p.x,p.y)));
  if(pathSet.size!==path.length)throw Error(`Invalid path self-intersection: ${m.id}`);
  const blockedSet=new Set(m.landmarks.map(p=>key(p.x,p.y)));
+ for(const k of blockedSet)if(pathSet.has(k))throw Error(`Scenery blocking enemy route in ${m.id}: ${k}`);
  const available=[];
  for(let y=1;y<m.h-1;y++)for(let x=1;x<m.w-1;x++){
   if(pathSet.has(key(x,y))||blockedSet.has(key(x,y)))continue;

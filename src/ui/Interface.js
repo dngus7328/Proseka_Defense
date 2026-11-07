@@ -29,7 +29,7 @@ export class Interface {
  showTitle(){
   if(this.noticeTimer!==null){window.clearTimeout(this.noticeTimer);this.noticeTimer=null;}
   this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
-  this.renderer.drawThumbnail(el('titlePreview'),MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]);
+  this.renderer.drawTitleScene(el('titlePreview'),MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]);
  }
  hideOverlays(){for(const o of document.querySelectorAll('.overlay'))o.classList.remove('visible');}
  showOverlay(id){this.closeUpgrades();this.hideOverlays();el(id)?.classList.add('visible');document.body.classList.toggle('menu-mode',!this.game);}

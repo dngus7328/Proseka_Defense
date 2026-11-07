@@ -3,17 +3,12 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#111924"/>
+  <meta name="theme-color" content="#10243a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="description" content="비공식 비영리 팬 제작 HTML5 랜덤 디펜스"/>
   <title>세카이 랜덤 디펜스 | FAN PROJECT</title>
-  <link rel="stylesheet" href="./styles/base.css"/>
-  <link rel="stylesheet" href="./styles/responsive.css"/>
-  <link rel="stylesheet" href="./styles/game-ui.css"/>
-  <link rel="stylesheet" href="./styles/v03.css"/>
-  <link rel="stylesheet" href="./styles/v04.css"/>
-  <link rel="stylesheet" href="./styles/v05.css"/>
-  <link rel="stylesheet" href="./styles/v06.css"/>
-  <link rel="stylesheet" href="./styles/v07-logo.css"/>
+  <link rel="stylesheet" href="./styles/arcade.css"/>
 </head>
 <body>
   <div class="app" id="app">
@@ -31,14 +26,14 @@
         <div class="resource-row"><div class="resource-card"><span class="resource-icon coin currency-crystal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3H18L22 10 12 22 2 10Z" fill="#5ccfbb" stroke="#246f8a" stroke-width="1.3"/><path d="M6 3 9 10 12 22 15 10 18 3M2 10H22M9 10 12 3 15 10" fill="none" stroke="#d8fff5" stroke-width="1.2"/></svg></span><div><span class="mini-label" data-i18n="crystals">크리스탈</span><strong id="crystalText">100</strong></div></div><div class="resource-card"><span class="resource-icon upgrade currency-fragment" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21 3 12 5 3 12 5 19 3 21 12Z" fill="#eaa0b8" stroke="#945270" stroke-width="1.4"/><path d="M12 5V20M5 3 12 12 19 3M3 12 12 12 21 12" fill="none" stroke="#fff5ef" stroke-width="1.2"/></svg></span><div><span class="mini-label" data-i18n="fragments">마음의 조각</span><strong id="fragmentText">60</strong></div></div></div>
         <section class="selection-panel" id="selectionPanel"><div class="selection-empty" id="selectionEmpty"><div class="empty-glyph"><span>✦</span></div><div><strong data-i18n="selectCharacter">캐릭터 선택</strong></div></div><div class="selection-content" id="selectionContent" hidden><div class="selected-hero"><div class="hero-portrait" id="heroPortrait" aria-hidden="true"></div><div class="hero-detail"><strong id="heroName">—</strong><span id="heroMeta">—</span></div><button class="clear-selection" id="clearSelection" aria-label="선택 해제">×</button></div><div class="hero-stats"><div><small data-i18n="atk">공격</small><strong id="heroAttack">—</strong></div><div><small data-i18n="range">범위</small><strong id="heroRange">—</strong></div><div><small data-i18n="damage">대미지</small><strong id="heroDamage">—</strong></div></div><div class="hero-actions"><button class="minor-button" id="moveButton" data-i18n="move">이동</button><button class="minor-button primary-outline" id="mergeButton" data-i18n="merge">합성</button></div></div></section>
         <div class="main-actions" aria-label="전투 조작">
-          <button class="summon-action" id="summonButton"><span class="summon-symbol" aria-hidden="true">✦</span><span class="summon-text"><strong data-i18n="summon">소환</strong><small><span id="summonCost">28</span> <span class="small-currency crystal-small" aria-label="크리스탈">◆</span></small></span><span class="summon-arrow" aria-hidden="true">＋</span></button>
-          <div class="secondary-actions"><button id="autoMergeButton" class="square-action"><span aria-hidden="true">⇧</span><strong data-i18n="autoMerge">일괄 합성</strong></button><button id="upgradeToggle" class="square-action upgrade-trigger" aria-expanded="false" aria-controls="upgradeSection"><span aria-hidden="true">⬡</span><strong data-i18n="upgrade">강화</strong></button><button id="heartButton" class="square-action"><span aria-hidden="true">♡</span><strong data-i18n="hearts">세카이의 마음</strong><small id="heartCount">0</small></button></div>
+          <button class="summon-action" id="summonButton"><span class="summon-symbol" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 2 25 15 38 20 25 25 20 38 15 25 2 20 15 15Z" fill="currentColor"/><path d="M20 11v18M11 20h18" stroke="#102539" stroke-width="2"/></svg></span><span class="summon-text"><strong data-i18n="summon">소환</strong><small><span id="summonCost">28</span> <span class="small-currency crystal-small" aria-label="크리스탈">◆</span></small></span><span class="summon-arrow" aria-hidden="true">＋</span></button>
+          <div class="secondary-actions"><button id="autoMergeButton" class="square-action"><span aria-hidden="true"><svg viewBox="0 0 40 40"><rect x="8" y="6" width="10" height="10"/><rect x="22" y="6" width="10" height="10"/><path d="m20 31-9-9h18Z"/><path d="M20 20v8" stroke-width="3"/></svg></span><strong data-i18n="autoMerge">일괄 합성</strong></button><button id="upgradeToggle" class="square-action upgrade-trigger" aria-expanded="false" aria-controls="upgradeSection"><span aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M9 30V23h6v7m3 0V16h6v14m3 0V9h6v21"/><path d="M6 33h28" stroke-width="3"/></svg></span><strong data-i18n="upgrade">강화</strong></button><button id="heartButton" class="square-action"><span aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 32 7 19C-1 10 13 3 20 13 27 3 41 10 33 19Z"/></svg></span><strong data-i18n="hearts">세카이의 마음</strong><small id="heartCount">0</small></button></div>
         </div>
         <section class="upgrades" id="upgradeSection"><div class="section-header"><h2 data-i18n="upgrade">강화</h2><span class="divider-line"></span><span class="mini-label" id="upgradeStatus">0 / 24</span></div><div class="upgrade-grid" id="upgradeGrid"></div></section>
       </aside>
     </main>
     <div class="upgrade-scrim" id="upgradeScrim" aria-hidden="true"></div>
-    <footer class="footnote"><span class="foot-dot"></span><span id="statusLine">READY</span><span class="foot-right">FAN MADE · NON-COMMERCIAL</span></footer>
+    <footer class="footnote"><span class="foot-dot"></span><span id="statusLine">READY</span></footer>
   </div>
 
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
@@ -62,18 +57,18 @@
   <!-- The title is its own full-screen scene. Enter opens run setup. -->
   <div class="overlay" id="titleOverlay">
     <section class="title-screen">
-      <div class="title-header"><span class="title-issue">FAN GAME <span class="title-divider">/</span> VOL. 01</span><div class="title-header-actions"><button class="title-small-control" id="titleHearts" data-i18n="hearts">세카이의 마음</button><button class="title-small-control" id="titleSettings" data-i18n="settings">설정</button></div></div>
+      <div class="title-header"><span class="title-issue">FAN GAME <span class="title-issue-dot">◆</span> NON-COMMERCIAL</span><div class="title-header-actions"><button class="title-small-control" id="titleHearts" data-i18n="hearts">세카이의 마음</button><button class="title-small-control" id="titleSettings" data-i18n="settings">설정</button></div></div>
       <div class="title-main">
         <div class="title-backdrop" aria-hidden="true"><canvas id="titlePreview"></canvas><div class="title-backdrop-filter"></div><div class="title-ellipse"></div></div>
         <div class="title-logo-wrap"><img id="titleLanguageLogo" class="title-logo-image" src="./assets/logos/ko.png" alt="프로젝트 세카이 랜덤 디펜스" draggable="false" decoding="async"/></div>
-        <span class="title-number">001 / 026</span>
+        
       </div>
-      <div class="title-bottom"><div class="title-credit"><span>UNOFFICIAL</span><span>NON-COMMERCIAL</span></div><button id="titleEnter" class="title-enter" type="button"><span data-i18n="enterGame">입장</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg></button></div>
+      <div class="title-bottom"><div class="title-credit" aria-hidden="true"><span>✦</span></div><button id="titleEnter" class="title-enter" type="button"><span data-i18n="enterGame">입장</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg></button></div>
     </section>
   </div>
   <div class="overlay" id="lobbyOverlay"><div class="dialog lobby-dialog">
-    <div class="lobby-top"><button id="lobbyBack" class="lobby-back" type="button" aria-label="타이틀로 돌아가기">‹</button><span class="lobby-fan">RUN SETUP <span class="lobby-fan-index">/ 01</span></span><button id="lobbySettings" class="icon-button light" aria-label="설정" title="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></button></div>
-    <div class="lobby-art" aria-hidden="true"><canvas id="lobbyPreview"></canvas><div class="lobby-art-mask"></div><div class="lobby-art-copy"><span class="lobby-art-kicker">RUN SETUP</span><strong data-i18n="gameStart">게임 시작</strong></div></div>
+    <div class="lobby-top"><button id="lobbyBack" class="lobby-back" type="button" aria-label="타이틀로 돌아가기">‹</button><span class="lobby-fan" data-i18n="map">맵</span><button id="lobbySettings" class="icon-button light" aria-label="설정" title="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></button></div>
+    <div class="lobby-art" aria-hidden="true"><canvas id="lobbyPreview"></canvas><div class="lobby-art-mask"></div><div class="lobby-art-copy"><span class="lobby-art-kicker">SEKAI</span><strong data-i18n="gameStart">게임 시작</strong></div></div>
     <div class="lobby-content">
       <div class="lobby-block"><div class="block-label"><strong data-i18n="difficulty">난이도</strong><span class="block-rule"></span></div><div class="choice-grid" id="difficultyChoices"></div></div>
       <div class="lobby-block"><div class="block-label"><strong data-i18n="map">맵</strong><span class="block-rule"></span></div><div class="map-choices" id="mapChoices"></div></div>
