@@ -36,7 +36,7 @@ function finishRun(result){
  if(!save.best[key]||result.wave>save.best[key].wave||(result.wave===save.best[key].wave&&result.elapsed<save.best[key].time))save.best[key]={wave:result.wave,time:result.elapsed};
  persistSave(save);ui.renderLobby();ui.showResult(result);
 }
-function exitGame(){game=null;ui.showLobby();}
+function exitGame(){game=null;ui.showTitle();}
 function retry(){if(!currentConfig)return;startGame(currentConfig);}
 function next(){
  if(!game||game.result?.status!=='win')return;

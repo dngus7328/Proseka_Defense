@@ -23,8 +23,13 @@ const logs=[];
 for(let s=0;s<3;s++){
  const g=new Game({mapId:MAPS[s].id,difficulty:'normal'},{});
  assert.equal(g.phase,'playing');
+ assert.equal(g.crystals,100);assert.equal(g.fragments,60);
+ const initialFragments=g.fragments;const initialCrystals=g.crystals;g.upgrade('attack');
+ assert.ok(g.fragments<initialFragments,'Upgrade must cost fragments');assert.equal(g.crystals,initialCrystals,'Upgrade must not cost crystals');
+ const crystalsBeforeSummon=g.crystals,fragmentsBeforeSummon=g.fragments;g.summon();
+ assert.ok(g.crystals<crystalsBeforeSummon,'Summon must cost crystals');assert.equal(g.fragments,fragmentsBeforeSummon,'Summon must not cost fragments');
  // Summon + merges must preserve identity and never exceed ★4.
- g.gold=10000;
+ g.crystals=10000;g.fragments=10000;
  for(let i=0;i<60;i++){
   g.summon();g.autoMerge();
  }
@@ -33,7 +38,7 @@ for(let s=0;s<3;s++){
  for(let i=0;i<1500;i++)g.update(.05);
  assert.ok(g.wave>=3||g.phase==='ending'||g.phase==='ended');
  assert.ok(Object.values(g.damageByMember).every(v=>Number.isFinite(v)&&v>=0));
- logs.push({map:g.map.id,wave:g.wave,units:g.units.length,enemy:g.enemies.length,highest:Math.max(...g.units.map(u=>u.star)),gold:g.gold});
+ logs.push({map:g.map.id,wave:g.wave,units:g.units.length,enemy:g.enemies.length,highest:Math.max(...g.units.map(u=>u.star)),crystals:g.crystals,fragments:g.fragments});
 }
 // Confirm controls and end transition.
 const game=new Game({mapId:'roof',difficulty:'extreme'},{});

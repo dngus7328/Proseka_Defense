@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="./styles/base.css"/>
   <link rel="stylesheet" href="./styles/responsive.css"/>
   <link rel="stylesheet" href="./styles/game-ui.css"/>
+  <link rel="stylesheet" href="./styles/v03.css"/>
 </head>
 <body>
   <div class="app" id="app">
@@ -23,10 +24,10 @@
         <div class="wave-panel"><div class="wave-head"><div><span class="mini-label" data-i18n="wave">WAVE</span><strong id="waveText">01 <span class="tiny-fraction">/ 20</span></strong></div><div class="wave-track"><span id="waveFill"></span></div><div class="enemy-count"><span class="mini-label" data-i18n="enemies">적</span><strong id="enemyCount">0 <span class="tiny-fraction">/ 60</span></strong></div></div></div>
       </section>
       <aside class="sidepanel">
-        <div class="resource-row"><div class="resource-card"><span class="resource-icon coin">◆</span><div><span class="mini-label" data-i18n="gold">재화</span><strong id="goldText">100</strong></div></div><div class="resource-card"><span class="resource-icon upgrade">✦</span><div><span class="mini-label" data-i18n="power">전력</span><strong id="powerText">0</strong></div></div></div>
+        <div class="resource-row"><div class="resource-card"><span class="resource-icon coin currency-crystal" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3H18L22 10 12 22 2 10Z" fill="#5ccfbb" stroke="#246f8a" stroke-width="1.3"/><path d="M6 3 9 10 12 22 15 10 18 3M2 10H22M9 10 12 3 15 10" fill="none" stroke="#d8fff5" stroke-width="1.2"/></svg></span><div><span class="mini-label" data-i18n="crystals">크리스탈</span><strong id="crystalText">100</strong></div></div><div class="resource-card"><span class="resource-icon upgrade currency-fragment" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21 3 12 5 3 12 5 19 3 21 12Z" fill="#eaa0b8" stroke="#945270" stroke-width="1.4"/><path d="M12 5V20M5 3 12 12 19 3M3 12 12 12 21 12" fill="none" stroke="#fff5ef" stroke-width="1.2"/></svg></span><div><span class="mini-label" data-i18n="fragments">마음의 조각</span><strong id="fragmentText">60</strong></div></div></div>
         <section class="selection-panel" id="selectionPanel"><div class="selection-empty" id="selectionEmpty"><div class="empty-glyph"><span>✦</span></div><div><strong data-i18n="selectCharacter">캐릭터 선택</strong></div></div><div class="selection-content" id="selectionContent" hidden><div class="selected-hero"><div class="hero-portrait" id="heroPortrait" aria-hidden="true"></div><div class="hero-detail"><strong id="heroName">—</strong><span id="heroMeta">—</span></div><button class="clear-selection" id="clearSelection" aria-label="선택 해제">×</button></div><div class="hero-stats"><div><small data-i18n="atk">공격</small><strong id="heroAttack">—</strong></div><div><small data-i18n="range">범위</small><strong id="heroRange">—</strong></div><div><small data-i18n="damage">대미지</small><strong id="heroDamage">—</strong></div></div><div class="hero-actions"><button class="minor-button" id="moveButton" data-i18n="move">이동</button><button class="minor-button primary-outline" id="mergeButton" data-i18n="merge">합성</button></div></div></section>
         <div class="main-actions" aria-label="전투 조작">
-          <button class="summon-action" id="summonButton"><span class="summon-symbol" aria-hidden="true">✦</span><span class="summon-text"><strong data-i18n="summon">소환</strong><small><span id="summonCost">28</span> ◆</small></span><span class="summon-arrow" aria-hidden="true">＋</span></button>
+          <button class="summon-action" id="summonButton"><span class="summon-symbol" aria-hidden="true">✦</span><span class="summon-text"><strong data-i18n="summon">소환</strong><small><span id="summonCost">28</span> <span class="small-currency crystal-small" aria-label="크리스탈">◆</span></small></span><span class="summon-arrow" aria-hidden="true">＋</span></button>
           <div class="secondary-actions"><button id="autoMergeButton" class="square-action"><span aria-hidden="true">⇧</span><strong data-i18n="autoMerge">일괄 합성</strong></button><button id="upgradeToggle" class="square-action upgrade-trigger" aria-expanded="false" aria-controls="upgradeSection"><span aria-hidden="true">⬡</span><strong data-i18n="upgrade">강화</strong></button><button id="heartButton" class="square-action"><span aria-hidden="true">♡</span><strong data-i18n="hearts">세카이의 마음</strong><small id="heartCount">0</small></button></div>
         </div>
         <section class="upgrades" id="upgradeSection"><div class="section-header"><h2 data-i18n="upgrade">강화</h2><span class="divider-line"></span><span class="mini-label" id="upgradeStatus">0 / 24</span></div><div class="upgrade-grid" id="upgradeGrid"></div></section>
@@ -37,10 +38,38 @@
   </div>
 
   <div class="toast-stack" id="toastStack" aria-live="polite"></div>
-  <div class="overlay visible" id="noticeOverlay"><div class="dialog notice-dialog"><div class="notice-mark">S<span>/</span>D</div><p class="dialog-overline" data-i18n="noticeLabel">비공식 팬 프로젝트</p><h1 data-i18n="noticeTitle">이용 안내</h1><p class="notice-body" data-i18n="noticeText">이 게임은 프로젝트 세카이를 소재로 한 비공식 팬게임입니다. 오직 비영리 목적으로 제작되었으며, 원작 제작사 및 운영사와 관계가 없습니다.</p><button class="primary-button full" id="acceptNotice" data-i18n="enter">확인하고 시작</button><div class="notice-language"><button data-lang="ko" class="lang-chip active">한국어</button><button data-lang="ja" class="lang-chip">日本語</button><button data-lang="en" class="lang-chip">English</button></div></div></div>
+  <!-- Entry: the notice is a full black screen, not a popup on top of gameplay. -->
+  <div class="overlay visible" id="noticeOverlay" role="status" aria-live="polite">
+    <section class="notice-screen">
+      <div class="notice-rail"><span>01</span><span class="notice-rail-line"></span><span>NOTICE</span></div>
+      <div class="notice-center">
+        <div class="notice-rule"></div>
+        <span class="notice-eyebrow" data-i18n="noticeLabel">비공식 팬 프로젝트</span>
+        <h1 data-i18n="noticeTitle">이용 안내</h1>
+        <p class="notice-body" data-i18n="noticeText">본 게임은 프로젝트 세카이를 소재로 한 비공식 비영리 팬게임입니다. 원작 제작사 및 운영사와 무관합니다.</p>
+      </div>
+      <div class="notice-footer">
+        <span>UNOFFICIAL · NON-COMMERCIAL</span>
+        <div class="notice-progress" aria-hidden="true"><span></span></div>
+        <button id="acceptNotice" type="button" data-i18n="skip">건너뛰기</button>
+      </div>
+    </section>
+  </div>
+  <!-- The title is its own full-screen scene. Enter opens run setup. -->
+  <div class="overlay" id="titleOverlay">
+    <section class="title-screen">
+      <div class="title-header"><span class="title-issue">FAN GAME <span class="title-divider">/</span> VOL. 01</span><div class="title-header-actions"><button class="title-small-control" id="titleHearts" data-i18n="hearts">세카이의 마음</button><button class="title-small-control" id="titleSettings" data-i18n="settings">설정</button></div></div>
+      <div class="title-main">
+        <div class="title-backdrop" aria-hidden="true"><canvas id="titlePreview"></canvas><div class="title-backdrop-filter"></div><div class="title-ellipse"></div></div>
+        <div class="title-wordmark"><span class="title-overline">PROJECT SEKAI · RANDOM DEFENSE</span><h1>SEKAI<span class="title-wordmark-accent">.</span><br/>DEFENSE</h1><span class="title-jp">セカイ・ランダムディフェンス</span></div>
+        <span class="title-number">001 / 026</span>
+      </div>
+      <div class="title-bottom"><div class="title-credit"><span>UNOFFICIAL</span><span>NON-COMMERCIAL</span></div><button id="titleEnter" class="title-enter" type="button"><span data-i18n="enterGame">입장</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg></button></div>
+    </section>
+  </div>
   <div class="overlay" id="lobbyOverlay"><div class="dialog lobby-dialog">
-    <div class="lobby-top"><span class="lobby-monogram">S<span>✦</span>D</span><span class="lobby-fan">FAN MADE · NON-COMMERCIAL</span><button id="lobbySettings" class="icon-button light" aria-label="설정" title="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></button></div>
-    <div class="lobby-art" aria-hidden="true"><canvas id="lobbyPreview"></canvas><div class="lobby-art-mask"></div><div class="lobby-shape shape-one"></div><div class="lobby-shape shape-two"></div><div class="lobby-shape shape-three"></div><div class="lobby-art-copy"><span class="lobby-art-kicker">PROJECT SEKAI · FAN GAME</span><strong>SEKAI<br/><em>DEFENSE</em></strong></div><span class="lobby-art-star">✳</span></div>
+    <div class="lobby-top"><button id="lobbyBack" class="lobby-back" type="button" aria-label="타이틀로 돌아가기">‹</button><span class="lobby-fan">RUN SETUP <span class="lobby-fan-index">/ 01</span></span><button id="lobbySettings" class="icon-button light" aria-label="설정" title="설정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></button></div>
+    <div class="lobby-art" aria-hidden="true"><canvas id="lobbyPreview"></canvas><div class="lobby-art-mask"></div><div class="lobby-art-copy"><span class="lobby-art-kicker">RUN SETUP</span><strong data-i18n="gameStart">게임 시작</strong></div></div>
     <div class="lobby-content">
       <div class="lobby-block"><div class="block-label"><strong data-i18n="difficulty">난이도</strong><span class="block-rule"></span></div><div class="choice-grid" id="difficultyChoices"></div></div>
       <div class="lobby-block"><div class="block-label"><strong data-i18n="map">맵</strong><span class="block-rule"></span></div><div class="map-choices" id="mapChoices"></div></div>

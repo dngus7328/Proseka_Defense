@@ -12,17 +12,26 @@ export class Interface {
  constructor(save,renderer,sound){
   this.save=save;this.renderer=renderer;this.sound=sound;this.game=null;
   this.config={difficulty:'normal',mapId:'roof'};
-  this.overlayOrigin='lobby';this.settingsOrigin='lobby';this.lastUpgrades='';this.lastHero='';
+  this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';
   this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.game=game;this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.game=game;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
- notice(){this.showOverlay('noticeOverlay');}
+ notice(){
+  this.showOverlay('noticeOverlay');
+  // Entry notice is automatic. Tapping skip is optional; no confirmation modal.
+  this.noticeTimer=window.setTimeout(()=>{this.noticeTimer=null;this.showTitle();},4600);
+ }
+ showTitle(){
+  if(this.noticeTimer!==null){window.clearTimeout(this.noticeTimer);this.noticeTimer=null;}
+  this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
+  this.renderer.drawThumbnail(el('titlePreview'),MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]);
+ }
  hideOverlays(){for(const o of document.querySelectorAll('.overlay'))o.classList.remove('visible');}
- showOverlay(id){this.closeUpgrades();this.hideOverlays();el(id)?.classList.add('visible');}
+ showOverlay(id){this.closeUpgrades();this.hideOverlays();el(id)?.classList.add('visible');document.body.classList.toggle('menu-mode',!this.game);}
  overlayVisible(id){return !!el(id)?.classList.contains('visible');}
  renderLanguages(){
   document.documentElement.lang=this.save.language;
@@ -37,7 +46,11 @@ export class Interface {
  setLanguage(lang){if(!LANGUAGES.includes(lang))return;this.save.language=lang;persistSave(this.save);this.renderLanguages();}
  registerActions(){
   const click=(id,fn)=>el(id).addEventListener('click',fn);
-  click('acceptNotice',()=>{this.sound.beep('select');this.showLobby();});
+  click('acceptNotice',()=>this.showTitle());
+  click('titleEnter',()=>{this.sound.beep('select');this.showLobby();});
+  click('lobbyBack',()=>this.showTitle());
+  click('titleSettings',()=>this.openSettings());
+  click('titleHearts',()=>this.openHearts());
   document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>this.setLanguage(b.dataset.lang)));
   click('startButton',()=>this.handlers.onStart?.({...this.config}));
   click('openSettings',()=>this.openSettings());click('lobbySettings',()=>this.openSettings());click('pauseSettings',()=>this.openSettings());
@@ -65,7 +78,7 @@ export class Interface {
   });
   document.addEventListener('keydown',e=>{
    if(e.key==='Escape'){
-    if(this.overlayVisible('noticeOverlay'))return;
+    if(this.overlayVisible('noticeOverlay')||this.overlayVisible('titleOverlay')||this.overlayVisible('lobbyOverlay'))return;
     if(this.overlayVisible('settingsOverlay'))this.closeOverlay('settingsOverlay');
     else if(this.overlayVisible('heartsOverlay'))this.closeOverlay('heartsOverlay');
     else this.togglePause();
@@ -98,12 +111,12 @@ export class Interface {
  }
  openSettings(){
   if(this.overlayVisible('settingsOverlay'))return;
-  this.settingsOrigin=this.overlayVisible('pauseOverlay')?'pause':this.game?.phase==='playing'?'playing':'lobby';
+  this.settingsOrigin=this.overlayVisible('pauseOverlay')?'pause':this.game?.phase==='playing'?'playing':this.overlayVisible('titleOverlay')?'title':'lobby';
   if(this.game?.phase==='playing')this.game.togglePause();
   this.showOverlay('settingsOverlay');
  }
  openHearts(){
-  this.overlayOrigin=this.overlayVisible('pauseOverlay')?'pause':this.game?.phase==='playing'?'playing':'lobby';
+  this.overlayOrigin=this.overlayVisible('pauseOverlay')?'pause':this.game?.phase==='playing'?'playing':this.overlayVisible('titleOverlay')?'title':'lobby';
   if(this.game?.phase==='playing')this.game.togglePause();
   this.renderHearts();this.showOverlay('heartsOverlay');
  }
@@ -112,10 +125,12 @@ export class Interface {
    if(this.settingsOrigin==='playing'&&this.game?.phase==='paused')this.game.togglePause();
    if(this.settingsOrigin==='pause'){this.showOverlay('pauseOverlay');return;}
    if(this.settingsOrigin==='lobby'){this.showOverlay('lobbyOverlay');return;}
+   if(this.settingsOrigin==='title'){this.showTitle();return;}
   }else if(id==='heartsOverlay'){
    if(this.overlayOrigin==='playing'&&this.game?.phase==='paused')this.game.togglePause();
    if(this.overlayOrigin==='pause'){this.showOverlay('pauseOverlay');return;}
    if(this.overlayOrigin==='lobby'){this.showOverlay('lobbyOverlay');return;}
+   if(this.overlayOrigin==='title'){this.showTitle();return;}
   }
   this.hideOverlays();
  }
@@ -175,9 +190,9 @@ export class Interface {
   el('waveText').innerHTML=`${String(g.wave).padStart(2,'0')} <span class="tiny-fraction">/ ${g.isEndless?'∞':20}</span>`;
   el('enemyCount').innerHTML=`${g.enemies.length} <span class="tiny-fraction">/ ${g.capacity}</span>`;
   el('waveFill').style.width=`${Math.min(100,g.waveTime/30*100)}%`;
-  el('goldText').textContent=format(g.gold);el('powerText').textContent=format(g.power);
+  el('crystalText').textContent=format(g.crystals);el('fragmentText').textContent=format(g.fragments);
   el('summonCost').textContent=String(g.cost);
-  el('summonButton').disabled=g.gold<g.cost||g.phase!=='playing';
+  el('summonButton').disabled=g.crystals<g.cost||g.phase!=='playing';
   el('autoMergeButton').disabled=g.phase!=='playing'||!g.units.some(u=>u.star<4&&g.units.some(v=>u.uid!==v.uid&&v.id===u.id&&v.star===u.star));
 
   this.updateSelection(force);
@@ -203,21 +218,21 @@ export class Interface {
  }
  updateUpgrades(force){
   const g=this.game;if(!g)return;
-  const token=JSON.stringify([g.upgrades,Math.floor(g.gold),this.save.language]);
+  const token=JSON.stringify([g.upgrades,Math.floor(g.fragments),this.save.language]);
   if(!force&&this.lastUpgrades===token)return;
   this.lastUpgrades=token;
   const total=Object.values(g.upgrades).reduce((a,b)=>a+b,0);el('upgradeStatus').textContent=`${total} / 24`;
   const parent=el('upgradeGrid');parent.innerHTML='';
   for(const d of UPGRADE_DATA){
    const level=g.upgrades[d.id],price=upgradeCost(d.id,level);
-   const button=document.createElement('button');button.className='upgrade-card';button.disabled=price>g.gold||g.phase!=='playing';
+   const button=document.createElement('button');button.className='upgrade-card';button.disabled=price>g.fragments||g.phase!=='playing';
    const top=document.createElement('div');top.className='upgrade-card-top';
    const icon=document.createElement('span');icon.textContent=d.icon;
    const lv=document.createElement('small');lv.textContent=`Lv ${level}/${d.max}`;top.append(icon,lv);
    const name=document.createElement('strong');name.className='upgrade-card-name';name.textContent=this.t(d.id);
    const bottom=document.createElement('div');bottom.className='upgrade-card-footer';
    const pips=document.createElement('span');pips.className='level-pips';for(let i=0;i<d.max;i++){const p=document.createElement('i');if(i<level)p.className='filled';pips.append(p);}
-   const cost=document.createElement('span');cost.className='upgrade-cost';cost.textContent=level===d.max?this.t('max'):`${price} ◆`;
+   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<span class="cost-piece" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M10 17 3 11 5 4 10 6 15 4 17 11Z" fill="#ef9eb4" stroke="#93556f" stroke-width="1.2"/><path d="M10 6V16M5 4L10 10 15 4" fill="none" stroke="#fff4ed" stroke-width="1.1"/></svg></span>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
    bottom.append(pips,cost);button.append(top,name,bottom);
    button.addEventListener('click',()=>g.upgrade(d.id));parent.append(button);
   }
