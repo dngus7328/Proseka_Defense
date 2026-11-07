@@ -9,7 +9,7 @@ const nearest=(array,target)=>array.slice().sort((a,b)=>dist(a,target)-dist(b,ta
 export class Game {
  constructor(config,callbacks={}){
   this.callbacks=callbacks;this.map=MAP_BY_ID[config.mapId]||MAP_BY_ID.roof;
-  this.difficulty=config.difficulty;this.focus=config.focus||'leo';
+  this.difficulty=config.difficulty;
   this.difficultyData=DIFFICULTIES.find(d=>d.id===this.difficulty)||DIFFICULTIES[0];
   this.phase='playing';this.speed=1;this.virtualTime=0;this.visualTime=0;this.realTime=0;this.wave=1;this.waveTime=0;
   this.gold=100;this.summons=0;this.units=[];this.enemies=[];this.effects=[];
@@ -61,15 +61,10 @@ export class Game {
  }
  moveSelected(){if(!this.selected)return;this.moveMode=!this.moveMode;this.emit('onMoveMode',this.moveMode);}
  chooseCharacter(){
+  // Existing members have a moderate weight to make same-character merging practical.
+  // All 26 characters remain available; the player does not choose a focus group.
   const existing=[...new Set(this.units.map(u=>u.id))];
-  if(existing.length&&Math.random()<.46)return CHARACTER_BY_ID[existing[rnd(existing.length)]];
-  const focusPool=CHARACTERS.filter(c=>c.group===this.focus);
-  if(Math.random()<.69){
-    const missing=focusPool.filter(c=>!existing.includes(c.id));
-    if(missing.length&&Math.random()<.32)return missing[rnd(missing.length)];
-    return focusPool[rnd(focusPool.length)];
-  }
-  if(Math.random()<.4){const pool=CHARACTERS.filter(c=>c.group==='vs');return pool[rnd(pool.length)];}
+  if(existing.length&&Math.random()<.62)return CHARACTER_BY_ID[existing[rnd(existing.length)]];
   return CHARACTERS[rnd(CHARACTERS.length)];
  }
  summon(){

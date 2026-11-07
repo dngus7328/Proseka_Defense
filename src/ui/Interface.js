@@ -11,18 +11,18 @@ const escapeHTML=(s)=>String(s).replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;'
 export class Interface {
  constructor(save,renderer,sound){
   this.save=save;this.renderer=renderer;this.sound=sound;this.game=null;
-  this.config={difficulty:'normal',mapId:'roof',focus:'leo'};
+  this.config={difficulty:'normal',mapId:'roof'};
   this.overlayOrigin='lobby';this.settingsOrigin='lobby';this.lastUpgrades='';this.lastHero='';
   this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.game=game;this.lastUpgrades='';this.lastHero='';this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.game=game;this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){this.showOverlay('noticeOverlay');}
  hideOverlays(){for(const o of document.querySelectorAll('.overlay'))o.classList.remove('visible');}
- showOverlay(id){this.hideOverlays();el(id)?.classList.add('visible');}
+ showOverlay(id){this.closeUpgrades();this.hideOverlays();el(id)?.classList.add('visible');}
  overlayVisible(id){return !!el(id)?.classList.contains('visible');}
  renderLanguages(){
   document.documentElement.lang=this.save.language;
@@ -46,6 +46,8 @@ export class Interface {
   click('quitButton',()=>this.handlers.onExit?.());
   click('speedButton',()=>{if(this.game?.phase==='playing'){this.game.speed=this.game.speed===1?2:1;this.sound.beep('select');this.update(true);}});
   click('summonButton',()=>this.game?.summon());
+  click('upgradeToggle',()=>this.toggleUpgrades());
+  click('upgradeScrim',()=>this.closeUpgrades());
   click('autoMergeButton',()=>this.game?.autoMerge());
   click('moveButton',()=>{this.game?.moveSelected();if(this.game)this.setStatus(this.game.moveMode?this.t('moveHint'):'READY');});
   click('mergeButton',()=>this.game?.mergeSelected());click('clearSelection',()=>this.game?.selection(null));
@@ -72,7 +74,7 @@ export class Interface {
   });
  }
  isModalOpen(){return [...document.querySelectorAll('.overlay')].some(e=>e.classList.contains('visible'));}
- showLobby(){this.game=null;this.config.difficulty='normal';this.renderLobby();this.showOverlay('lobbyOverlay');}
+ showLobby(){this.game=null;this.closeUpgrades();this.config.difficulty='normal';this.renderLobby();this.showOverlay('lobbyOverlay');}
  renderLobby(){
   const diff=el('difficultyChoices');if(!diff)return;
   const cleared=this.save.cleared;
@@ -91,12 +93,8 @@ export class Interface {
    button.append(canvas,name);this.renderer.drawThumbnail(canvas,map);
    button.addEventListener('click',()=>{this.config.mapId=map.id;this.renderLobby();});maps.append(button);
   });
-  const groups=el('focusChoices');groups.innerHTML='';GROUPS.forEach(group=>{
-   const button=document.createElement('button');button.className=`focus-chip${this.config.focus===group.id?' active':''}`;
-   const mark=document.createElement('span');mark.style.background=group.color;
-   const name=document.createElement('strong');name.textContent=group.short;button.append(mark,name);
-   button.addEventListener('click',()=>{this.config.focus=group.id;this.renderLobby();});groups.append(button);
-  });
+  const selected=MAPS.find(m=>m.id===this.config.mapId);
+  if(selected&&el('lobbyPreview'))this.renderer.drawThumbnail(el('lobbyPreview'),selected);
  }
  openSettings(){
   if(this.overlayVisible('settingsOverlay'))return;
@@ -120,6 +118,16 @@ export class Interface {
    if(this.overlayOrigin==='lobby'){this.showOverlay('lobbyOverlay');return;}
   }
   this.hideOverlays();
+ }
+ toggleUpgrades(){
+  if(!this.game||this.game.phase!=='playing')return;
+  const open=!el('app').classList.contains('upgrade-open');
+  el('app').classList.toggle('upgrade-open',open);
+  el('upgradeToggle').setAttribute('aria-expanded',String(open));
+ }
+ closeUpgrades(){
+  el('app').classList.remove('upgrade-open');
+  el('upgradeToggle').setAttribute('aria-expanded','false');
  }
  togglePause(){
   if(!this.game||!['playing','paused'].includes(this.game.phase))return;
@@ -171,13 +179,13 @@ export class Interface {
   el('summonCost').textContent=String(g.cost);
   el('summonButton').disabled=g.gold<g.cost||g.phase!=='playing';
   el('autoMergeButton').disabled=g.phase!=='playing'||!g.units.some(u=>u.star<4&&g.units.some(v=>u.uid!==v.uid&&v.id===u.id&&v.star===u.star));
-  el('focusHint').textContent=GROUPS.find(gr=>gr.id===g.focus)?.names[this.save.language]||'—';
+
   this.updateSelection(force);
   this.updateUpgrades(force);
  }
  updateSelection(force){
   const g=this.game,u=g?.selected;
-  el('selectionEmpty').hidden=!!u;el('selectionContent').hidden=!u;
+  el('selectionEmpty').hidden=!!u;el('selectionContent').hidden=!u;el('selectionPanel').classList.toggle('has-selection',!!u);
   if(!u)return;
   const def=CHARACTER_BY_ID[u.id];
   const key=[u.uid,u.star,u.id,this.save.language].join('-');

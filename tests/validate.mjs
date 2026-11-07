@@ -21,7 +21,7 @@ let seed=1234567;
 Math.random=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
 const logs=[];
 for(let s=0;s<3;s++){
- const g=new Game({mapId:MAPS[s].id,difficulty:'normal',focus:'leo'},{});
+ const g=new Game({mapId:MAPS[s].id,difficulty:'normal'},{});
  assert.equal(g.phase,'playing');
  // Summon + merges must preserve identity and never exceed ★4.
  g.gold=10000;
@@ -36,7 +36,7 @@ for(let s=0;s<3;s++){
  logs.push({map:g.map.id,wave:g.wave,units:g.units.length,enemy:g.enemies.length,highest:Math.max(...g.units.map(u=>u.star)),gold:g.gold});
 }
 // Confirm controls and end transition.
-const game=new Game({mapId:'roof',difficulty:'extreme',focus:'n25'},{});
+const game=new Game({mapId:'roof',difficulty:'extreme'},{});
 game.speed=2;game.end('win');
 for(let i=0;i<35;i++)game.update(.05);
 assert.equal(game.phase,'ended');assert.equal(game.result.status,'win');
