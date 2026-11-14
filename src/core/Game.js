@@ -280,19 +280,27 @@ export class Game {
   const sourceNames=participants.map(p=>p.id);
   const count=participants.length;
   const damage=(42+this.wave*8.2)*boost*(heart.type==='group'?1.25:1.03);
+  const heartColor=GROUPS.find(g=>g.id===CHARACTER_BY_ID[participants[0]?.id]?.group)?.color||'#d0d4dc';
   const chosen=nearest(this.enemies.filter(e=>e.hp>0),{x:this.map.w/2,y:this.map.h/2});
   const maxTargets=heart.type==='group'?Math.min(chosen.length,10+Math.floor(strength.average*3)):Math.min(chosen.length,5+Math.floor(strength.average*2));
   for(const [index,e] of chosen.slice(0,maxTargets).entries()){
    const ep=this.enemyPos(e);
    // Shared damage is credited exactly once, in fair equal shares across participants.
    const dealt=Math.min(e.hp,damage*(index>5?.82:1));
-   e.hp-=dealt;e.flash=.24;
+   e.hp-=dealt;e.flash=.24;e.hitPulse=Math.max(e.hitPulse||0,.22);
    for(const member of sourceNames)this.damageByMember[member]=(this.damageByMember[member]||0)+dealt/count;
    if(e.hp<=0)this.killEnemy(e);
-   if(index<13)this.addEffect('heartHit',ep.x,ep.y,{color:GROUPS.find(g=>g.id===CHARACTER_BY_ID[participants[0].id]?.group)?.color||'#d7c8ef',life:.4});
+   if(index<14)this.addEffect('heartHit',ep.x,ep.y,{
+    color:heartColor,style:heart.style,heartId:heart.id,impactIndex:index,life:.48,full:strength.full
+   });
   }
-  this.addEffect('heart',this.map.w/2-.5,this.map.h/2-.5,{life:1.1,color:heart.type==='group'?'#d7f2e8':'#f6d7c6',style:heart.style,full:strength.full});
-  if(strength.full){this.addEffect('heart',this.map.w/2-.5,this.map.h/2-.5,{life:1.45,color:'#efdbab',style:'star',full:true});}
+  this.addEffect('heart',this.map.w/2-.5,this.map.h/2-.5,{
+   life:.88,color:heartColor,style:heart.style,heartId:heart.id,
+   full:strength.full,group:heart.type==='group'
+  });
+  if(strength.full)this.addEffect('heartCrest',this.map.w/2-.5,this.map.h/2-.5,{
+   life:.68,color:'#ecd7a9',style:heart.style
+  });
   this.emit('onHeartFire',{heart,strength});this.emit('onSound','heart');this.emit('onChange');
  }
  heartUpdate(dt,realDt){
