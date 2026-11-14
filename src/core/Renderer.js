@@ -219,7 +219,7 @@ export class Renderer {
   const logicalHeight=(rotated?map.w:map.h)*TILE;
   // Crisp sprites with bounded GPU/CPU work on phones.
   const isSmall=window.innerWidth<700||window.innerHeight<500;
-  const scale=this.effectsLite?1.25:(isSmall?1.6:2.25);
+  const scale=this.effectsLite?1.15:(isSmall?1.55:1.85);
   const changed=this.currentMap?.id!==map.id||this.rotated!==rotated||
     this.mapLogicalWidth!==logicalWidth||this.mapLogicalHeight!==logicalHeight||
     this.renderScale!==scale;
@@ -275,10 +275,6 @@ export class Renderer {
    if(game.moveMode){
     c.fillStyle='#c4f7cc37';c.fillRect(sx+2,sy+2,28,28);
     c.strokeStyle='#ecffe8d4';c.lineWidth=1;c.strokeRect(sx+4.5,sy+4.5,23,23);
-   }else{
-    // Quiet placement marker keeps the map art readable until the user chooses to move a unit.
-    c.fillStyle=m.theme==='empty'?'#728d9a77':m.theme==='wonderland'?'#f3e4b6a5':m.theme==='stage'?'#f2d4dca5':'#c3eee384';
-    c.fillRect(sx+14,sy+14,4,4);
    }
   }
  }
@@ -351,10 +347,9 @@ export class Renderer {
   c.restore();
   c.translate(rush,idleBob-recoil+10-inAmount*9-rise);
   c.rotate(swing*Math.PI/180);
-  const bounce=promotionAmount?Math.sin(Math.PI*(1-promotionAmount))*.12:0;
-  const squash=impact*(signature?.kind==='smash'?.08:.045);
-  // Slight stretch at a strike, squeeze while landing; no image restyling.
-  c.scale(1+bounce+breathe+squash,1+bounce-breathe-squash*.6);
+  // Original SD sprites must never stretch/squash.  Preserve every line and
+  // face proportion: use only positioning and tiny rotation for animation.
+  // Promotions are already visible from the star ground circle and badge.
   if(inAmount>.001){
    c.globalAlpha=Math.max(.08,1-inAmount*.28);
   }
