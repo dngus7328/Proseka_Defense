@@ -4,6 +4,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {MAPS} from '../src/data/maps.js';
 import {CHARACTERS,SIGNATURES} from '../src/data/characters.js';
+import {HEARTS} from '../src/data/hearts.js';
+import {SKILL_DIALOGUE} from '../src/data/skillDialogue.js';
 import {Game} from '../src/core/Game.js';
 import {ENEMIES} from '../src/data/enemies.js';
 import {drawEnemyArt} from '../src/core/EnemyArt.js';
@@ -171,3 +173,52 @@ console.log('OK — all 26 individual signatures, timed impact damage, four-star
  assert(other.promotion>0,'unit promotion animation missing');
 }
 console.log('OK — seven animated SEKAI arenas, seven unique enemy art forms, boss beat and animated unit lifecycle');
+
+
+{
+ // Next-price rule must match actual paid crystals on every successful tap.
+ const game=new Game({mapId:'roof',difficulty:'normal'});
+ game.crystals=1000;
+ for(let i=0;i<6;i++){
+  const expected=28+i, before=game.crystals;
+  assert.equal(game.cost,expected,'summon cost is not incremental');
+  assert(game.summon(),`summon ${i+1} failed`);
+  assert.equal(before-game.crystals,expected,'paid crystal cost mismatch');
+  assert.equal(game.cost,expected+1,'next price did not increase immediately');
+ }
+}
+assert.equal(Object.keys(SKILL_DIALOGUE).length,26,'Every character needs a distinct skill voice');
+for(const ch of CHARACTERS){
+ const lines=SKILL_DIALOGUE[ch.id];
+ assert(lines&&['ko','ja','en'].every(lang=>typeof lines[lang]==='string'&&lines[lang].length>5),
+   `Missing localized distinct speech: ${ch.id}`);
+}
+assert.equal(new Set(HEARTS.map(h=>h.style)).size,6,'Six choreographies needed');
+{
+ const spoken=[];
+ const g=new Game({mapId:'roof',difficulty:'normal'},{onHeartStart:e=>spoken.push(e.actorId)});
+ g.units=['ichika','saki','honami','shiho'].map((id,i)=>({
+  uid:i+1,id,star:1,x:1+i,y:2,cooldown:1,motion:0,pose:0,damage:0
+ }));
+ g.spawnEnemy('tank',0);
+ g.heartTimers['leo-chorus']=0;
+ g.heartUpdate(.2,.2);
+ assert.equal(spoken[0],'ichika','First speaker incorrect');
+ g.heartUpdate(.2,1.55);
+ g.spawnEnemy('tank',0);
+ g.heartTimers['leo-chorus']=0;
+ g.heartUpdate(.2,.2);
+ assert.equal(spoken[1],'saki','Speaker should rotate to the next participant');
+}
+{
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.units=['ichika','saki','honami','shiho'].map((id,i)=>({uid:i+1,id,star:2,x:1+i,y:3,cooldown:1,motion:0}));
+ const opponent=g.spawnEnemy('tank',0);
+ opponent.hp=100000;opponent.maxHp=100000;
+ const heart=HEARTS.find(h=>h.id==='leo-chorus');
+ g.fireHeart(heart,g.units);
+ assert(g.effects.some(e=>e.type==='heart'&&e.style==='star'));
+ assert(g.effects.some(e=>e.type==='heartHit'&&e.style==='star'),
+   'Skill needs accurately targeted visual impact');
+}
+console.log('OK — rising summon costs, all 26 localized character voices, rotating speakers and precise heart impacts');
