@@ -69,7 +69,7 @@ for(const hero of CHARACTERS){
  assert.equal(game.heartScene?.heart.id,'leo-chorus');
  assert(events.includes('start:leo-chorus'));
  assert(!events.includes('fire:leo-chorus'));
- game.heartUpdate(.2,.46);
+ game.heartUpdate(.2,.68);
  assert(events.includes('fire:leo-chorus'));
  game.heartUpdate(.2,1);
  assert(events.includes('end'));
