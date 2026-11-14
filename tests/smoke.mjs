@@ -25,7 +25,7 @@ for(const m of MAPS){
  assert.equal(g.units.length,1);
  assert.equal(g.crystals,72);
  assert(g.map.availableSet.has(`${g.units[0].x},${g.units[0].y}`));
- const icon=path.join(root,`assets/ui/${m.id}.png`);
+ const icon=path.join(root,`Assets/ui/${m.id}.png`);
  assert(fs.existsSync(icon),`missing icon: ${icon}`);
  assert.equal(fs.readFileSync(icon)[25],6,`icon must be RGBA PNG: ${icon}`);
 }
@@ -36,16 +36,16 @@ for(const lang of LANGUAGES){
  assert.equal(file[25],6,`${lang} logo must be RGBA PNG`);
 }
 for(const item of ['crystal','wish-piece']){
- const filename=path.join(root,`assets/currency/${item}.png`);
+ const filename=path.join(root,`Assets/currency/${item}.png`);
  assert(fs.existsSync(filename),`currency icon missing: ${item}`);
  const img=fs.readFileSync(filename);
  assert.equal(img[25],6,`currency icon must be RGBA PNG: ${item}`);
 }
 const interfaceHtml=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert(interfaceHtml.includes('assets/currency/crystal.png'));
-assert(interfaceHtml.includes('assets/currency/wish-piece.png'));
+assert(interfaceHtml.includes('Assets/currency/crystal.png'));
+assert(interfaceHtml.includes('Assets/currency/wish-piece.png'));
 assert(interfaceHtml.includes('currency-inline'));
 const interfaceJs=fs.readFileSync(path.join(root,'src/ui/Interface.js'),'utf8');
-assert(interfaceJs.includes('cost-piece\" src=\"./assets/currency/wish-piece.png'));
+assert(interfaceJs.includes('cost-piece\" src=\"./Assets/currency/wish-piece.png'));
 console.log('OK — transparent resource PNGs wired to HUD, summon and upgrade costs');
 console.log('OK — 7 maps, 26 characters, 7 RGBA emblems, 3 RGBA logos, summon tests');
