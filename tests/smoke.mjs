@@ -5,6 +5,9 @@ import {fileURLToPath} from 'node:url';
 import {MAPS} from '../src/data/maps.js';
 import {CHARACTERS,SIGNATURES} from '../src/data/characters.js';
 import {Game} from '../src/core/Game.js';
+import {ENEMIES} from '../src/data/enemies.js';
+import {drawEnemyArt} from '../src/core/EnemyArt.js';
+import {drawSekaiWorld} from '../src/core/SekaiMapArt.js';
 import {LANGUAGES} from '../src/data/locales.js';
 import {TITLE_LOGOS} from '../src/data/branding.js';
 
@@ -118,3 +121,53 @@ for(const map of MAPS){
  assert(game.effects.some(e=>e.type==='promotion'), 'rank promotion visual missing');
 }
 console.log('OK — all 26 individual signatures, timed impact damage, four-star attacks, seven affinity pools, and rank promotion');
+
+
+{
+ const methods=new Set(['save','restore','translate','rotate','setTransform','clearRect',
+  'fillRect','strokeRect','beginPath','closePath','arc','ellipse','fill','stroke',
+  'moveTo','lineTo','fillText','strokeText','setLineDash','scale','rect','clip',
+  'roundRect','drawImage','bezierCurveTo','quadraticCurveTo']);
+ let marks=0;
+ const brush=new Proxy({},{
+  get(o,k){if(k in o)return o[k];if(methods.has(k))return(...args)=>{
+   marks++;
+   for(const value of args)if(typeof value==='number')assert(Number.isFinite(value),`invalid Canvas coordinate in ${String(k)}`);
+  };return 0;},
+  set(o,k,value){o[k]=value;return true;}
+ });
+ for(const map of MAPS){
+  drawSekaiWorld(brush,map,0,false);
+  drawSekaiWorld(brush,map,3,false);
+  drawSekaiWorld(brush,map,3,true);
+ }
+ for(const type of Object.keys(ENEMIES)){
+  const game=new Game({mapId:'roof',difficulty:'normal'});
+  const enemy=game.spawnEnemy(type,2);
+  drawEnemyArt(brush,game,enemy,0,false,false);
+  drawEnemyArt(brush,game,enemy,3,true,false);
+  drawEnemyArt(brush,game,enemy,4,true,true);
+ }
+ assert(marks>1500,'ambient worlds and seven detailed enemies were not rendered');
+}
+{
+ const game=new Game({mapId:'roof',difficulty:'normal'});
+ const conductor=game.spawnEnemy('boss',1);
+ const follower=game.spawnEnemy('pulse',1.1);
+ conductor.beatCooldown=.01;
+ game.update(.05);
+ assert(follower.tempo>0,'boss did not accelerate nearby enemies');
+ assert(game.effects.some(effect=>effect.type==='ring'),'boss beat has no visual pulse');
+}
+{
+ const game=new Game({mapId:'roof',difficulty:'normal'});
+ assert(game.summon());
+ assert(game.units[0].entrance>0,'unit summon animation missing');
+ game.update(.1);
+ assert(game.units[0].entrance<.55,'unit summon animation does not progress');
+ const other=game.units[0];
+ game.units.push({...other,uid:other.uid+100,x:other.x+1,damage:0});
+ assert(game.mergeUnits(other,game.units[1]));
+ assert(other.promotion>0,'unit promotion animation missing');
+}
+console.log('OK — seven animated SEKAI arenas, seven unique enemy art forms, boss beat and animated unit lifecycle');
