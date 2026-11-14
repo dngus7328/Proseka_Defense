@@ -139,7 +139,13 @@ export function drawEnemyArt(c,game,e,time,rotated=false,reduceMotion=false){
  c.translate(0,Math.round(lift));
  if(rotated)c.rotate(-Math.PI/2);
  c.scale(size*hitScale,size*hitScale);
- if(e.kind==='dash'&&moving)c.rotate(Math.sin(age*10)*.085);
+ if(e.kind==='dash'){
+  // The arrow-shaped runner should face the path it is actually following.
+  const nodes=game.map.path,at=((Math.floor(e.progress)%nodes.length)+nodes.length)%nodes.length;
+  const current=nodes[at],next=nodes[(at+1)%nodes.length];
+  const heading=Math.atan2(next.y-current.y,next.x-current.x)+Math.PI/2;
+  c.rotate(heading+(rotated?Math.PI/2:0)+(moving?Math.sin(age*10)*.055:0));
+ }
  if(e.kind==='pulse')pulse(c,age,flash);
  else if(e.kind==='dash')dash(c,age,flash);
  else if(e.kind==='tank')tank(c,age,flash);
