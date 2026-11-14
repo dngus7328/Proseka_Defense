@@ -151,6 +151,10 @@ export function drawEnemyArt(c,game,e,time,rotated=false,reduceMotion=false){
   c.strokeStyle='#b8dded';c.lineWidth=1.7;c.strokeRect(e.kind==='boss'?-23:-16,e.kind==='boss'?-29:-18,e.kind==='boss'?46:32,e.kind==='boss'?55:34);
   block(c,-2,-24,4,3,'#e6f9f9');
  }
+ if(e.tempo>0&&e.kind!=='boss'){
+  // Two amber beat bars mark the short boss tempo boost.
+  block(c,-9,-21,6,2,'#e7b597');block(c,1,-21,6,2,'#f1d2a5');
+ }
  c.restore();
  // Health bars stay horizontal in the real display, including landscape.
  if(e.kind==='boss'||e.kind==='tank'||e.hp<e.maxHp*.8){
