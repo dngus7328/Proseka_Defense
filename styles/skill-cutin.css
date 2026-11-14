@@ -148,3 +148,10 @@
  .skill-cutin,.skill-cutin.visible{transition:none}
  .skill-cutin-lead,.skill-cutin-progress,.skill-cutin.impact .skill-cutin-backdrop{animation:none}
 }
+
+/* Battle pressure is readable without large alerts that obstruct the board. */
+.enemy-count.danger{color:#a14c4b}
+.enemy-count.critical{background:#ffe3dc;padding:2px 6px;border-radius:5px;color:#922f35;font-weight:950}
+#waveText.boss-wave{color:#bb6b56}
+#summonButton:disabled{filter:saturate(.55);opacity:.69}
+#autoMergeButton:disabled{opacity:.53}
