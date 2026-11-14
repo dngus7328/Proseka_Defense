@@ -355,6 +355,22 @@ export class Renderer {
    c.fillRect(5+impact*6,9,5,2);
    c.restore();
   }
+  // Highlight the exact casting unit, using an unobtrusive tile locator.
+  if(game.heartScene?.actorUid===u.uid){
+   const p=Math.min(1,Math.max(0,game.heartScene.elapsed/.62));
+   c.save();c.translate(Math.round(x),Math.round(y+12));
+   if(this.rotated)c.rotate(-Math.PI/2);
+   c.strokeStyle='#fff0c7';c.fillStyle='#fff0c7';c.lineWidth=2;
+   const r=12+(1-p)*5;
+   c.strokeRect(-r,-r*.65,r*2,r*1.3);
+   for(let i=0;i<4;i++){
+    const angle=i*Math.PI/2;
+    c.fillRect(Math.round(Math.cos(angle)*r)-2,Math.round(Math.sin(angle)*r*.7)-2,4,4);
+   }
+   c.font='bold 12px Arial';c.textAlign='center';c.textBaseline='bottom';
+   c.fillText('✦',0,-r-2);
+   c.restore();
+  }
   // Stacked stars make the exact rank identifiable at gameplay zoom.
   c.save();c.translate(Math.round(x),Math.round(y+15));
   if(this.rotated)c.rotate(-Math.PI/2);
