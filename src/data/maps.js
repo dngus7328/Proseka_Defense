@@ -54,7 +54,10 @@ export const MAPS=SOURCE_MAPS.map(m=>{
   for(const p of path)proximity=Math.min(proximity,Math.hypot(p.x-x,p.y-y));
   if(proximity<=3.2)available.push({x,y});
  }
- return {...m,path,pathSet,blockedSet,available,availableSet:new Set(available.map(p=>key(p.x,p.y))),spawn:path[0],spawnIndex:0};
+ const affinities={roof:'leo',stage:'mmj',city:'vbs',wonderland:'wxs',night:'n25',closedwindow:'vs',openwindow:'vs'};
+ // Movie-window worlds use VIRTUAL SINGER affinity as a fan-game balance rule,
+ // not an official character affiliation.
+ return {...m,path,pathSet,blockedSet,available,availableSet:new Set(available.map(p=>key(p.x,p.y))),spawn:path[0],spawnIndex:0,affinityGroup:affinities[m.id],affinityRate:.55};
 });
 export const MAP_BY_ID=Object.fromEntries(MAPS.map(m=>[m.id,m]));
 export const tileKey=key;
