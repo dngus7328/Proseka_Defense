@@ -136,6 +136,7 @@ export class Interface {
   el('languageSelect').value=this.save.language;
   el('volumeRange').value=this.save.volume;
   el('effectsSelect').value=this.save.effects;
+  this.renderer.effectsLite=this.save.effects==='lite';
   el('touchToggle').checked=this.save.touch;
   this.renderLobby();this.renderHearts();this.update(true);
  }
@@ -164,7 +165,7 @@ export class Interface {
   document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>this.closeOverlay(button.dataset.close)));
   el('languageSelect').addEventListener('change',e=>this.setLanguage(e.target.value));
   el('volumeRange').addEventListener('input',e=>{this.save.volume=Number(e.target.value);this.sound.setVolume(this.save.volume/100);persistSave(this.save);});
-  el('effectsSelect').addEventListener('change',e=>{this.save.effects=e.target.value;persistSave(this.save);});
+  el('effectsSelect').addEventListener('change',e=>{this.save.effects=e.target.value;this.renderer.effectsLite=e.target.value==='lite';persistSave(this.save);});
   el('touchToggle').addEventListener('change',e=>{this.save.touch=e.target.checked;persistSave(this.save);});
   el('gameCanvas').addEventListener('pointerdown',e=>{
     if(!this.game||this.game.phase!=='playing')return;
