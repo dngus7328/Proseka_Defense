@@ -279,3 +279,80 @@ body.heart-active .field-summary{visibility:hidden}
 .summon-action:before{opacity:.2}
 .square-action{border-radius:7px;box-shadow:none}
 .selection-panel{box-shadow:0 3px 0 #213c4d;border-radius:7px}
+
+
+/* v1.13 — stop enlarging a miniature canvas with nearest-neighbor scaling.
+   Native character art is rendered at a higher backing resolution. */
+#gameCanvas{
+ image-rendering:auto!important;
+ object-fit:contain!important;
+}
+.board-frame:before{box-shadow:none!important}
+.board-frame{
+ border:1px solid #43515b!important;
+ box-shadow:none!important;
+ border-radius:1px!important;
+}
+/* The board is the scene; repeating graph-paper wallpapers, fake badge
+   borders and oversized hero panels compete with the actual game. */
+.battle{
+ background:var(--world)!important;
+}
+.battle:before,.battle:after{display:none!important}
+.world-decoration{display:none!important}
+.field-summary{
+ background:#253b46f0;
+ color:#f8f2e8;
+ border:1px solid #6b8490;
+ box-shadow:none;
+ border-radius:4px;
+}
+.field-summary-name{color:#f8f2e8!important}
+.battle-header,.wave-panel{
+ box-shadow:none!important;
+ border-radius:2px!important;
+}
+.battle-header{background:#263e4a!important}
+.wave-panel{background:#eee8dc!important}
+.speed-button{
+ border-radius:3px!important;
+ box-shadow:none!important;
+}
+.main-actions{border-radius:0!important;box-shadow:none!important}
+.resource-row{box-shadow:none!important}
+.summon-action,.square-action{
+ box-shadow:none!important;
+ text-shadow:none!important;
+}
+.summon-action{
+ border-radius:6px!important;
+ border-bottom-width:4px!important;
+}
+.square-action{border-radius:5px!important}
+.selection-panel{
+ border-radius:4px!important;
+ box-shadow:0 2px 0 #273946!important;
+}
+.hero-portrait{border-radius:3px!important}
+.board-float:not(:empty){
+ box-shadow:none!important;
+ border-radius:4px!important;
+}
+/* Compact PC/tablet viewing distance: the whole world should fit inside the
+   game interface, not fill an entire 1080p monitor with gigantic pixels. */
+@media (min-width:1000px) and (min-height:640px){
+ .board-frame{
+  width:min(690px,calc((100dvh - 118px)*var(--map-ratio,1.1)))!important;
+  max-height:calc(100dvh - 118px)!important;
+ }
+ .battle-header,.wave-panel{
+  width:min(690px,calc((100dvh - 118px)*var(--map-ratio,1.1)))!important;
+ }
+ .field-summary{max-width:320px}
+}
+/* On very small phones the battle surface still takes priority over chrome. */
+@media (orientation:portrait) and (max-width:400px){
+ .board-frame{border-width:1px!important}
+ .resource-card .mini-label{font-size:9px}
+ .field-summary{min-height:25px;gap:5px;padding:2px 6px}
+}
