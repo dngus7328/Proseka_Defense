@@ -339,6 +339,10 @@ export class Interface {
   el('waveText').innerHTML=`${String(g.wave).padStart(2,'0')} <span class="tiny-fraction">/ ${g.isEndless?'∞':20}</span>`;
   el('enemyCount').innerHTML=`${g.enemies.length} <span class="tiny-fraction">/ ${g.capacity}</span>`;
   el('waveFill').style.width=`${Math.min(100,g.waveTime/30*100)}%`;
+  const enemyPressure=g.enemies.length/g.capacity;
+  el('enemyCount').closest('.enemy-count')?.classList.toggle('danger',enemyPressure>=.72);
+  el('enemyCount').closest('.enemy-count')?.classList.toggle('critical',enemyPressure>=.9);
+  el('waveText').classList.toggle('boss-wave',g.wave%5===0);
   el('crystalText').textContent=format(g.crystals);el('fragmentText').textContent=format(g.fragments);
   el('unitCount').textContent=String(g.units.length);el('unitCapacity').textContent=`/ ${g.map.available.length}`;el('maxStarCount').textContent=String(g.units.filter(u=>u.star===4).length);
   el('summonCost').textContent=String(g.cost);
