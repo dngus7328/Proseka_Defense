@@ -77,7 +77,7 @@ export class Renderer {
   c.save();
   if(this.rotated){c.translate(this.canvas.width,0);c.rotate(Math.PI/2);}
   if(game.cameraShake>0&&!this.reduceMotion&&!this.effectsLite){const q=game.cameraShake;const j=Math.sin(time*129)*q;c.translate(j,Math.cos(time*151)*q*.65);}
-  drawSekaiWorld(c,m,time);
+  drawSekaiWorld(c,m,time,this.reduceMotion||this.effectsLite);
   this.drawPlacement(c,m,game);
   if(game.selected)this.drawRange(c,game.selected,game);
   const bodies=[...game.enemies.map(e=>({y:game.enemyPos(e).y,enemy:e})),...game.units.map(u=>({y:u.y,hero:u}))].sort((a,b)=>a.y-b.y);
@@ -119,11 +119,23 @@ export class Renderer {
  drawHero(c,game,u,time){
   const x=(u.x+.5)*TILE,y=(u.y+.5)*TILE;
   const profile=CHARACTER_BY_ID[u.id],accent=profile.hair;
-  const idleBob=Math.sin(time*3.4+u.uid*1.9)*.65;
+  const calm=this.reduceMotion||this.effectsLite;
+  const signature=SIGNATURES[u.id];
+  const beat=signature?.kind==='repeat'?4.4:signature?.kind==='smash'?2.4:3.15;
+  // The four supplied directional sprites remain untouched: the feeling of
+  // animation comes from controlled body motion, recoil and pose changes.
+  const idleBob=calm?0:Math.sin(time*beat+u.uid*1.9)*1.15;
+  const breathe=calm?0:Math.sin(time*1.55+u.uid*.87)*.018;
   const attackPhase=u.motion>0?Math.max(0,1-u.motion/.23):0;
   const impact=attackPhase>0&&attackPhase<1?Math.sin(attackPhase*Math.PI):0;
-  const recoil=impact*(u.star>=3?3.4:2.0);
-  const swing=impact*u.pose*(u.star>=3?7.5:5.5)+Math.sin(time*1.8+u.uid)*.7;
+  const recoil=impact*(u.star>=3?4.1:2.8);
+  const sway=(calm?0:Math.sin(time*1.8+u.uid)*1.25);
+  const swing=impact*u.pose*(u.star>=3?10:7.2)+sway;
+  const inAmount=Math.max(0,(u.entrance||0)/.55);
+  const promotionAmount=Math.max(0,(u.promotion||0)/.85);
+  const rise=promotionAmount?Math.sin(Math.PI*(1-promotionAmount))*6.5:0;
+  const lean=(u.aimX||u.pose||0)>=0?1:-1;
+  const rush=lean*impact*(signature?.kind==='smash'?3.8:2.2);
   const size=42+(u.star-1)*2.5;
   let facing=u.facing||'front',mirrored=!!u.mirrored;
   if(this.rotated&&Number.isFinite(u.aimX)&&Number.isFinite(u.aimY)){
@@ -160,8 +172,15 @@ export class Renderer {
    }
   }
   c.restore();
-  c.translate(0,idleBob-recoil+10);
+  c.translate(rush,idleBob-recoil+10-inAmount*9-rise);
   c.rotate(swing*Math.PI/180);
+  const bounce=promotionAmount?Math.sin(Math.PI*(1-promotionAmount))*.12:0;
+  const squash=impact*(signature?.kind==='smash'?.08:.045);
+  // Slight stretch at a strike, squeeze while landing; no image restyling.
+  c.scale(1+bounce+breathe+squash,1+bounce-breathe-squash*.6);
+  if(inAmount>.001){
+   c.globalAlpha=Math.max(.08,1-inAmount*.28);
+  }
   if(u.star>=3){
    c.fillStyle=u.star===4?'#f4d38c':'#d1dce7';
    c.fillRect(-15,-size+10,4,4);
@@ -170,6 +189,15 @@ export class Renderer {
   }
   this.drawSprite(c,u.id,facing,0,6+size*6/192,size,mirrored);
   c.restore();
+  if(impact>.12&&!calm){
+   c.save();c.translate(Math.round(x),Math.round(y+12));
+   // A short, low ground pulse to emphasize contact instead of bright bloom.
+   c.fillStyle=signature?.kind==='smash'?'#f1d6a2':'#d3e4d2';
+   c.globalAlpha=impact*.55;
+   c.fillRect(-9-impact*6,9,5,2);
+   c.fillRect(5+impact*6,9,5,2);
+   c.restore();
+  }
   // Stacked stars make the exact rank identifiable at gameplay zoom.
   c.save();c.translate(Math.round(x),Math.round(y+15));
   if(this.rotated)c.rotate(-Math.PI/2);
