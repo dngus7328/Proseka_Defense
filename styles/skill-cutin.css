@@ -173,3 +173,109 @@
 @media (orientation:portrait) and (max-height:700px){
  .map-affinity{margin-top:0;padding:3px 7px}
 }
+
+
+/* v1.12 — narrow in-game dialogue strip. Keep the enemy lane visible. */
+.skill-cutin{
+  top:auto; bottom:calc(var(--dock-h,100px) + var(--wallet-h,40px) + 12px + env(safe-area-inset-bottom));
+  left:50%;right:auto; width:min(560px,calc(100vw - 14px));
+  height:68px;max-height:68px;filter:none;
+  transform:translate(-50%,7px);
+}
+.skill-cutin.visible{transform:translate(-50%,0)}
+.skill-cutin-backdrop{display:none}
+.skill-cutin-panel{
+  box-sizing:border-box;display:grid;grid-template-columns:59px minmax(0,1fr) minmax(56px,88px);
+  align-items:stretch;height:68px;min-height:68px;max-height:68px;
+  border:1px solid #8ba5a8;border-left:4px solid var(--skill-accent);border-right:1px solid #8ba5a8;
+  border-bottom:4px solid #102f40;border-radius:6px;
+  background:#1c3d51f5;box-shadow:0 4px 0 #11283980;
+}
+.skill-cutin-panel:before{display:none}
+.skill-cutin-art{align-self:stretch;width:59px;min-width:0;overflow:hidden;
+  position:relative;background:#314e61;border-right:1px solid #74959a;}
+.skill-cutin-lead{
+  bottom:-6px;left:0;width:100%;height:78px;max-height:none;
+  object-fit:contain;object-position:center bottom;filter:none;
+  transform:none;animation:thinPortraitIn .18s ease-out both;
+}
+.skill-cutin-dialogue{min-width:0;align-self:stretch;display:flex;flex-direction:column;
+  justify-content:center;padding:5px 6px 5px 8px;color:#fbf8eb;}
+.skill-cutin-head{position:relative;left:auto;right:auto;top:auto;z-index:1;
+  display:flex;align-items:center;justify-content:flex-start;gap:6px;
+  margin:0 0 2px;min-height:15px;line-height:1;letter-spacing:0;text-shadow:none;}
+.skill-cutin-head .skill-cutin-speaker{padding:0;border-radius:0;background:transparent;color:#fff3d7;
+  font-size:clamp(11px,2.7vw,14px);font-weight:950;white-space:nowrap;}
+.skill-cutin-head .skill-cutin-type{font-size:9px;color:var(--skill-accent);font-weight:800;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.skill-cutin-head .skill-cutin-stars{position:static;display:block;font-size:9px;color:#eed4a4;
+  margin-left:auto;white-space:nowrap;letter-spacing:0;}
+.skill-cutin-dialogue p.skill-cutin-words{margin:0;font-size:clamp(10px,2.45vw,13px);
+  line-height:1.35;font-weight:750;letter-spacing:-.03em;text-shadow:none;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;overflow-wrap:anywhere;word-break:keep-all;}
+.skill-cutin-skill{min-width:0;display:flex;align-items:center;justify-content:center;
+  padding:4px 6px;font-size:clamp(9px,2.15vw,11px);font-weight:900;color:#ffebbd;
+  text-align:center;line-height:1.32;word-break:keep-all;overflow:hidden;
+  border-left:1px solid #ffffff33;background:#152f42;
+}
+.skill-cutin-progress{height:3px;bottom:0;background:var(--skill-accent)}
+.skill-cutin.impact .skill-cutin-panel{box-shadow:inset 0 0 0 1px var(--skill-accent),0 4px 0 #11283980}
+.skill-cutin.impact .skill-cutin-skill{background:#385567;color:#fff6d8}
+.skill-cutin.simple .skill-cutin-panel{height:68px}
+.skill-cutin.simple .skill-cutin-lead{bottom:-6px;height:78px}
+.skill-cutin.simple .skill-cutin-dialogue{padding:5px 6px 5px 8px}
+.skill-cutin.simple .skill-cutin-dialogue p{margin:0;font-size:clamp(10px,2.45vw,13px)}
+body.heart-active .field-summary{visibility:hidden}
+@keyframes thinPortraitIn{from{opacity:.5;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media (max-width:360px) and (orientation:portrait){
+ .skill-cutin{height:64px;max-height:64px}
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{height:64px;min-height:64px;max-height:64px;
+  grid-template-columns:52px minmax(0,1fr) 68px;}
+ .skill-cutin-art{width:52px}
+ .skill-cutin-lead,.skill-cutin.simple .skill-cutin-lead{height:68px}
+ .skill-cutin-head .skill-cutin-type{display:none}
+ .skill-cutin-skill{font-size:9px}
+}
+@media (orientation:landscape){
+ .skill-cutin{top:auto;left:8px;right:auto;
+  bottom:calc(8px + env(safe-area-inset-bottom));
+  width:min(730px,calc(100vw - var(--rail-w,245px) - 17px));
+  height:66px;max-height:66px;transform:translateY(7px)}
+ .skill-cutin.visible{transform:translateY(0)}
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{height:66px;min-height:66px;max-height:66px;
+   grid-template-columns:58px minmax(0,1fr) minmax(74px,112px)}
+ .skill-cutin-art{width:58px}
+ .skill-cutin-lead,.skill-cutin.simple .skill-cutin-lead{height:76px;bottom:-5px}
+ .skill-cutin-dialogue p.skill-cutin-words{font-size:clamp(10px,1.6vw,13px);margin:0}
+ .skill-cutin-skill{font-size:clamp(9px,1.45vw,11px)}
+}
+@media (orientation:landscape) and (max-height:350px){
+ .skill-cutin{height:57px;max-height:57px;bottom:5px}
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{height:57px;min-height:57px;max-height:57px;
+  grid-template-columns:51px minmax(0,1fr) 80px}
+ .skill-cutin-art{width:51px}
+ .skill-cutin-lead,.skill-cutin.simple .skill-cutin-lead{height:65px}
+ .skill-cutin-head{margin-bottom:0}
+ .skill-cutin-head .skill-cutin-type{display:none}
+ .skill-cutin-dialogue p.skill-cutin-words{font-size:10px}
+}
+@media (prefers-reduced-motion:reduce){
+ .skill-cutin-lead,.skill-cutin-progress{animation:none!important}
+}
+/* Reduce web-dashboard decoration in the battle view without modifying the
+   user's character sprites or map artwork. */
+.battle-header{background:#254357f2;border:1px solid #607e86;border-bottom:2px solid var(--area-accent);
+  box-shadow:none;border-radius:5px 5px 0 0}
+.wave-panel{border:1px solid #94aeb0;border-top:0;border-bottom:2px solid #55727e;
+  background:#f4eddd;color:#274656;box-shadow:none}
+.board-frame{box-shadow:0 2px 0 #243e4c;border-color:#426276}
+.board-grain{display:none!important}
+.world-decoration{opacity:.12}
+.resource-row{box-shadow:none;border-color:#537582}
+.resource-card strong{text-shadow:none}
+.main-actions{box-shadow:0 -2px 0 #142d3d;border-radius:0;background:#1e3d51}
+.summon-action{border-radius:9px;box-shadow:none}
+.summon-action:before{opacity:.2}
+.square-action{border-radius:7px;box-shadow:none}
+.selection-panel{box-shadow:0 3px 0 #213c4d;border-radius:7px}
