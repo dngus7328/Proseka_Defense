@@ -189,15 +189,82 @@ function route(c,m){
   rect(c,-6,-1,9,2,p.line);rect(c,2,-4,4,2,p.line);rect(c,2,2,4,2,p.line);c.restore();
  }
 }
+// Map-specific perimeter art stays outside combat lanes and reserved scenery.
+function sceneIdentity(c,m,time){
+ const w=m.w*T,h=m.h*T,beat=(Math.floor(time*2)%2===0);
+ if(m.theme==='school'){
+  // Blackboard with music notation, gold sunset stripes and instrument shelves.
+  rect(c,37,5,w-74,20,'#35585a');border(c,37,5,w-74,20,'#bca690',2);
+  for(let i=0;i<4;i++)for(let j=0;j<3;j++)rect(c,57+i*57,11+j*3,23,1,'#adc0b4');
+  for(let y=49;y<h-48;y+=100)poly(c,[[28,y],[48,y+11],[47,y+33],[28,y+27]],'#f4cba950');
+  for(let y=52;y<h-55;y+=96){
+   rect(c,w-27,y,20,32,'#4f4859');border(c,w-27,y,20,32,'#c8ae89',2);
+   rect(c,w-20,y+7,7,16,'#eee2d0');rect(c,w-17,y+9,1,9,'#736678');
+  }
+ }else if(m.theme==='stage'){
+  // Audience penlights and modular speaker stacks.
+  for(let i=0;i<9;i++){
+   const x=15+i*38,y=h-28+i%3;
+   rect(c,x,y,3,14,i%2?'#85d6c1':'#efb6c4');rect(c,x-2,y-3,7,4,((i+Number(beat))%3)?'#fbefcb':'#d4c9df');
+  }
+  for(const x of [3,w-28])for(let y=50;y<h-38;y+=90){
+   rect(c,x,y,24,38,'#45465f');border(c,x,y,24,38,'#b7a1b5',2);
+   circle(c,x+12,y+11,5,'#9095a3');circle(c,x+12,y+26,8,'#9095a3');circle(c,x+12,y+26,4,'#333a53');
+  }
+ }else if(m.theme==='street'){
+  // Gig flyers and the colorful but subdued cafe awning.
+  for(let i=0;i<4;i++){const y=53+i*79;
+   rect(c,3,y,25,29,i%2?'#6b576b':'#465c72');border(c,3,y,25,29,'#d5a996',2);
+   rect(c,7,y+5,17,5,i%2?'#e6c8a5':'#9fc1ae');rect(c,8,y+15,15,2,'#efc5b7');rect(c,10,y+22,11,2,'#e1d3af');
+   rect(c,w-28,y,25,17,'#e6ceae');for(let j=0;j<4;j++)rect(c,w-28+j*6,y,5,8,j%2?'#bd838d':'#ffecd0');
+   rect(c,w-26,y+19,21,9,'#57777c');rect(c,w-22,y+22,14,2,'#d5cdab');
+  }
+ }else if(m.theme==='wonderland'){
+  // Tiny balloon arches and singing flowers on the park border.
+  for(let i=0;i<7;i++){const x=14+i*49,y=10+(i%2)*5;
+   circle(c,x,y,7,i%3===0?'#f1b0b6':i%3===1?'#abd6b9':'#f9dbb5');
+   rect(c,x,y+7,1,14,'#9189a1');
+  }
+  for(let y=53;y<h-35;y+=83)for(const x of [14,w-15]){
+   for(let i=0;i<5;i++){const a=i*Math.PI*2/5;circle(c,x+Math.cos(a)*7,y+Math.sin(a)*7,4,i%2?'#edb4be':'#f4dfa5');}
+   circle(c,x,y,4,'#c37e95');rect(c,x-1,y+9,2,15,'#789c99');
+  }
+ }else if(m.theme==='empty'){
+  // Thin broken stage trusses against an otherwise spacious white void.
+  for(let y=53;y<h-37;y+=90){
+   rect(c,4,y,23,2,'#abb0bb');rect(c,5,y+2,2,25,'#adb2bc');
+   for(let i=0;i<3;i++){c.strokeStyle='#9da5b6';c.lineWidth=1;c.beginPath();c.moveTo(7+i*6,y);c.lineTo(14+i*6,y+22);c.stroke();}
+   poly(c,[[w-29,y+27],[w-16,y+2],[w-2,y+27]],'#adb4c4');
+   poly(c,[[w-16,y+2],[w-2,y+27],[w-16,y+27]],'#8d95a8');
+  }
+ }else if(m.theme==='closed'||m.theme==='open'){
+  const dark=m.theme==='closed';
+  for(let i=0;i<5;i++){const y=53+i*64;
+   for(const x of [4,w-27]){
+    rect(c,x,y,23,33,dark?'#34374b':'#f5f5e8');
+    border(c,x,y,23,33,dark?'#ad96a1':'#98bec6',2);
+    rect(c,x+3,y+3,17,27,dark?'#20283b':'#b7e2e8');
+    rect(c,x+11,y+3,2,27,dark?'#b8a5a5':'#fff7dd');
+    rect(c,x+3,y+16,17,2,dark?'#b8a5a5':'#fff7dd');
+    if(dark)poly(c,[[x+3,y+23],[x+9,y+17],[x+19,y+28]],'#997a88');
+    else poly(c,[[x+9,y+4],[x+20,y+4],[x+20,y+15]],'#fff3c6');
+   }
+  }
+  for(let i=0;i<7;i++){const x=27+i*42;rect(c,x,h-17,5,2,dark?'#856b7e':'#fff4db');}
+ }
+}
 function spawn(c,m,time){
  const X=m.spawn.x*T,Y=m.spawn.y*T;
  rect(c,X+2,Y+2,28,28,'#283649');border(c,X+2,Y+2,28,28,'#f5e7b8',2);
- rect(c,X+6,Y+6,20,20,m.palette.spawn);rect(c,X+11,Y+11,10,10,'#3b445e');
+ rect(c,X+6,Y+6,20,20,m.palette.spawn);
+ const glyphs={school:'♪',stage:'★',street:'♫',wonderland:'✦',empty:'◇',closed:'×',open:'✧'};
+ c.fillStyle='#263b4d';c.textAlign='center';c.textBaseline='middle';c.font='bold 15px Arial';
+ c.fillText(glyphs[m.theme]||'◆',X+16,Y+16);
  const s=2+Math.floor((Math.sin(time*4)+1)*1.5);
  rect(c,X+16-s,Y+16-s,s*2,s*2,'#fff3da');
  for(const [dx,dy] of [[4,4],[24,4],[4,24],[24,24]])rect(c,X+dx,Y+dy,4,4,'#fff2cf');
 }
 export function drawSekaiWorld(c,m,time=0){
  c.save();c.imageSmoothingEnabled=false;
- floor(c,m);route(c,m);scenery(c,m);spawn(c,m,time);c.restore();
+ floor(c,m);route(c,m);scenery(c,m);sceneIdentity(c,m,time);spawn(c,m,time);c.restore();
 }
