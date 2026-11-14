@@ -155,3 +155,21 @@
 #waveText.boss-wave{color:#bb6b56}
 #summonButton:disabled{filter:saturate(.55);opacity:.69}
 #autoMergeButton:disabled{opacity:.53}
+
+/* Affinity is a transparent gameplay rule, not a fake rarity or a separate SEKAI. */
+.map-affinity{
+ font-size:clamp(10px,2.6vw,12px);font-weight:900;line-height:1.3;
+ color:#f5f6e5;background:#204b5fcf;border:1px solid #c8e6de;
+ padding:5px 10px;border-radius:5px;margin-top:3px;
+ text-shadow:0 1px 2px #1b334a;
+ max-width:min(90vw,410px);white-space:normal;word-break:keep-all;
+}
+.hero-signature{display:block;font-size:10px;font-weight:800;color:#3e7080;
+ max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.selection-panel.has-selection .selected-hero{min-height:60px}
+@media (orientation:landscape){
+ .map-affinity{font-size:10px;padding:3px 6px;max-width:85%}
+}
+@media (orientation:portrait) and (max-height:700px){
+ .map-affinity{margin-top:0;padding:3px 7px}
+}
