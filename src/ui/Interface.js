@@ -209,7 +209,11 @@ export class Interface {
   if(stack.children.length>3)stack.firstChild.remove();
   window.setTimeout(()=>outer.remove(),2200);
  }
- onSummon({unit,character,source}){
+ onSummon({unit,character,source,nextPrice}){
+  // The next price must be visible immediately after a tap, not on the
+  // next scheduled HUD refresh.
+  if(Number.isFinite(nextPrice))el('summonCost').textContent=String(nextPrice);
+  if(this.game)el('summonButton').disabled=this.game.crystals<this.game.cost;
   const name=character.names[this.save.language];
   const bonus=source==='affinity'?(this.save.language==='ja'?'セカイボーナス':this.save.language==='en'?'SEKAI BONUS':'세카이 보정'):'';
   this.setStatus(`${name}${bonus?' · '+bonus:''}`);
