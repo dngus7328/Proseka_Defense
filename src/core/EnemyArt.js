@@ -133,12 +133,13 @@ export function drawEnemyArt(c,game,e,time,rotated=false,reduceMotion=false){
  const hitPulse=e.hitPulse||0;
  const hitScale=hitPulse>0?1+Math.sin(hitPulse/.24*Math.PI)*.11:1;
  const size=e.kind==='boss'?1:e.kind==='shard'?.78:e.kind==='tank'?1.04:1;
+ const arrive=Math.max(0,Math.min(1,(e.emerge||0)/(e.kind==='boss'?.65:.32)));
  c.save();c.translate(x,y);
  // Shadows stay below moving bodies and do not interfere with collision tiles.
  ellipse(c,0,13,e.kind==='boss'?20:e.kind==='tank'?15:11,e.kind==='boss'?6:3.6,'#27354788');
- c.translate(0,Math.round(lift));
+ c.translate(0,Math.round(lift-arrive*6));
  if(rotated)c.rotate(-Math.PI/2);
- c.scale(size*hitScale,size*hitScale);
+ c.scale(size*hitScale*(1-arrive*.22),size*hitScale*(1-arrive*.22));
  if(e.kind==='dash'){
   // The arrow-shaped runner should face the path it is actually following.
   const nodes=game.map.path,at=((Math.floor(e.progress)%nodes.length)+nodes.length)%nodes.length;
