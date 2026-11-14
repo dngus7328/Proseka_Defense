@@ -1,4 +1,4 @@
-import {Renderer} from './core/Renderer.js';
+import {Renderer} from './core/Renderer.js?v=1.14.0';
 import {Game} from './core/Game.js';
 import {loadSave,persistSave} from './core/Save.js';
 import {SoundEngine} from './core/Audio.js';
