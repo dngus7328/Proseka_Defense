@@ -146,6 +146,9 @@ export class Renderer {
   this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;
   this.spriteImages=Object.create(null);
   this.spriteRenders=new Map();
+  this.renderScale=1;
+  this.mapLogicalWidth=0;
+  this.mapLogicalHeight=0;
   this.currentTitleMap=null;
   this.reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
   this.effectsLite=false;
@@ -173,12 +176,12 @@ export class Renderer {
   const img=this.spriteImages[characterId]?.[direction];
   return img?.complete&&img.naturalWidth>0?img:null;
  }
- getPreparedSprite(id,direction,width){
+ getPreparedSprite(id,direction,width,quality=1){
   const raw=this.getSprite(id,direction);
   if(!raw)return null;
   // Draw each character/direction/rank combination at high quality only once.
   // Runtime sprite motion then moves an already small transparent bitmap.
-  const pixels=Math.max(8,Math.round(width));
+  const pixels=Math.max(8,Math.round(width*quality));
   const key=id+'/'+direction+'/'+pixels;
   const ready=this.spriteRenders.get(key);
   if(ready)return ready;
@@ -198,25 +201,40 @@ export class Renderer {
   }catch{return raw;}
  }
  drawSprite(c,id,direction,x,y,width,flip=false){
-  const image=this.getPreparedSprite(id,direction,width);
+  // Battle sprites are downsampled once at actual display pixel density,
+  // not to tiny 42px images that browsers later enlarge into blurry blocks.
+  const scale=c===this.ctx?this.renderScale:1;
+  const image=this.getPreparedSprite(id,direction,width,scale);
   if(!image)return false;
   c.save();c.translate(x,y);if(flip)c.scale(-1,1);
-  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='low';
+  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
   c.drawImage(image,-width/2,-width,width,width);
   c.restore();return true;
  }
  setMap(map){
-  // A portrait-oriented map stays one logical world in every orientation.
-  // For landscape we rotate its camera, not the units or the enemy path.
+  // Keep every gameplay coordinate in logical 32px tiles; only the backing
+  // bitmap resolution changes. This avoids deforming original PNG sprites.
   const rotated=window.innerWidth>window.innerHeight;
-  if(this.currentMap?.id===map.id&&this.rotated===rotated)return;
+  const logicalWidth=(rotated?map.h:map.w)*TILE;
+  const logicalHeight=(rotated?map.w:map.h)*TILE;
+  // Crisp sprites with bounded GPU/CPU work on phones.
+  const isSmall=window.innerWidth<700||window.innerHeight<500;
+  const scale=isSmall?1.6:2.25;
+  const changed=this.currentMap?.id!==map.id||this.rotated!==rotated||
+    this.mapLogicalWidth!==logicalWidth||this.mapLogicalHeight!==logicalHeight||
+    this.renderScale!==scale;
+  if(!changed)return;
   this.currentMap=map;this.rotated=rotated;
-  this.canvas.width=(rotated?map.h:map.w)*TILE;
-  this.canvas.height=(rotated?map.w:map.h)*TILE;
-  this.canvas.style.aspectRatio=`${this.canvas.width}/${this.canvas.height}`;
-  this.canvas.style.setProperty('--map-aspect',`${this.canvas.width}/${this.canvas.height}`);
-  document.querySelector('.board-frame')?.style.setProperty('--map-aspect',`${this.canvas.width}/${this.canvas.height}`);
-  document.querySelector('.board-frame')?.style.setProperty('--map-ratio',String(this.canvas.width/this.canvas.height));
+  this.mapLogicalWidth=logicalWidth;this.mapLogicalHeight=logicalHeight;
+  this.renderScale=scale;
+  this.canvas.width=Math.round(logicalWidth*scale);
+  this.canvas.height=Math.round(logicalHeight*scale);
+  const ratio=logicalWidth/logicalHeight;
+  this.canvas.style.aspectRatio=`${logicalWidth}/${logicalHeight}`;
+  this.canvas.style.setProperty('--map-aspect',`${logicalWidth}/${logicalHeight}`);
+  const board=document.querySelector('.board-frame');
+  board?.style.setProperty('--map-aspect',`${logicalWidth}/${logicalHeight}`);
+  board?.style.setProperty('--map-ratio',String(ratio));
   this.ctx.imageSmoothingEnabled=false;
  }
  mapClick(event){
@@ -231,8 +249,10 @@ export class Renderer {
   const c=this.ctx,m=game.map,time=game.visualTime;
   c.setTransform(1,0,0,1,0,0);
   c.clearRect(0,0,this.canvas.width,this.canvas.height);
+  // Higher-resolution output with the *same* world layout / hit positions.
+  c.setTransform(this.renderScale,0,0,this.renderScale,0,0);
   c.save();
-  if(this.rotated){c.translate(this.canvas.width,0);c.rotate(Math.PI/2);}
+  if(this.rotated){c.translate(this.mapLogicalWidth,0);c.rotate(Math.PI/2);}
   if(game.cameraShake>0&&!this.reduceMotion&&!this.effectsLite){const q=game.cameraShake;const j=Math.sin(time*129)*q;c.translate(j,Math.cos(time*151)*q*.65);}
   drawSekaiWorld(c,m,time,this.reduceMotion||this.effectsLite);
   this.drawPlacement(c,m,game);
