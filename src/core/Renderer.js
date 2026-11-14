@@ -28,7 +28,7 @@ export class Renderer {
       this.drawTitleScene(document.getElementById('titlePreview'),this.currentTitleMap);
      }
     });
-    img.src=`./assets/characters/${hero.id}/${angle}.png`;
+    img.src=`./Assets/characters/${hero.id}/${angle}.png`;
    }
   }
  }
