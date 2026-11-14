@@ -253,6 +253,95 @@ function sceneIdentity(c,m,time){
   for(let i=0;i<7;i++){const x=27+i*42;rect(c,x,h-17,5,2,dark?'#856b7e':'#fff4db');}
  }
 }
+// A restrained environmental animation layer. Every animation sits in
+// reserved scenery cells or on the boundary, never on a playable lane.
+// Motion can be disabled without removing any identifying map landmark.
+function ambientLife(c,m,time,reduceMotion=false){
+ const t=reduceMotion?0:time,w=m.w*T,h=m.h*T;
+ if(m.theme==='school'){
+  // Slow floating dust in the sunset side windows and a classroom wall clock.
+  for(let k=0;k<7;k++){
+   const y=41+(k*41)%Math.max(1,h-69),x=15+Math.sin(t*.35+k*1.7)*4;
+   rect(c,x,y+Math.sin(t*.6+k)*3,2,2,k%2?'#e4d4bd':'#f2bfa3');
+  }
+  const x=w-53,y=17;
+  circle(c,x,y,8,'#e5d9c9');circle(c,x,y,6,'#52677a');
+  c.save();c.translate(x,y);c.rotate(t*.08);rect(c,-1,-5,2,6,'#eee2cb');c.restore();
+  c.save();c.translate(x,y);c.rotate(t*.012);rect(c,-1,-3,2,4,'#e5baa2');c.restore();
+ }else if(m.theme==='stage'){
+  // Moving stage lamps illuminate only the reserved central platform.
+  const X=4*T,Y=4*T;
+  c.save();c.beginPath();c.rect(X+8,Y+8,3*T-16,3*T-16);c.clip();
+  for(let i=0;i<3;i++){
+   const a=t*.48+i*2.12,headX=X+15+i*31,beam=12+Math.sin(a)*13;
+   const pts=[[headX,Y+6],[headX+5,Y+6],[X+45+beam+14,Y+82],[X+45+beam-14,Y+82]];
+   c.globalAlpha=.15;c.fillStyle=i%2?'#eed8cb':'#d1e1d8';
+   c.beginPath();c.moveTo(pts[0][0],pts[0][1]);
+   for(let j=1;j<pts.length;j++)c.lineTo(pts[j][0],pts[j][1]);
+   c.closePath();c.fill();
+  }
+  c.restore();
+  // The row of stage bulbs cycles gently rather than a hard strobe.
+  for(let i=0;i<7;i++){
+   const q=.5+.5*Math.sin(t*1.75+i*.9);
+   circle(c,X+9+i*13,Y+88,2+q*1.4,i%2?'#f3d2a4':'#a7d9ca');
+  }
+  for(let i=0;i<9;i++){
+   const x=15+i*38,y=h-30+(i%3);
+   c.save();c.translate(x,y+1);c.rotate(Math.sin(t*1.8+i*.7)*.11);
+   rect(c,-2,-12,4,12,i%2?'#91d4c6':'#edb9c7');
+   rect(c,-3,-14,6,3,'#fbefd2');c.restore();
+  }
+ }else if(m.theme==='street'){
+  // Café awning shadows move; street posters lift at one corner in the breeze.
+  for(let i=0;i<4;i++){
+   const y=53+i*79,flip=Math.sin(t*.75+i*2);
+   poly(c,[[w-27,y+15],[w-22,y+15],[w-22+flip*3,y+20]],'#766f7b');
+   poly(c,[[5,y+7],[12,y+7],[12+flip*2,y+10]],'#eee0c8');
+  }
+  for(let i=0;i<4;i++){
+   const x=w-8+Math.sin(t*.45+i*1.7)*4,y=44+i*84+(t*3+i*5)%17;
+   rect(c,x,y,2,2,'#e7d2b5');
+  }
+ }else if(m.theme==='wonderland'){
+  // Slow carousel turn on a reserved 3x3 landmark; balloons rock at the edge.
+  const X=5*T+13,Y=5*T+16;
+  for(let k=0;k<8;k++){
+   const a=k*Math.PI/4+t*.36;
+   const px=X+Math.cos(a)*22,py=Y+Math.sin(a)*22;
+   circle(c,px,py,4,k%2?'#f5e3b5':'#bce2d0');
+   rect(c,px-1,py-2,2,5,'#987e94');
+  }
+  circle(c,X,Y,6,'#f3e8c6');circle(c,X,Y,3,'#8c9b99');
+  for(let k=0;k<7;k++){
+   const x=14+k*49,y=10+(k%2)*5;
+   circle(c,x+Math.sin(t*.8+k*.7)*2,y+Math.cos(t*.7+k)*1.4,5,k%3===0?'#e9a5b4':k%3===1?'#8bc7b3':'#f8d69a');
+  }
+ }else if(m.theme==='empty'){
+  // No bright effects: tiny drifting polygons emphasize unnatural emptiness.
+  for(let i=0;i<8;i++){
+   const left=i%2===0;
+   const x=(left?12:w-14)+Math.sin(t*.4+i)*4;
+   const y=(25+i*43+t*(i%2?1.8:2.4))%(h-18)+8;
+   poly(c,[[x,y-2],[x+2,y],[x,y+2],[x-2,y]],'#b0b6c3');
+  }
+ }else if(m.theme==='closed'){
+  // Closed windows shake ever so slightly: uneasy, not a glitch filter.
+  for(let i=0;i<5;i++){
+   const y=53+i*64;
+   const q=Math.sin(t*.54+i*1.91);
+   rect(c,7+q*1.5,y+14,12,2,'#6a6077');
+   rect(c,w-24-q*1.5,y+19,12,2,'#78697f');
+  }
+ }else if(m.theme==='open'){
+  // Small drifting petals in the window sunlight.
+  for(let i=0;i<9;i++){
+   const y=10+(i*43+t*(2+(i%3)))%(h-20);
+   const x=(i%2?18:w-20)+Math.sin(t*.7+i*1.5)*7;
+   poly(c,[[x-2,y],[x+1,y-3],[x+3,y],[x,y+4]],i%3?'#f6e4cc':'#c7dddc');
+  }
+ }
+}
 function spawn(c,m,time){
  const X=m.spawn.x*T,Y=m.spawn.y*T;
  rect(c,X+2,Y+2,28,28,'#283649');border(c,X+2,Y+2,28,28,'#f5e7b8',2);
@@ -264,7 +353,7 @@ function spawn(c,m,time){
  rect(c,X+16-s,Y+16-s,s*2,s*2,'#fff3da');
  for(const [dx,dy] of [[4,4],[24,4],[4,24],[24,24]])rect(c,X+dx,Y+dy,4,4,'#fff2cf');
 }
-export function drawSekaiWorld(c,m,time=0){
+export function drawSekaiWorld(c,m,time=0,reduceMotion=false){
  c.save();c.imageSmoothingEnabled=false;
- floor(c,m);route(c,m);scenery(c,m);sceneIdentity(c,m,time);spawn(c,m,time);c.restore();
+ floor(c,m);route(c,m);scenery(c,m);sceneIdentity(c,m,time);ambientLife(c,m,time,reduceMotion);spawn(c,m,reduceMotion?0:time);c.restore();
 }
