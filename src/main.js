@@ -14,7 +14,7 @@ let currentConfig=null;
 // Game time uses a fixed simulation step. Drawing can be throttled without
 // causing wave timing, enemy travel or 2x speed to run slower.
 const SIM_STEP=1/60,MAX_SIM_STEPS=7;
-let previous=performance.now(),simAccum=0,uiAccum=0;
+let previous=performance.now(),simAccum=0,uiAccum=0,renderCredit=0;
 let lastRender=0,averageDraw=0,averageRaf=16.7,renderLimit=60;
 let renderedThisSecond=0,lastSampleTime=previous;
 const showPerf=typeof location!=='undefined'&&new URLSearchParams(location.search).has('fps');
@@ -74,7 +74,7 @@ function frame(now){
  if(document.visibilityState==='hidden'){
   // Never spend CPU/GPU while the tab is hidden, and never fast-forward a
   // whole hidden interval after the user returns.
-  simAccum=0;lastRender=now;requestAnimationFrame(frame);return;
+  simAccum=0;renderCredit=0;lastRender=0;requestAnimationFrame(frame);return;
  }
  const dt=Math.min(.16,rawDt);
  averageRaf=averageRaf*.965+Math.max(0,rawDt*1000)*.035;
@@ -101,7 +101,11 @@ function frame(now){
    averageRaf>20||averageDraw>11?45:60;
   renderLimit=newLimit;
   const idle=game.phase==='paused'||game.phase==='ended';
-  if(!lastRender||now-lastRender>=((idle?125:1000/renderLimit)*.78)){
+  // Token cadence yields ~45 actual draws/sec on a 60Hz monitor; simply
+  // waiting 22ms between RAF callbacks would incorrectly drop to 30 FPS.
+  renderCredit=Math.min(1.15,renderCredit+Math.min(.08,rawDt)*(idle?8:renderLimit));
+  if(!lastRender||renderCredit>=1){
+   renderCredit=Math.max(0,renderCredit-1);
    lastRender=now;
    const start=performance.now();
    renderer.draw(game);
