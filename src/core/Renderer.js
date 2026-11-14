@@ -8,6 +8,139 @@ const DIRECTIONS=['front','front-left','back-left','back'];
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
 const lerp=(a,b,t)=>a+(b-a)*t;
 const point=(x,y)=>({x,y});
+// SEKAI heart attacks have six distinct visual grammars. All are bounded
+// around the center or the enemies actually hit, rather than masking the map.
+function heartStar(c,x,y,r,spin=0){
+ c.beginPath();
+ for(let i=0;i<10;i++){
+  const a=-Math.PI/2+spin+i*Math.PI/5,q=i%2===0?r:r*.4;
+  const px=x+Math.cos(a)*q,py=y+Math.sin(a)*q;
+  if(i===0)c.moveTo(px,py);else c.lineTo(px,py);
+ }
+ c.closePath();c.stroke();
+}
+function heartTarget(c,e,t,x,y){
+ const p=1-t,style=e.style||'star',seed=(e.impactIndex||0)*.55;
+ c.save();c.translate(x,y);
+ c.lineWidth=e.full?2.8:1.8;
+ c.strokeStyle=e.color||'#e7dfbe';
+ c.fillStyle='#fff4d6';
+ if(style==='star'){
+  // Leo/need: a precise stellar strike with its own trailing chord.
+  heartStar(c,0,0,7+p*8,p*1.8+seed);
+  c.beginPath();c.moveTo(-14-p*8,9);c.lineTo(14+p*8,-9);c.stroke();
+ }else if(style==='rain'){
+  // MORE MORE JUMP!: four stage-light drops, not a generic circle.
+  for(let i=0;i<4;i++){
+   const xx=(i-1.5)*7,yy=-16+p*23-i*4;
+   c.fillRect(xx,yy,3,8);
+   c.beginPath();c.moveTo(xx+2,yy+11);c.lineTo(xx+2,yy+16);c.stroke();
+  }
+ }else if(style==='slash'){
+  // Vivid BAD SQUAD: hard diagonal alternating cuts.
+  for(let i=0;i<3;i++){
+   const k=(i-1)*9;
+   c.beginPath();c.moveTo(-13+k-p*7,13);c.lineTo(13+k+p*7,-13);c.stroke();
+  }
+  c.fillRect(2+p*7,-13,7,3);
+ }else if(style==='burst'){
+  // Wonderlands x Showtime: chunky colored stage-confetti blast.
+  for(let i=0;i<8;i++){
+   const a=i*Math.PI/4+seed,rad=7+p*17;
+   const px=Math.cos(a)*rad,py=Math.sin(a)*rad;
+   c.fillRect(px-2,py-2,i%2?3:5,i%2?6:3);
+  }
+  c.strokeRect(-6-p*2,-6-p*2,12+p*4,12+p*4);
+ }else if(style==='wave'){
+  // Nightcord: quiet expanding score lines and a tiny suspended note.
+  for(let i=0;i<3;i++){
+   c.beginPath();c.ellipse(0,0,6+p*13+i*4,4+p*9+i*3,0,0,Math.PI*2);c.stroke();
+  }
+  c.fillRect(-2,-13-p*6,4,4);
+ }else if(style==='orbit'){
+  // Virtual Singers: a small six-point echo ring.
+  for(let i=0;i<6;i++){
+   const a=i*Math.PI/3+p*2,rad=12+p*10;
+   const px=Math.cos(a)*rad,py=Math.sin(a)*rad;
+   c.fillRect(px-2,py-2,4,4);
+   c.beginPath();c.moveTo(px,py);c.lineTo(px-Math.cos(a)*6,py-Math.sin(a)*6);c.stroke();
+  }
+  c.beginPath();c.arc(0,0,5+p*8,0,Math.PI*2);c.stroke();
+ }
+ c.restore();
+}
+function heartField(c,game,e,t,time,x,y){
+ const p=1-t,style=e.style||'star';
+ const halfW=Math.min(120,game.map.w*TILE*.28),halfH=Math.min(140,game.map.h*TILE*.34);
+ c.save();c.translate(x,y);
+ c.lineWidth=e.full?3.2:2.2;
+ c.strokeStyle=e.color||'#b4d4d9';c.fillStyle=e.color||'#b4d4d9';
+ if(e.type==='heartCrest'){
+  const radius=12+p*48;
+  for(let i=0;i<4;i++){
+   const a=Math.PI/4+i*Math.PI/2+time*.08;
+   c.save();c.translate(Math.cos(a)*radius,Math.sin(a)*radius);
+   c.rotate(a);c.strokeRect(-5,-5,10,10);c.restore();
+  }
+  c.beginPath();c.ellipse(0,0,20+p*50,13+p*35,0,0,Math.PI*2);c.stroke();
+ }else if(style==='star'){
+  // Four star nodes connect into a single musical constellation.
+  const nodes=[[-.7,-.6],[.55,-.72],[.85,.52],[-.64,.63]];
+  c.beginPath();
+  nodes.forEach(([nx,ny],i)=>{const px=nx*halfW*(.5+p*.5),py=ny*halfH*(.5+p*.5);
+   if(i===0)c.moveTo(px,py);else c.lineTo(px,py);});c.closePath();c.stroke();
+  nodes.forEach(([nx,ny],i)=>{
+   heartStar(c,nx*halfW*(.5+p*.5),ny*halfH*(.5+p*.5),7+3*p,i*.18+p);
+  });
+  heartStar(c,0,0,14+p*10,p*.22);
+ }else if(style==='rain'){
+  // Stage lighting and a curtain of confetti fall in staggered bands.
+  for(let i=0;i<10;i++){
+   const xx=(i-4.5)*halfW/5,yy=-halfH*.9+((p*1.35+i*.13)%1.5)*halfH*1.2;
+   c.fillRect(xx,yy,(i%3?3:5),7+(i%4)*2);
+   c.beginPath();c.moveTo(xx+1,yy-19);c.lineTo(xx+1,yy-5);c.stroke();
+  }
+  for(let i=-1;i<=1;i++){c.beginPath();c.moveTo(i*45,-halfH);
+   c.lineTo(i*55+Math.sin(time*2+i)*9,halfH*.5);c.stroke();}
+ }else if(style==='slash'){
+  for(let i=-2;i<=2;i++){
+   const offset=i*27+Math.sin(time*9+i)*4;
+   c.beginPath();c.moveTo(-halfW+offset,halfH*.7-p*23);
+   c.lineTo(halfW+offset,-halfH*.7+p*18);c.stroke();
+   c.fillRect(offset+14,0,7,3);
+  }
+ }else if(style==='burst'){
+  for(let i=0;i<14;i++){
+   const a=i*Math.PI*2/14+(i%3)*.11,rad=12+p*(35+(i%4)*13);
+   const px=Math.cos(a)*rad,py=Math.sin(a)*rad;
+   c.save();c.translate(px,py);c.rotate(a+p);
+   c.fillRect(-3,-2,(i%2?4:8),(i%3?4:7));c.restore();
+  }
+  for(let i=0;i<8;i++){
+   const a=i*Math.PI/4;
+   c.beginPath();c.moveTo(Math.cos(a)*13,Math.sin(a)*13);
+   c.lineTo(Math.cos(a)*(45+p*42),Math.sin(a)*(45+p*42));c.stroke();
+  }
+ }else if(style==='wave'){
+  for(let i=0;i<4;i++){
+   const rx=10+Math.max(0,p-i*.15)*halfW,ry=7+Math.max(0,p-i*.15)*halfH*.65;
+   c.beginPath();c.ellipse(0,0,rx,ry,0,0,Math.PI*2);c.stroke();
+  }
+  for(let i=0;i<7;i++){
+   const xx=(i-3)*23,yy=-halfH*.5+Math.sin(time*1.9+i)*5;
+   c.fillRect(xx,yy+p*halfH*.52,2,4);
+  }
+ }else if(style==='orbit'){
+  for(let i=0;i<6;i++){
+   const a=i*Math.PI/3+p*3.1,rx=halfW*(.43+p*.38),ry=halfH*(.3+p*.28);
+   const px=Math.cos(a)*rx,py=Math.sin(a)*ry;
+   c.beginPath();c.moveTo(px,py);c.lineTo(px-Math.cos(a)*11,py-Math.sin(a)*11);c.stroke();
+   c.save();c.translate(px,py);c.rotate(a);c.fillRect(-5,-4,10,8);c.restore();
+  }
+  c.beginPath();c.ellipse(0,0,halfW*(.38+p*.4),halfH*(.26+p*.32),0,0,Math.PI*2);c.stroke();
+ }
+ c.restore();
+}
 export class Renderer {
  constructor(canvas){
   this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;
@@ -318,19 +451,12 @@ export class Renderer {
     if(e.type==='spawn'){
      for(let i=0;i<4;i++){const a=i*Math.PI/2;c.fillRect(x+Math.cos(a)*radius-2,y+Math.sin(a)*radius-2,4,4);}
     }
-   }else if(e.type==='pop'||e.type==='heartHit'){
+    }else if(e.type==='heartHit'){
+    heartTarget(c,e,t,x,y);
+   }else if(e.type==='pop'){
     const q=(1-t)*12+2;c.fillRect(x-q,y-2,2*q,4);c.fillRect(x-2,y-q,4,2*q);
-   }else if(e.type==='heart'){
-    const w=game.map.w*TILE,h=game.map.h*TILE,p=1-t;
-    c.strokeStyle=e.color;c.lineWidth=e.full?6:4;
-    if(e.style==='wave'||e.style==='orbit'||e.style==='rain'){
-     for(let i=0;i<3;i++){const r=(.16+p*.75+i*.13)*Math.min(w,h);c.strokeRect(w/2-r/1.25,h/2-r/1.7,r*1.6,r*1.35);}
-    }else if(e.style==='slash'){
-     for(let i=-3;i<=3;i++){const start=(i+3)/7*w;c.beginPath();c.moveTo(start,-30);c.lineTo(start+w*.4,h+30);c.stroke();}
-    }else if(e.style==='burst'||e.style==='star'){
-     const n=e.style==='star'?12:16;
-     for(let i=0;i<n;i++){const a=i/n*Math.PI*2+time*.2,r1=Math.min(w,h)*.1,r2=Math.min(w,h)*(.3+p*.6);c.beginPath();c.moveTo(w/2+Math.cos(a)*r1,h/2+Math.sin(a)*r1);c.lineTo(w/2+Math.cos(a)*r2,h/2+Math.sin(a)*r2);c.stroke();}
-    }
+   }else if(e.type==='heart'||e.type==='heartCrest'){
+    heartField(c,game,e,t,time,x,y);
    }
    c.restore();
   }
