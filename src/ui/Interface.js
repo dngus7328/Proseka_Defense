@@ -5,7 +5,7 @@ import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
-import {TitleIntro} from './TitleIntro.js?v=1.15.0';
+import {TitleIntro} from './TitleIntro.js?v=1.15.1';
 import {persistSave} from '../core/Save.js';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
