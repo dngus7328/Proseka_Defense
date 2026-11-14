@@ -1,0 +1,30 @@
+// Original fan-game battle lines. Not official Project SEKAI dialogue.
+// Dialogue is keyed by the actor chosen from the participating units.
+export const SKILL_DIALOGUE={
+ "ichika":{ko:"우리의 소리, 하나로 이어질 거야!",ja:"私たちの音を、ひとつにつなぐよ！",en:"Our sounds will come together!"},
+ "saki":{ko:"지금 이 순간을 놓치지 않을 거야!",ja:"今この瞬間を、逃さないよ！",en:"I won't miss this moment!"},
+ "honami":{ko:"모두의 박자를 지켜낼게.",ja:"みんなのリズムを守るね。",en:"I'll keep everyone's rhythm steady."},
+ "shiho":{ko:"박자가 흔들리면 안 돼.",ja:"リズムは絶対に崩さない。",en:"I'm not letting the rhythm slip."},
+ "minori":{ko:"포기하지 않으면, 분명 닿을 거야!",ja:"諦めなければ、きっと届くよ！",en:"If we keep going, we'll reach them!"},
+ "haruka":{ko:"지금이야. 함께 맞춰!",ja:"今だよ。一緒に合わせて！",en:"Now. Let's move together!"},
+ "airi":{ko:"이 정도로 끝낼 생각 없어!",ja:"この程度で終わらせないわよ！",en:"We're not stopping here!"},
+ "shizuku":{ko:"이 빛을 따라와 줘.",ja:"この光についてきて。",en:"Follow this light."},
+ "kohane":{ko:"이번엔 내가 해볼게!",ja:"今度は私がやってみる！",en:"I'll give it a try this time!"},
+ "an":{ko:"자, 우리의 소리를 들려주자!",ja:"さあ、私たちの音を聴かせよう！",en:"Come on, let them hear us!"},
+ "akito":{ko:"여기서 밀릴 순 없지!",ja:"ここで負けてられねえ！",en:"We're not backing down here!"},
+ "toya":{ko:"호흡을 맞추자. 지금이다.",ja:"息を合わせよう。今だ。",en:"Let's sync up. It's time."},
+ "tsukasa":{ko:"주목! 지금부터가 하이라이트다!",ja:"注目！ここからが見せ場だ！",en:"Watch closely! This is the highlight!"},
+ "emu":{ko:"원더호이! 모두 웃어 보자!",ja:"わんだほーい！みんなで笑おう！",en:"Wonderhoy! Let's all smile!"},
+ "nene":{ko:"내 차례네. 확실하게 할게.",ja:"私の番ね。きっちり決めるよ。",en:"My turn. I'll get this right."},
+ "rui":{ko:"예상 밖의 무대를 보여줄게.",ja:"予想を超える舞台を見せよう。",en:"I'll show you something unexpected."},
+ "kanade":{ko:"이 노래가, 너에게 닿기를.",ja:"この歌が、あなたに届きますように。",en:"I hope this song reaches you."},
+ "mafuyu":{ko:"이 소리의 끝에는… 뭐가 있을까.",ja:"この音の先には……何があるんだろう。",en:"I wonder what's beyond this sound…"},
+ "ena":{ko:"내 색을 지우게 두진 않아.",ja:"私の色は、消させない。",en:"I won't let my colors disappear."},
+ "mizuki":{ko:"재밌는 순간은 이제부터야!",ja:"楽しいのはこれからだよ！",en:"The fun starts right now!"},
+ "miku":{ko:"우리 함께 노래하자!",ja:"一緒に歌おう！",en:"Let's sing together!"},
+ "rin":{ko:"더 신나게 가보자!",ja:"もっと盛り上がっていこう！",en:"Let's turn up the energy!"},
+ "len":{ko:"속도를 올릴게!",ja:"スピードを上げるよ！",en:"Picking up the pace!"},
+ "luka":{ko:"소리를 부드럽게 이어갈게.",ja:"音をやさしくつないでいくね。",en:"I'll carry the melody onward."},
+ "meiko":{ko:"큰 소리로, 전부 쏟아내자!",ja:"思いきり、全部ぶつけよう！",en:"Let's give it everything we've got!"},
+ "kaito":{ko:"내가 리듬을 이끌게.",ja:"僕がリズムを導くよ。",en:"I'll lead the rhythm."}
+};
