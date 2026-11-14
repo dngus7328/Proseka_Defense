@@ -7,6 +7,7 @@ import {CHARACTERS,SIGNATURES} from '../src/data/characters.js';
 import {HEARTS} from '../src/data/hearts.js';
 import {SKILL_DIALOGUE} from '../src/data/skillDialogue.js';
 import {Game} from '../src/core/Game.js';
+import {Renderer} from '../src/core/Renderer.js';
 import {ENEMIES} from '../src/data/enemies.js';
 import {drawEnemyArt} from '../src/core/EnemyArt.js';
 import {drawSekaiWorld} from '../src/core/SekaiMapArt.js';
@@ -237,3 +238,32 @@ console.log('OK — rising summon costs, all 26 localized character voices, rota
  assert.equal(rendered,450,'45fps renderer accidentally dropped to 30fps');
 }
 console.log('OK — adaptive 45fps pacing retains fractional render credits');
+
+// Orientation-independent gameplay board and pointer mapping regression.
+{
+ const oldWindow=globalThis.window,oldDocument=globalThis.document;
+ try{
+  const props={};
+  globalThis.document={querySelector:()=>({style:{setProperty:(k,v)=>{props[k]=v;}}})};
+  const canvas={width:0,height:0,style:{setProperty(){}},
+   getBoundingClientRect:()=>({left:10,top:20,width:330,height:360})};
+  const renderer=Object.create(Renderer.prototype);
+  Object.assign(renderer,{canvas,ctx:{imageSmoothingEnabled:false},
+   effectsLite:false,renderScale:0,currentMap:null,mapLogicalWidth:0,mapLogicalHeight:0});
+  const map=MAPS[0];
+  for(const [w,h] of [[844,390],[667,375],[390,844],[1024,768]]){
+   globalThis.window={innerWidth:w,innerHeight:h};
+   renderer.setMap(map);
+   assert.equal(renderer.mapLogicalWidth,map.w*32,'map width rotated');
+   assert.equal(renderer.mapLogicalHeight,map.h*32,'map height rotated');
+   assert.equal(canvas.style.aspectRatio,`${map.w*32}/${map.h*32}`,'board aspect mismatch');
+   assert.equal(props['--map-ratio'],String(map.w/map.h),'CSS aspect mismatch');
+   assert.deepEqual(renderer.mapClick({clientX:10+330*3.4/map.w,
+     clientY:20+360*7.6/map.h}),{x:3,y:7},'tap selects incorrect tile');
+  }
+ }finally{
+  if(oldWindow===undefined)delete globalThis.window;else globalThis.window=oldWindow;
+  if(oldDocument===undefined)delete globalThis.document;else globalThis.document=oldDocument;
+ }
+}
+console.log('OK — upright landscape board, responsive aspect ratio and stable pointer mapping');
