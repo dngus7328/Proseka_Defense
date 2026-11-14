@@ -16,7 +16,7 @@ export class Interface {
  constructor(save,renderer,sound){
   this.save=save;this.renderer=renderer;this.sound=sound;this.game=null;
   this.config={difficulty:'normal',mapId:'roof'};
-  this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';
+  this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';this.lastTeamSignature='';this.lastSkillSignature='';
   this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
   this.skillCutin=document.createElement('section');this.skillCutin.id='skillCutin';this.skillCutin.className='skill-cutin';this.skillCutin.setAttribute('aria-live','polite');this.skillCutin.setAttribute('aria-atomic','true');document.body.append(this.skillCutin);
  }
@@ -306,8 +306,57 @@ export class Interface {
   el('autoMergeButton').disabled=g.phase!=='playing'||!g.units.some(u=>u.star<4&&g.units.some(v=>u.uid!==v.uid&&v.id===u.id&&v.star===u.star));
 
   this.updateSelection(force);
+  this.updateTeamStrip(force);
+  this.updateSkillCondition(force);
   this.updateUpgrades(force);
  }
+
+ updateTeamStrip(force=false){
+  const g=this.game,host=el('teamStripSlots');if(!g||!host)return;
+  const shown=g.units.slice(-7).reverse();
+  const signature=shown.map(u=>u.uid+'.'+u.star).join('|')+'|'+this.save.language+'|'+g.selectedId;
+  if(!force&&signature===this.lastTeamSignature)return;
+  this.lastTeamSignature=signature;
+  host.replaceChildren();
+  for(const u of shown){
+   const def=CHARACTER_BY_ID[u.id];if(!def)continue;
+   const button=document.createElement('button');button.type='button';
+   button.className='team-unit'+(g.selectedId===u.uid?' selected':'');
+   button.setAttribute('aria-label',def.names[this.save.language]+' '+u.star+'성');
+   button.title=def.names[this.save.language]+' · '+'★'.repeat(u.star);
+   const img=document.createElement('img');img.src='./Assets/characters/'+u.id+'/front.png';img.alt='';
+   const stars=document.createElement('small');stars.textContent='★'.repeat(u.star);
+   button.append(img,stars);
+   button.addEventListener('click',()=>{g.selection(u.uid);this.update(true);});
+   host.append(button);
+  }
+  if(!shown.length){
+   const hint=document.createElement('span');hint.className='team-strip-hint';
+   hint.textContent=this.save.language==='ja'?'召喚してメンバーを配置':this.save.language==='en'?'Summon your first member':'소환해서 첫 멤버를 배치해 봐';
+   host.append(hint);
+  }
+ }
+ updateSkillCondition(force=false){
+  const g=this.game,host=el('skillConditionAvatars');if(!g||!host)return;
+  const group=g.map.affinityGroup||'leo';
+  const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===group);
+  const owned=new Set(g.units.map(u=>u.id));
+  const count=members.filter(c=>owned.has(c.id)).length;
+  const signature=group+'|'+members.map(c=>owned.has(c.id)?'1':'0').join('')+'|'+this.save.language;
+  if(!force&&this.lastSkillSignature===signature)return;
+  this.lastSkillSignature=signature;
+  const title={ko:'세카이의 마음',ja:'セカイの想い',en:'SEKAI HEART'};
+  el('skillConditionName').textContent=title[this.save.language]||title.ko;
+  el('skillConditionCount').textContent=count===members.length?'READY':count+' / '+members.length;
+  el('skillCondition').classList.toggle('ready',count===members.length);
+  host.replaceChildren();
+  for(const c of members){
+   const box=document.createElement('span');box.className='skill-member'+(owned.has(c.id)?' owned':'');box.title=c.names[this.save.language]||c.names.ko;
+   const img=document.createElement('img');img.src='./Assets/characters/'+c.id+'/front.png';img.alt=c.names[this.save.language]||c.names.ko;
+   box.append(img);host.append(box);
+  }
+ }
+
  updateSelection(force){
   const g=this.game,u=g?.selected;
   el('selectionEmpty').hidden=!!u;el('selectionContent').hidden=!u;el('selectionPanel').classList.toggle('has-selection',!!u);
