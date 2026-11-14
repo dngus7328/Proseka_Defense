@@ -327,10 +327,19 @@ export class Game {
    if(!participants)continue;
    this.heartTimers[heart.id]=(this.heartTimers[heart.id]??3)-delta;
    if(this.heartTimers[heart.id]<=0){
-    // Keep the real battle moving even when many combinations activate together.
-    if(this.heartQueue.length<3)this.heartQueue.push({heart,participants:[...participants]});
-    else this.fireHeart(heart,participants);
-    this.heartTimers[heart.id]=Math.max(7,heart.cooldown/(1+this.upgrades.ability*.14));
+    // Never fire a hidden skill while its speaker is absent. Each activation
+    // must get a clear character line and an identifiable attack effect.
+    const alreadyWaiting=this.heartQueue.some(item=>item.heart.id===heart.id)
+      ||this.heartScene?.heart.id===heart.id;
+    if(alreadyWaiting){
+     this.heartTimers[heart.id]=1;
+    }else if(this.heartQueue.length<8){
+     this.heartQueue.push({heart,participants:[...participants]});
+     this.heartTimers[heart.id]=Math.max(7,heart.cooldown/(1+this.upgrades.ability*.14));
+    }else{
+     // Recheck later rather than silently firing without showing dialogue.
+     this.heartTimers[heart.id]=.8;
+    }
    }
   }
   if(!this.heartScene&&this.heartQueue.length){
