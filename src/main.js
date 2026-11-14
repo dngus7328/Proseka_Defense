@@ -103,7 +103,7 @@ function frame(now){
   const idle=game.phase==='paused'||game.phase==='ended';
   // Token cadence yields ~45 actual draws/sec on a 60Hz monitor; simply
   // waiting 22ms between RAF callbacks would incorrectly drop to 30 FPS.
-  renderCredit=Math.min(1.15,renderCredit+Math.min(.08,rawDt)*(idle?8:renderLimit));
+  renderCredit=Math.min(2,renderCredit+Math.min(.08,rawDt)*(idle?8:renderLimit));
   if(!lastRender||renderCredit>=1){
    renderCredit=Math.max(0,renderCredit-1);
    lastRender=now;
