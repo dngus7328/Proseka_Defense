@@ -41,7 +41,7 @@ export class Game {
   const multiplier=this.isEndless&&this.wave>20?Math.pow(1.088,this.wave-20):1;
   let hp=(17+Math.pow(this.wave,1.55)*4.5)*kind.hp*this.difficultyData.hp*multiplier;
   if(type==='boss')hp*=this.difficultyData.boss;
-  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,hitPulse:0,radius:kind.radius,age:0,visualSeed:Math.random()*Math.PI*2,tempo:0,beatCooldown:type==='boss'?3.7:0};
+  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,hitPulse:0,radius:kind.radius,age:0,visualSeed:Math.random()*Math.PI*2,tempo:0,beatCooldown:type==='boss'?3.7:0,emerge:type==='boss'?.65:.32};
   this.enemies.push(u);return u;
  }
  enemyPos(enemy){const p=this.map.path,n=p.length,index=((Math.floor(enemy.progress)%n)+n)%n,next=(index+1)%n,t=enemy.progress-Math.floor(enemy.progress);return{x:p[index].x*(1-t)+p[next].x*t,y:p[index].y*(1-t)+p[next].y*t};}
@@ -140,7 +140,15 @@ export class Game {
   const base=kind.reward*this.difficultyData.reward;
   this.crystals+=Math.max(1,Math.floor(base+this.upgrades.income*3.25));
   this.fragments+=Math.max(1,Math.floor(base*.72+this.upgrades.income*2.3));
-  const p=this.enemyPos(enemy);this.addEffect('pop',p.x,p.y,{color:kind.accent,life:.3});
+  const p=this.enemyPos(enemy);
+  this.addEffect('pop',p.x,p.y,{color:kind.accent,life:.3});
+  if(enemy.kind==='boss'){
+   this.addEffect('signature',p.x,p.y,{color:'#e4c4ad',life:.62,star:4,motif:'echo',size:1.7});
+   this.addEffect('ring',p.x,p.y,{color:'#b6cfbf',life:.65,radius:2.5});
+   this.emit('onSound','heavy');
+  }else if(enemy.kind==='tank'||enemy.kind==='split'){
+   this.addEffect('impact',p.x,p.y,{color:kind.accent,life:.36,star:2,size:1.1,motif:'crystal'});
+  }
   if(enemy.kind==='split'&&this.enemies.length<this.capacity-3){this.spawnEnemy('shard',enemy.progress);this.spawnEnemy('shard',enemy.progress+.1);}
   this.emit('onChange');
  }
@@ -339,6 +347,7 @@ export class Game {
   }
   for(const enemy of this.enemies){
    enemy.slow=Math.max(0,enemy.slow-dt);
+   enemy.emerge=Math.max(0,(enemy.emerge||0)-dt);
    enemy.tempo=Math.max(0,(enemy.tempo||0)-dt);
    enemy.flash=Math.max(0,enemy.flash-dt);enemy.hitPulse=Math.max(0,(enemy.hitPulse||0)-dt);
    // Dash types surge between small recovery beats; heavy enemies stomp.
