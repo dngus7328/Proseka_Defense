@@ -1,387 +1,193 @@
-// Five compact, top-down, procedurally drawn SEKAI locations. No map imagery is embedded.
-// Scenery is drawn only on reserved tiles or in border scenery. The road is one continuous loop.
+// Original, flat 2-D environment paintings for seven SEKAI arenas.
+// All scenery is drawn once to a cached canvas by Renderer, no image tilesets.
+// Grid/tile mechanics are unchanged; the view no longer looks like repeated blocks.
 const T=32;
-const cell=(x,y)=>`${x},${y}`;
-const rect=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));};
-const border=(c,x,y,w,h,color,s=2)=>{rect(c,x,y,w,s,color);rect(c,x,y+h-s,w,s,color);rect(c,x,y,s,h,color);rect(c,x+w-s,y,s,h,color);};
-const shadow=(c,x,y,w,h)=>rect(c,x+3,y+4,w,h,'#1a20302b');
-const onPath=(m,x,y)=>m.pathSet.has(cell(x,y));
-const blocked=(m,x,y)=>m.blockedSet.has(cell(x,y));
-const hash=(x,y)=>((x*85717+y*43133+x*y*131+7789)>>>0);
-function poly(c,pts,color){c.fillStyle=color;c.beginPath();for(let i=0;i<pts.length;i++){const [x,y]=pts[i];if(i===0)c.moveTo(x,y);else c.lineTo(x,y);}c.closePath();c.fill();}
-function circle(c,x,y,r,color){c.fillStyle=color;c.beginPath();c.arc(Math.round(x),Math.round(y),r,0,2*Math.PI);c.fill();}
-function dot(c,x,y,color,s=2){rect(c,x,y,s,s,color);}
-function lightTile(c,x,y,color){rect(c,x*T+3,y*T+3,26,26,color);}
-function floor(c,m){
+const PI=Math.PI;
+const THEMES={
+ school:{ground:'#d8bfab',band:'#b98c81',border:'#9c767e',road:'#66768e',roadEdge:'#34465e',roadMark:'#c5d8d9',accent:'#f6e1a6',detail:'#9c7880'},
+ stage:{ground:'#c5b5c9',band:'#715777',border:'#55465e',road:'#605c83',roadEdge:'#3c3d60',roadMark:'#d7b8e0',accent:'#f1c86d',detail:'#a477b8'},
+ street:{ground:'#d3c4b7',band:'#8e7a76',border:'#675c65',road:'#646d76',roadEdge:'#455162',roadMark:'#efdfba',accent:'#f6c686',detail:'#ab737d'},
+ wonderland:{ground:'#f4dfc2',band:'#d6a1a7',border:'#ad819c',road:'#b5a4c8',roadEdge:'#857b9f',roadMark:'#f9ede0',accent:'#f3c886',detail:'#e7acaa'},
+ empty:{ground:'#e8e7ec',band:'#b9becb',border:'#a0a8ba',road:'#aaaebf',roadEdge:'#83899f',roadMark:'#ecedf5',accent:'#d5d2df',detail:'#c1bed0'},
+ closed:{ground:'#726b7a',band:'#454354',border:'#373749',road:'#807989',roadEdge:'#555266',roadMark:'#bcb3bd',accent:'#c7a6b3',detail:'#555262'},
+ open:{ground:'#e6eae8',band:'#a8cbd1',border:'#8faebd',road:'#b1cbd0',roadEdge:'#739fa9',roadMark:'#eff9ef',accent:'#e8cfb2',detail:'#a9c4cc'}
+};
+const rect=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(x,y,w,h);};
+function rounded(c,x,y,w,h,r,fill,outline=null,line=1){
+ c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=fill;c.fill();if(outline){c.strokeStyle=outline;c.lineWidth=line;c.stroke();}
+}
+function ring(c,x,y,r,color,line=2){c.beginPath();c.arc(x,y,r,0,PI*2);c.strokeStyle=color;c.lineWidth=line;c.stroke();}
+function disc(c,x,y,r,fill){c.beginPath();c.arc(x,y,r,0,PI*2);c.fillStyle=fill;c.fill();}
+function poly(c,p,fill,outline=null,lw=1){c.beginPath();c.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)c.lineTo(p[i][0],p[i][1]);c.closePath();c.fillStyle=fill;c.fill();if(outline){c.strokeStyle=outline;c.lineWidth=lw;c.stroke();}}
+function line(c,p,color,width=2){c.beginPath();c.moveTo(...p[0]);for(let i=1;i<p.length;i++)c.lineTo(...p[i]);c.strokeStyle=color;c.lineWidth=width;c.stroke();}
+function window(c,x,y,w,h,sky='#9bbacc',frame='#f4e7d5'){
+ rounded(c,x,y,w,h,3,'#6c758a');rounded(c,x+3,y+3,w-6,h-6,1,sky);
+ rect(c,x+w*.48,y+3,3,h-6,frame);rect(c,x+3,y+h*.53,w-6,3,frame);
+ rect(c,x+5,y+5,w*.3,2,'#f4ecdf77');
+}
+function star(c,x,y,r,color){poly(c,[[x,y-r],[x+r*.28,y-r*.28],[x+r,y],[x+r*.28,y+r*.28],[x,y+r],[x-r*.28,y+r*.28],[x-r,y],[x-r*.28,y-r*.28]],color);}
+function post(c,x,y,h,color='#837689'){rect(c,x,y,2,h,color);disc(c,x+1,y,4,'#f0ddd3')}
+function ground(c,m,p){
  const w=m.w*T,h=m.h*T;
- const palettes={
-  school:['#b88e7b','#bc947e','#a77970','#d3aa8c'],
-  stage:['#b6aec6','#beb5cc','#a49ebc','#e0cfe0'],
-  street:['#b3a69a','#c1b0a1','#9d998f','#e2cbb6'],
-  wonderland:['#e6c3af','#efceb5','#d8b9bb','#fae3bd'],
-  empty:['#e1e0e8','#e8e7ef','#d4d5de','#f5f4f7'],
-  closed:['#555468','#5e5c71','#45485b','#827889'],
-  open:['#d8e4e6','#e7e4df','#bbced4','#f6e9ce']
- };
- const p=palettes[m.theme];rect(c,0,0,w,h,p[0]);
- for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
-  const X=x*T,Y=y*T,q=hash(x,y),alt=(x+3*y)%7===0;
-  rect(c,X,Y,T,T,alt?p[1]:p[0]);
-  if(m.theme==='school'){
-   rect(c,X,Y+30,32,2,'#8d706e');rect(c,X+((y%2)*16),Y+1,1,29,'#94746c');
-   rect(c,X+5,Y+5,20,1,'#dbac8b');if(q%9===0)rect(c,X+6,Y+20,7,1,'#9f786b');
-  }else if(m.theme==='stage'){
-   rect(c,X,Y+30,32,2,'#a79ab2');rect(c,X+30,Y,2,32,'#a79ab2');
-   rect(c,X+4,Y+4,24,1,'#d1c6d9');if(q%8===0)rect(c,X+17,Y+13,5,2,'#f2d7e0');
-  }else if(m.theme==='street'){
-   rect(c,X,Y+30,32,2,'#918986');rect(c,X+(y%2)*16,Y,1,29,'#a29a91');
-   if(q%8===0){rect(c,X+6,Y+13,9,1,'#ddd0bb');}
-  }else if(m.theme==='wonderland'){
-   rect(c,X,Y+30,32,2,'#d9aca8');rect(c,X+30,Y,2,32,'#d9aca8');
-   if((x+y)%3===0){rect(c,X+5,Y+5,22,22,'#ead1c4');rect(c,X+7,Y+7,18,18,'#f0d6c4');}
-  }else if(m.theme==='closed'){
-   rect(c,X,Y+30,32,2,'#444558');rect(c,X+30,Y,2,32,'#444558');
-   if(q%5===0){rect(c,X+7,Y+8,16,2,'#8d8191');rect(c,X+20,Y+14,8,1,'#a58b96');}
-   if(q%9===0)rect(c,X+10,Y+23,5,3,'#ba8e86');
-  }else if(m.theme==='open'){
-   rect(c,X,Y+31,32,1,'#becbd2');rect(c,X+31,Y,1,32,'#becbd2');
-   rect(c,X+5,Y+5,22,1,'#f7f5e9');
-   if(q%6===0){rect(c,X+10,Y+15,7,2,'#e5cfaf');rect(c,X+17,Y+15,7,2,'#d0dce0');}
-  }else{
-   if(x%3===0)rect(c,X,Y,1,32,'#d0d1d9');
-   if(y%3===0)rect(c,X,Y,32,1,'#caccd6');
-   if(q%13===0)rect(c,X+10,Y+16,9,1,'#bcc0cb');
-  }
- }
- // Spatial boundaries are miniature, readable parts of the same world.
+ rect(c,0,0,w,h,p.ground);
+ // Large surfaces imply real rooms and locations, rather than repeated tiles.
  if(m.theme==='school'){
-  rect(c,0,0,w,31,'#756076');rect(c,13,4,w-26,24,'#3d6268');border(c,13,4,w-26,24,'#d6b996',3);
-  for(let i=0;i<5;i++){const x=30+i*52;rect(c,x,8,1,14,'#a4c2bb');dot(c,x+13,11,'#f2d7a1',3);}
-  // Long late-afternoon windows.
-  for(let y=1;y<m.h-1;y++){const Y=y*T;rect(c,0,Y,32,32,'#7a7388');rect(c,4,Y+3,24,26,'#c6a3a0');rect(c,6,Y+5,20,21,(y%3===0)?'#e7bba2':'#9aacc0');rect(c,15,Y+4,2,24,'#ead7c1');rect(c,4,Y+16,25,2,'#ead7c1');}
-  rect(c,0,h-31,w,31,'#806778');rect(c,15,h-25,92,20,'#4a4d5a');
-  rect(c,22,h-21,78,11,'#d0bcae');for(let i=0;i<15;i++)rect(c,24+i*5,h-20,3,9,i%2?'#eae6e0':'#685f6c');
+  for(let j=0;j<11;j++){
+   const y=32+j*34;
+   rect(c,0,y,w,1,'#b9978b30');
+   if(j%2===0)rect(c,27,y+1,w-54,1,'#eed7ba55');
+  }
+  rounded(c,3,4,w-6,27,3,'#98727f','#6b616d',2);
+  for(let i=0;i<5;i++)window(c,13+i*(w-26)/5,7,(w-30)/5,19,i%2?'#f6c5a5':'#a9c0ca');
+  rect(c,0,h-23,w,23,'#b48783');rect(c,0,h-23,w,3,'#e6c6a9');
  }else if(m.theme==='stage'){
-  rect(c,0,0,w,31,'#51455f');for(let x=0;x<w;x+=29){rect(c,x,0,23,27,x%58===0?'#c080a2':'#926e9d');rect(c,x+4,0,3,27,'#e2b6c1');}
-  rect(c,35,9,w-70,12,'#2c334e');for(let i=0;i<6;i++)circle(c,52+i*48,15,4,i%2?'#8be0cc':'#f0cf91');
-  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){const X=x*T,Y=y*T;rect(c,X,Y,32,32,'#61556d');rect(c,X+4,Y+4,24,24,'#7d7191');
-   circle(c,X+16,Y+16,7,(y%3===0?'#f8c9dd':'#85d3b0'));circle(c,X+16,Y+16,4,'#ece4dc');}
-  rect(c,0,h-31,w,31,'#3c3e54');for(let x=0;x<w;x+=13){rect(c,x,h-21,7,12,(x%4?'#b5d49b':'#eac2d3'));rect(c,x+2,h-26,3,7,'#e9e7c3');}
+  rect(c,0,0,w,31,'#6d547a');rect(c,0,h-29,w,29,'#5f526e');
+  for(let i=0;i<7;i++){const x=13+i*(w-26)/7;disc(c,x,13,6,i%2?'#f1c1b1':'#b8ddd0');}
+  for(let x=12;x<w-10;x+=34){rect(c,x,25,1,h-57,'#fbecf412');}
  }else if(m.theme==='street'){
-  rect(c,0,0,w,31,'#634e60');for(let x=0;x<w;x+=44){rect(c,x,0,40,22,x%88===0?'#be8d95':'#bbab86');rect(c,x+5,6,27,8,'#465a70');rect(c,x+8,9,20,2,'#ecdfb4');rect(c,x,23,40,6,'#393c53');}
-  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){const X=x*T,Y=y*T;rect(c,X,Y,32,32,(y%3===0?'#80576a':'#a06a78'));
-   for(let k=0;k<4;k++){rect(c,X,Y+k*8,32,1,'#654b5f');rect(c,X+((k%2)*14)+5,Y+k*8,1,7,'#bf8691');}
-   if(y%3===1){rect(c,X+5,Y+6,23,21,'#4b5368');border(c,X+5,Y+6,23,21,'#cda397',2);rect(c,X+8,Y+9,17,14,'#83a3a4');}
-   if(y%3===0){rect(c,X+5,Y+8,23,16,'#a5b6a0');rect(c,X+8,Y+12,17,5,'#da9d9e');rect(c,X+9,Y+19,13,2,'#d9b18e');}
-  }
-  rect(c,0,h-31,w,31,'#635469');for(let x=10;x<w;x+=65){rect(c,x,h-27,51,19,'#e1c3aa');rect(c,x+4,h-23,42,12,'#aa728b');rect(c,x+7,h-20,33,2,'#f5d6c0');}
+  for(let j=1;j<12;j++){rect(c,0,j*32,w,1,'#8e8c8b19');}
+  rect(c,0,0,w,23,'#877985');rect(c,0,h-25,w,25,'#7b7777');
+  for(let i=0;i<6;i++)rect(c,18+i*58,h-16,24,2,'#dfd5b8');
  }else if(m.theme==='wonderland'){
-  rect(c,0,0,w,31,'#886d9d');for(let x=0;x<w;x+=32){rect(c,x,0,32,25,(x/32)%2?'#f2b9b7':'#f7e2b4');poly(c,[[x,24],[x+16,30],[x+32,24]],(x/32)%2?'#f2b9b7':'#f7e2b4');}
-  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){const X=x*T,Y=y*T;rect(c,X,Y,32,32,'#a1bca9');rect(c,X+4,Y+4,24,24,'#d5d5b7');
-   if(y%2){circle(c,X+16,Y+15,9,'#f6c3a3');circle(c,X+14,Y+12,6,'#eed7ac');dot(c,X+22,Y+5,'#e887a6',5);}
-   else{rect(c,X+9,Y+17,14,8,'#6d9c9b');circle(c,X+16,Y+13,9,'#f9ddaf');circle(c,X+16,Y+13,4,'#e88eaa');}
-  }
-  rect(c,0,h-31,w,31,'#dca9ab');for(let x=10;x<w;x+=45){rect(c,x,h-16,28,6,'#7cb9ad');circle(c,x+14,h-19,8,'#f5d4a9');circle(c,x+14,h-19,4,'#dc87ac');}
- }else if(m.theme==='closed'){
-  // Movie scene: rows of sealed windows, dark panes and ash-hued sand.
-  rect(c,0,0,w,32,'#37394c');
-  for(let i=0;i<5;i++){const X=12+i*69;rect(c,X,3,44,25,'#7c7083');rect(c,X+3,5,38,20,'#232b3b');
-   rect(c,X+22,5,2,20,'#ac95a2');rect(c,X+3,14,38,2,'#ac95a2');rect(c,X+8,19,10,3,'#956d7d');}
-  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){let X=x*T,Y=y*T;rect(c,X,Y,32,32,'#4e4d62');
-   rect(c,X+5,Y+4,22,25,'#857584');rect(c,X+7,Y+6,18,21,'#242c3d');
-   rect(c,X+15,Y+6,2,21,'#b09ca8');rect(c,X+7,Y+16,18,2,'#b09ca8');
-   if(y%3===0)rect(c,X+8,Y+24,12,2,'#c09091');}
-  rect(c,0,h-31,w,31,'#514758');for(let i=0;i<9;i++){const X=7+i*37;rect(c,X,h-20,20,3,'#8f7b84');rect(c,X+5,h-15,12,1,'#a79096');}
- }else if(m.theme==='open'){
-  // Movie counterpart: bright opened windows, reflected light and soft warm stone.
-  rect(c,0,0,w,32,'#b6d5dd');
-  for(let i=0;i<5;i++){const X=12+i*69;rect(c,X,3,44,25,'#fafaf0');rect(c,X+3,5,38,20,'#9ed3e1');
-   rect(c,X+3,5,38,8,'#dcf2f3');rect(c,X+22,5,2,20,'#fffef0');rect(c,X+3,14,38,2,'#fffef0');}
-  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){let X=x*T,Y=y*T;rect(c,X,Y,32,32,'#a9cbd5');
-   rect(c,X+4,Y+4,24,25,'#fdf9e9');rect(c,X+6,Y+6,20,21,'#b7e4e8');
-   rect(c,X+15,Y+6,2,21,'#fffdf1');rect(c,X+6,Y+16,20,2,'#fffdf1');
-   if(y%3===0)rect(c,X+8,Y+8,12,3,'#ffe6ad');}
-  rect(c,0,h-31,w,31,'#c2dbe0');for(let i=0;i<9;i++){let X=7+i*37;rect(c,X,h-22,20,3,'#fffaeb');rect(c,X+5,h-16,12,1,'#f1e3be');}
- }else{
-  rect(c,0,0,w,31,'#d0d1dd');rect(c,24,6,w-48,1,'#f8f6f9');
-  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){const X=x*T,Y=y*T;rect(c,X,Y,32,32,y%3===0?'#c5c7d1':'#d3d4dd');
-   poly(c,[[X+4,Y+26],[X+15,Y+4],[X+26,Y+26]],'#afb2c1');poly(c,[[X+15,Y+4],[X+26,Y+26],[X+15,Y+26]],'#9197a9');}
-  rect(c,0,h-31,w,31,'#cdd0d9');for(let x=0;x<w;x+=52){rect(c,x+5,h-28,33,2,'#9ca2b1');rect(c,x+10,h-21,21,1,'#f4f4f6');}
- }
-}
-function scenery(c,m){
- const R=(x,y,X=0,Y=0)=>[x*T+X,y*T+Y];
- if(m.theme==='school'){
-  // Back-of-class desk groups and a central upright piano, all on non-deployable cells.
-  for(const {x,y} of m.landmarks){const [X,Y]=R(x,y);shadow(c,X+3,Y+4,25,23);
-   if(x===6&&y===5){rect(c,X+3,Y+7,26,19,'#414356');rect(c,X+6,Y+9,20,14,'#ddd2bf');for(let i=0;i<6;i++)rect(c,X+7+i*3,Y+12,2,8,i%2?'#4c4d5c':'#f5ece0');}
-   else{rect(c,X+5,Y+3,23,17,'#e6bc94');border(c,X+5,Y+3,23,17,'#977867',2);rect(c,X+8,Y+6,17,1,'#f6d7ae');rect(c,X+11,Y+23,13,6,'#746378');rect(c,X+7,Y+25,5,3,'#c5a88b');}
-  }
-  rect(c,6,32,19,8,'#e2c7b7');rect(c,6,42,18,3,'#c2aa98');
- }else if(m.theme==='stage'){
-  // Nine reserved tiles form one coherent raised live stage (not nine random props).
-  const X=4*T,Y=4*T;shadow(c,X+1,Y+3,3*T-2,3*T-2);
-  rect(c,X,Y,3*T,3*T,'#4a556f');border(c,X,Y,3*T,3*T,'#d8c1d7',3);
-  rect(c,X+7,Y+7,3*T-14,3*T-14,'#766d94');border(c,X+7,Y+7,3*T-14,3*T-14,'#a2abd0',2);
-  for(let x=0;x<3;x++)for(let y=0;y<3;y++){rect(c,X+12+x*24,Y+12+y*24,19,18,(x+y)%2?'#9183b0':'#8677a2');rect(c,X+16+x*24,Y+17+y*24,12,2,'#c0b1cd');}
-  for(const [px,py] of [[X+16,Y+18],[X+77,Y+18]]){rect(c,px-5,py-7,10,11,'#343c58');rect(c,px-3,py-5,6,4,'#c6bac6');}
-  rect(c,X+45,Y+42,5,24,'#d8cbd0');circle(c,X+47,Y+41,5,'#d2d5d9');rect(c,X+38,Y+65,19,4,'#494c67');
-  for(let i=0;i<7;i++){circle(c,X+9+i*13,Y+89,3,i%2?'#dbbea9':'#7ed4b2');}
- }else if(m.theme==='street'){
-  // Street music placards, café seating, compact vending machine.
-  for(const {x,y} of m.landmarks){const [X,Y]=R(x,y);
-   if(x===5&&y===6){shadow(c,X+2,Y+3,25,25);rect(c,X+5,Y+3,23,26,'#52647a');rect(c,X+8,Y+6,17,10,'#c1d5cb');rect(c,X+8,Y+20,11,4,'#e8a6a6');rect(c,X+22,Y+19,3,5,'#e6d1a6');}
-   else if(y>=8){circle(c,X+16,Y+17,13,'#70566b');circle(c,X+16,Y+14,10,'#cbb18e');rect(c,X+2,Y+10,5,10,'#564c62');rect(c,X+26,Y+10,5,10,'#564c62');}
-   else{shadow(c,X+2,Y+3,26,25);rect(c,X+4,Y+3,25,25,(x+y)%2?'#735c77':'#69637b');border(c,X+4,Y+3,25,25,'#3b455c',2);rect(c,X+7,Y+7,18,5,(x%2?'#e8aa98':'#91c5b0'));rect(c,X+11,Y+16,11,4,'#efc99b');rect(c,X+9,Y+23,15,2,'#a4afa1');}
-  }
- }else if(m.theme==='wonderland'){
-  // Center of the miniature fairground: striped carousel footprint.
-  const X=5*T+13,Y=5*T+16;
-  circle(c,X+2,Y+5,34,'#8c7497');circle(c,X,Y,32,'#f3ddba');circle(c,X,Y,28,'#dd91ad');
-  for(let k=0;k<8;k++){const a=k*Math.PI/4;const xx=X+Math.cos(a)*24, yy=Y+Math.sin(a)*24;
-   circle(c,xx,yy,6,k%2?'#f3d8a4':'#a9d5bb');rect(c,xx-2,yy-1,4,7,'#6b6a82');}
-  circle(c,X,Y,10,'#f9eacb');circle(c,X,Y,6,'#b8d9c5');dot(c,X-2,Y-2,'#fbf6d4',4);
-  for(const [x,y] of [[7,7],[7,8]]){const [xx,yy]=R(x,y);rect(c,xx+10,yy+17,13,5,'#7ba7ac');circle(c,xx+16,yy+12,9,'#e3a1b0');circle(c,xx+16,yy+12,5,'#f7d89d');}
-  for(let i=0;i<6;i++){const xx=24+i*49;circle(c,xx,35,4,i%2?'#e4a9a5':'#a4c7ac');}
- }else if(m.theme==='closed'){
-  // The cinema SEKAI: fractured window panes, ash-like deposits and rigid frames.
-  for(const {x,y} of m.landmarks){const X=x*T,Y=y*T;shadow(c,X+4,Y+4,24,25);rect(c,X+4,Y+3,24,25,'#444556');
-   border(c,X+4,Y+3,24,25,'#afa0a6',2);rect(c,X+8,Y+7,16,18,'#242a3c');
-   rect(c,X+15,Y+7,2,18,'#a89ba4');rect(c,X+8,Y+16,16,2,'#a89ba4');
-   if((x+y)%2===0){rect(c,X+9,Y+22,13,3,'#a78289');dot(c,X+10,Y+10,'#cda6a4',4);}
-  }
- }else if(m.theme==='open'){
-  // Corresponding open window space: daylight, clean framing and light pools.
-  for(const {x,y} of m.landmarks){const X=x*T,Y=y*T;shadow(c,X+3,Y+4,26,23);rect(c,X+3,Y+3,26,23,'#fdfaf0');
-   border(c,X+3,Y+3,26,23,'#9dbcc3',2);rect(c,X+7,Y+7,18,15,'#c6e6e9');
-   rect(c,X+15,Y+7,2,15,'#fff6da');rect(c,X+7,Y+14,18,2,'#fff6da');
-   if((x+y)%2===0){rect(c,X+7,Y+21,18,2,'#f4d7ad');rect(c,X+9,Y+24,12,2,'#ffffff');}
-  }
- }else{
-  // Still, monochrome geometry with a low truss and scattered angular shards.
-  for(const {x,y} of m.landmarks){const [X,Y]=R(x,y);shadow(c,X+4,Y+7,24,19);
-   if(x===6&&y===4||x===5&&y===8){rect(c,X+3,Y+4,25,5,'#888e9e');rect(c,X+3,Y+21,25,5,'#9fa5b4');for(let i=0;i<4;i++){rect(c,X+4+i*6,Y+9,2,11,'#a5acb9');rect(c,X+6+i*6,Y+8,2,3,'#c7c9d3');}}
-   else{poly(c,[[X+4,Y+26],[X+17,Y+4],[X+29,Y+26]],'#9ea3b3');poly(c,[[X+17,Y+4],[X+29,Y+26],[X+17,Y+26]],'#7f899d');rect(c,X+16,Y+9,1,16,'#cfd0dc');}
-  }
- }
-}
-function route(c,m){
- const p=m.palette;
- // A lane is legible at a glance, without a thick maze-like frame.
- for(const {x,y} of m.path){
-  const X=x*T,Y=y*T;
-  rect(c,X,Y,32,32,(x+y)%5===0?p.pathAlt:p.path);
-  if(!onPath(m,x,y-1)){rect(c,X,Y,32,3,p.line);rect(c,X,Y+3,32,1,'#2a344377');}
-  if(!onPath(m,x+1,y)){rect(c,X+29,Y,3,32,p.line);rect(c,X+28,Y,1,32,'#2a344377');}
-  if(!onPath(m,x,y+1)){rect(c,X,Y+29,32,3,p.line);rect(c,X,Y+28,32,1,'#2a344377');}
-  if(!onPath(m,x-1,y)){rect(c,X,Y,3,32,p.line);rect(c,X+3,Y,1,32,'#2a344377');}
-  if(m.theme==='stage'){if((x+y)%4===0)rect(c,X+12,Y+14,8,4,'#e2c6d5');}
-  else if(m.theme==='street'){if((x*3+y)%7===0)rect(c,X+11,Y+15,10,2,'#b7b0a6');}
-  else if(m.theme==='wonderland'){if((x+y)%4===0){dot(c,X+13,Y+13,'#ebc1c9',3);dot(c,X+18,Y+18,'#f2ddaa',3);}}
-  else if(m.theme==='empty'){if((x+y)%5===0)rect(c,X+12,Y+15,8,2,'#bdc1cf');}
-  else if(m.theme==='closed'){if((x+y)%4===0)rect(c,X+11,Y+15,11,2,'#d1b5ac');}
-  else if(m.theme==='open'){if((x+y)%4===0)rect(c,X+11,Y+15,10,2,'#ecf5ec');}
-  else if((x+y)%5===0)rect(c,X+13,Y+13,7,5,'#7b8493');
- }
- // Use arrows, but sparingly. No text cluttering the board.
- for(let i=6;i<m.path.length;i+=11){const a=m.path[i],b=m.path[(i+1)%m.path.length];
-  c.save();c.translate((a.x+.5)*T,(a.y+.5)*T);c.rotate(Math.atan2(b.y-a.y,b.x-a.x));
-  rect(c,-6,-1,9,2,p.line);rect(c,2,-4,4,2,p.line);rect(c,2,2,4,2,p.line);c.restore();
- }
-}
-// Map-specific perimeter art stays outside combat lanes and reserved scenery.
-function sceneIdentity(c,m,time){
- const w=m.w*T,h=m.h*T,beat=(Math.floor(time*2)%2===0);
- if(m.theme==='school'){
-  // Blackboard with music notation, gold sunset stripes and instrument shelves.
-  rect(c,37,5,w-74,20,'#35585a');border(c,37,5,w-74,20,'#bca690',2);
-  for(let i=0;i<4;i++)for(let j=0;j<3;j++)rect(c,57+i*57,11+j*3,23,1,'#adc0b4');
-  for(let y=49;y<h-48;y+=100)poly(c,[[28,y],[48,y+11],[47,y+33],[28,y+27]],'#f4cba950');
-  for(let y=52;y<h-55;y+=96){
-   rect(c,w-27,y,20,32,'#4f4859');border(c,w-27,y,20,32,'#c8ae89',2);
-   rect(c,w-20,y+7,7,16,'#eee2d0');rect(c,w-17,y+9,1,9,'#736678');
-  }
- }else if(m.theme==='stage'){
-  // Audience penlights and modular speaker stacks.
-  for(let i=0;i<9;i++){
-   const x=15+i*38,y=h-28+i%3;
-   rect(c,x,y,3,14,i%2?'#85d6c1':'#efb6c4');rect(c,x-2,y-3,7,4,((i+Number(beat))%3)?'#fbefcb':'#d4c9df');
-  }
-  for(const x of [3,w-28])for(let y=50;y<h-38;y+=90){
-   rect(c,x,y,24,38,'#45465f');border(c,x,y,24,38,'#b7a1b5',2);
-   circle(c,x+12,y+11,5,'#9095a3');circle(c,x+12,y+26,8,'#9095a3');circle(c,x+12,y+26,4,'#333a53');
-  }
- }else if(m.theme==='street'){
-  // Gig flyers and the colorful but subdued cafe awning.
-  for(let i=0;i<4;i++){const y=53+i*79;
-   rect(c,3,y,25,29,i%2?'#6b576b':'#465c72');border(c,3,y,25,29,'#d5a996',2);
-   rect(c,7,y+5,17,5,i%2?'#e6c8a5':'#9fc1ae');rect(c,8,y+15,15,2,'#efc5b7');rect(c,10,y+22,11,2,'#e1d3af');
-   rect(c,w-28,y,25,17,'#e6ceae');for(let j=0;j<4;j++)rect(c,w-28+j*6,y,5,8,j%2?'#bd838d':'#ffecd0');
-   rect(c,w-26,y+19,21,9,'#57777c');rect(c,w-22,y+22,14,2,'#d5cdab');
-  }
- }else if(m.theme==='wonderland'){
-  // Tiny balloon arches and singing flowers on the park border.
-  for(let i=0;i<7;i++){const x=14+i*49,y=10+(i%2)*5;
-   circle(c,x,y,7,i%3===0?'#f1b0b6':i%3===1?'#abd6b9':'#f9dbb5');
-   rect(c,x,y+7,1,14,'#9189a1');
-  }
-  for(let y=53;y<h-35;y+=83)for(const x of [14,w-15]){
-   for(let i=0;i<5;i++){const a=i*Math.PI*2/5;circle(c,x+Math.cos(a)*7,y+Math.sin(a)*7,4,i%2?'#edb4be':'#f4dfa5');}
-   circle(c,x,y,4,'#c37e95');rect(c,x-1,y+9,2,15,'#789c99');
-  }
+  for(let j=0;j<7;j++){disc(c,25+j*55,20+(j%2)*8,14,j%2?'#f5eacb':'#f0d1cb');}
+  rect(c,0,h-21,w,21,'#cfa4ad');
+  for(let j=0;j<8;j++)star(c,22+j*44,h-12,3,j%2?'#fbe9bd':'#fae7dc');
  }else if(m.theme==='empty'){
-  // Thin broken stage trusses against an otherwise spacious white void.
-  for(let y=53;y<h-37;y+=90){
-   rect(c,4,y,23,2,'#abb0bb');rect(c,5,y+2,2,25,'#adb2bc');
-   for(let i=0;i<3;i++){c.strokeStyle='#9da5b6';c.lineWidth=1;c.beginPath();c.moveTo(7+i*6,y);c.lineTo(14+i*6,y+22);c.stroke();}
-   poly(c,[[w-29,y+27],[w-16,y+2],[w-2,y+27]],'#adb4c4');
-   poly(c,[[w-16,y+2],[w-2,y+27],[w-16,y+27]],'#8d95a8');
+  poly(c,[[0,55],[93,0],[200,0],[88,129],[0,138]],'#f2f1f3');
+  poly(c,[[w,198],[w,h],[220,h],[300,276]],'#dcdce3');
+  line(c,[[0,180],[68,171],[70,234]],'#c6c8d0',2);
+ }else if(m.theme==='closed'){
+  rect(c,0,0,w,28,'#3f3f50');rect(c,0,h-25,w,25,'#4b4759');
+  for(let i=0;i<8;i++)rect(c,i*49,0,16,h,'#c6aab50b');
+ }else if(m.theme==='open'){
+  for(let i=0;i<7;i++)poly(c,[[i*61,0],[i*61+32,0],[i*61-8,h]],'#ffffff1d');
+  rect(c,0,0,w,27,'#a5c7cd');rect(c,0,h-25,w,25,'#d1d7cf');
+ }
+ // Continuous edge material, very thin so the board remains compact.
+ c.strokeStyle=p.border;c.lineWidth=5;c.strokeRect(2.5,2.5,w-5,h-5);
+}
+function drawPath(c,m,p){
+ const points=m.path.map(v=>[(v.x+.5)*T,(v.y+.5)*T]);
+ if(!points.length)return;
+ const draw=(color,width)=>{c.beginPath();c.moveTo(...points[0]);for(let i=1;i<points.length;i++)c.lineTo(...points[i]);c.closePath();c.strokeStyle=color;c.lineWidth=width;c.lineJoin='round';c.lineCap='round';c.stroke();};
+ draw(p.roadEdge,32);
+ draw(p.road,27);
+ // A subtle center rhythm line instead of a maze of square tile borders.
+ c.setLineDash([3,16]);draw(p.roadMark,1.1);c.setLineDash([]);
+ // Special curb colors at the junctions follow the actual loop and never hide units.
+ c.fillStyle=p.roadMark;
+ for(let i=5;i<m.path.length;i+=10){
+  const a=m.path[i],b=m.path[(i+1)%m.path.length];
+  const ang=Math.atan2(b.y-a.y,b.x-a.x),x=(a.x+.5)*T,y=(a.y+.5)*T;
+  c.save();c.translate(x,y);c.rotate(ang);
+  poly(c,[[4,0],[-4,-4],[-4,4]],p.roadMark);c.restore();
+ }
+}
+function desk(c,x,y,variant=0){
+ c.save();c.translate(x,y);
+ rounded(c,-13,-4,29,18,3,'#8d7085','#795c71',1);
+ rounded(c,-13,-8,29,14,2,variant?'#dca996':'#e9c6a6','#b98988',1);
+ rect(c,-9,-5,20,2,'#f4d8b7');rect(c,-7,8,3,8,'#725e75');rect(c,9,8,3,8,'#725e75');
+ c.restore();
+}
+function mark(c,x,y,content,fg,bg){rounded(c,x-12,y-11,24,22,6,bg,'#ffffff77',1);c.fillStyle=fg;c.font='bold 13px system-ui';c.textAlign='center';c.textBaseline='middle';c.fillText(content,x,y+1);}
+function locationProps(c,m,p){
+ const w=m.w*T,h=m.h*T;
+ if(m.theme==='school'){
+  // A classroom with a chalkboard, student desks, and upright piano.
+  rounded(c,105,9,w-210,14,2,'#355d60','#d6cab5',2);
+  for(let i=0;i<4;i++){rect(c,112+i*28,16,18,1,'#d2ddc7');}
+  for(const pos of m.landmarks){const x=(pos.x+.5)*T,y=(pos.y+.5)*T;
+   if(pos.x===6&&pos.y===5){rounded(c,x-14,y-12,28,25,2,'#48475e','#a88989',2);rect(c,x-11,y-4,22,10,'#ebe4d7');for(let i=0;i<6;i++)rect(c,x-9+i*3,y-4,1,9,i%2?'#2f354b':'#d1d9df');}
+   else desk(c,x,y,(pos.x+pos.y)%2);
   }
+  for(let i=0;i<4;i++){window(c,8,39+i*79,18,53,i%2?'#f0c4aa':'#a2bbcd');}
+ }else if(m.theme==='stage'){
+  const x=5*T+16,y=5*T+16;
+  rounded(c,x-51,y-51,102,102,10,'#544969','#ebd4c7',4);
+  rounded(c,x-43,y-43,86,86,5,'#86739e','#b3a4c7',2);
+  for(let i=0;i<7;i++){disc(c,x-36+i*12,y+39,2.5,i%2?'#f7d4a2':'#a4dacd');}
+  rounded(c,x-3,y-25,7,46,3,'#d2cbd3');disc(c,x,y-27,7,'#d0d6d8');
+  for(const px of [x-44,x+44]){rounded(c,px-10,y-20,20,35,3,'#35354f','#b7a1bf',2);disc(c,px,y+3,6,'#9493ad');}
+  for(let i=0;i<5;i++){const xx=18+i*76;post(c,xx,h-25,17,i%2?'#a7d6d0':'#ebbdc7');}
+ }else if(m.theme==='street'){
+  for(const pos of m.landmarks){const x=(pos.x+.5)*T,y=(pos.y+.5)*T;
+   if(pos.x===5&&pos.y===6){rounded(c,x-13,y-14,26,29,3,'#537887','#293d54',2);rect(c,x-10,y-10,20,10,'#b9d1c5');rect(c,x-7,y+6,14,4,'#f0c8ae');}
+   else if(pos.y>=8){disc(c,x,y+5,12,'#9e7c70');disc(c,x,y+2,9,'#e7cdad');rect(c,x-2,y-8,4,6,'#f1ead9');}
+   else{rounded(c,x-13,y-13,26,27,3,'#816178','#4e5269',2);rounded(c,x-10,y-10,20,10,2,pos.x%2?'#dba894':'#acd2c0');rect(c,x-8,y+5,16,3,'#dcd4b9');}
+  }
+  for(let i=0;i<3;i++){const y=44+i*100;rounded(c,4,y,22,34,3,'#d7a7aa','#675c69',2);rect(c,8,y+5,14,3,'#f3e0bd');}
+ }else if(m.theme==='wonderland'){
+  const x=5*T+18,y=5*T+18;
+  disc(c,x,y+6,49,'#a682a0');disc(c,x,y,44,'#f1d2bb');
+  for(let k=0;k<10;k++){const a=k*PI/5;const fill=k%2?'#e2aac2':'#f5e6be';poly(c,[[x,y-2],[x+Math.cos(a)*43,y+Math.sin(a)*43],[x+Math.cos(a+.3)*43,y+Math.sin(a+.3)*43]],fill);}
+  disc(c,x,y,11,'#faf0da');star(c,x,y,9,'#f4c16d');
+  for(let i=0;i<5;i++){const xx=15+i*81;disc(c,xx,16+i%2*4,9,i%2?'#e8a7bc':'#a9d7c7');line(c,[[xx,23],[xx,36]],'#9c8a9e');}
+  for(const pos of m.landmarks){if((pos.x+pos.y)%3===0){const px=(pos.x+.5)*T,py=(pos.y+.5)*T;star(c,px,py,5,'#f9dfab');}}
+ }else if(m.theme==='empty'){
+  for(const pos of m.landmarks){const x=(pos.x+.5)*T,y=(pos.y+.5)*T;poly(c,[[x-11,y+10],[x-4,y-12],[x+9,y-4],[x+13,y+12]],'#c8c8d3','#a0a5b7',2);}
+  for(let i=0;i<4;i++){const x=13+i*85;rect(c,x,9,40,2,'#c6cad2');rect(c,x,9,2,34,'#c6cad2');}
  }else if(m.theme==='closed'||m.theme==='open'){
   const dark=m.theme==='closed';
-  for(let i=0;i<5;i++){const y=53+i*64;
-   for(const x of [4,w-27]){
-    rect(c,x,y,23,33,dark?'#34374b':'#f5f5e8');
-    border(c,x,y,23,33,dark?'#ad96a1':'#98bec6',2);
-    rect(c,x+3,y+3,17,27,dark?'#20283b':'#b7e2e8');
-    rect(c,x+11,y+3,2,27,dark?'#b8a5a5':'#fff7dd');
-    rect(c,x+3,y+16,17,2,dark?'#b8a5a5':'#fff7dd');
-    if(dark)poly(c,[[x+3,y+23],[x+9,y+17],[x+19,y+28]],'#997a88');
-    else poly(c,[[x+9,y+4],[x+20,y+4],[x+20,y+15]],'#fff3c6');
-   }
+  for(let i=0;i<5;i++)for(const x of [5,w-30]){
+   const y=40+i*64;
+   rounded(c,x,y,25,44,2,dark?'#3d3a4b':'#f1ecdf',dark?'#a58b9f':'#8baeb8',2);
+   rect(c,x+3,y+3,19,38,dark?'#555165':'#b1d8e0');rect(c,x+12,y+3,2,38,dark?'#8b8191':'#fff9e6');
+   rect(c,x+3,y+22,19,2,dark?'#8b8191':'#fff9e6');
+   if(dark)line(c,[[x+4,y+31],[x+14,y+25],[x+18,y+35]],'#b6a0ae',1);
   }
-  for(let i=0;i<7;i++){const x=27+i*42;rect(c,x,h-17,5,2,dark?'#856b7e':'#fff4db');}
+  for(const pos of m.landmarks){const x=(pos.x+.5)*T,y=(pos.y+.5)*T;
+   if(dark){rounded(c,x-10,y-10,22,22,2,'#504a61','#918595',2);rect(c,x-3,y-4,7,10,'#6b657d');}
+   else{disc(c,x,y,12,'#d0e0df');disc(c,x,y,7,'#f5edda');star(c,x,y,4,'#e8bf9f');}
+  }
  }
 }
-// A restrained environmental animation layer. Every animation sits in
-// reserved scenery cells or on the boundary, never on a playable lane.
-// Motion can be disabled without removing any identifying map landmark.
-function ambientLife(c,m,time,reduceMotion=false){
- const t=reduceMotion?0:time,w=m.w*T,h=m.h*T;
- if(m.theme==='school'){
-  // Slow floating dust in the sunset side windows and a classroom wall clock.
-  for(let k=0;k<7;k++){
-   const y=41+(k*41)%Math.max(1,h-69),x=15+Math.sin(t*.35+k*1.7)*4;
-   rect(c,x,y+Math.sin(t*.6+k)*3,2,2,k%2?'#e4d4bd':'#f2bfa3');
-  }
-  const x=w-53,y=17;
-  circle(c,x,y,8,'#e5d9c9');circle(c,x,y,6,'#52677a');
-  c.save();c.translate(x,y);c.rotate(t*.08);rect(c,-1,-5,2,6,'#eee2cb');c.restore();
-  c.save();c.translate(x,y);c.rotate(t*.012);rect(c,-1,-3,2,4,'#e5baa2');c.restore();
- }else if(m.theme==='stage'){
-  // Moving stage lamps illuminate only the reserved central platform.
-  const X=4*T,Y=4*T;
-  c.save();c.beginPath();c.rect(X+8,Y+8,3*T-16,3*T-16);c.clip();
+function gate(c,m,p,time=0){
+ const a=m.path[0],x=(a.x+.5)*T,y=(a.y+.5)*T;
+ const pulse=.7+.3*Math.sin(time*2);
+ c.save();c.translate(x,y);
+ disc(c,0,0,13,p.border);disc(c,0,0,10,p.accent);ring(c,0,0,10,'#fff1db',1.5);
+ star(c,0,0,7,p.border);disc(c,0,0,2.5,'#fff8e9');
+ c.globalAlpha=pulse;ring(c,0,0,15,p.accent,1.5);
+ c.restore();
+}
+function ambience(c,m,p,time=0,reduceMotion=false){
+ if(reduceMotion)return;
+ const w=m.w*T,h=m.h*T;
+ if(m.theme==='stage'){
   for(let i=0;i<3;i++){
-   const a=t*.48+i*2.12,headX=X+15+i*31,beam=12+Math.sin(a)*13;
-   const pts=[[headX,Y+6],[headX+5,Y+6],[X+45+beam+14,Y+82],[X+45+beam-14,Y+82]];
-   c.globalAlpha=.15;c.fillStyle=i%2?'#eed8cb':'#d1e1d8';
-   c.beginPath();c.moveTo(pts[0][0],pts[0][1]);
-   for(let j=1;j<pts.length;j++)c.lineTo(pts[j][0],pts[j][1]);
-   c.closePath();c.fill();
+   const x=20+i*155,phase=time*.7+i*1.7;
+   c.save();c.globalAlpha=.12;c.fillStyle=i%2?'#f3dba2':'#b3e6da';
+   poly(c,[[x,30],[x+8,30],[x+54+Math.sin(phase)*21,151],[x+13+Math.sin(phase)*21,151]],c.fillStyle);c.restore();
+  }
+ }else if(m.theme==='wonderland'||m.theme==='open'||m.theme==='empty'){
+  const fill=m.theme==='empty'?'#bec2cd':m.theme==='open'?'#f9e0cf':'#f1ccd7';
+  c.save();c.globalAlpha=.67;
+  for(let i=0;i<6;i++){
+   const x=14+i*60+Math.sin(time*.67+i)*7;
+   const y=(17+i*59+time*(i%2?2:4))%(h-19);
+   if(m.theme==='empty')rect(c,x,y,2,3,fill);else star(c,x,y,2.5,fill);
   }
   c.restore();
-  // The row of stage bulbs cycles gently rather than a hard strobe.
-  for(let i=0;i<7;i++){
-   const q=.5+.5*Math.sin(t*1.75+i*.9);
-   circle(c,X+9+i*13,Y+88,2+q*1.4,i%2?'#f3d2a4':'#a7d9ca');
-  }
-  for(let i=0;i<9;i++){
-   const x=15+i*38,y=h-30+(i%3);
-   c.save();c.translate(x,y+1);c.rotate(Math.sin(t*1.8+i*.7)*.11);
-   rect(c,-2,-12,4,12,i%2?'#91d4c6':'#edb9c7');
-   rect(c,-3,-14,6,3,'#fbefd2');c.restore();
-  }
- }else if(m.theme==='street'){
-  // Café awning shadows move; street posters lift at one corner in the breeze.
-  for(let i=0;i<4;i++){
-   const y=53+i*79,flip=Math.sin(t*.75+i*2);
-   poly(c,[[w-27,y+15],[w-22,y+15],[w-22+flip*3,y+20]],'#766f7b');
-   poly(c,[[5,y+7],[12,y+7],[12+flip*2,y+10]],'#eee0c8');
-  }
-  for(let i=0;i<4;i++){
-   const x=w-8+Math.sin(t*.45+i*1.7)*4,y=44+i*84+(t*3+i*5)%17;
-   rect(c,x,y,2,2,'#e7d2b5');
-  }
- }else if(m.theme==='wonderland'){
-  // Slow carousel turn on a reserved 3x3 landmark; balloons rock at the edge.
-  const X=5*T+13,Y=5*T+16;
-  for(let k=0;k<8;k++){
-   const a=k*Math.PI/4+t*.36;
-   const px=X+Math.cos(a)*22,py=Y+Math.sin(a)*22;
-   circle(c,px,py,4,k%2?'#f5e3b5':'#bce2d0');
-   rect(c,px-1,py-2,2,5,'#987e94');
-  }
-  circle(c,X,Y,6,'#f3e8c6');circle(c,X,Y,3,'#8c9b99');
-  for(let k=0;k<7;k++){
-   const x=14+k*49,y=10+(k%2)*5;
-   circle(c,x+Math.sin(t*.8+k*.7)*2,y+Math.cos(t*.7+k)*1.4,5,k%3===0?'#e9a5b4':k%3===1?'#8bc7b3':'#f8d69a');
-  }
- }else if(m.theme==='empty'){
-  // No bright effects: tiny drifting polygons emphasize unnatural emptiness.
-  for(let i=0;i<8;i++){
-   const left=i%2===0;
-   const x=(left?12:w-14)+Math.sin(t*.4+i)*4;
-   const y=(25+i*43+t*(i%2?1.8:2.4))%(h-18)+8;
-   poly(c,[[x,y-2],[x+2,y],[x,y+2],[x-2,y]],'#b0b6c3');
-  }
- }else if(m.theme==='closed'){
-  // Closed windows shake ever so slightly: uneasy, not a glitch filter.
-  for(let i=0;i<5;i++){
-   const y=53+i*64;
-   const q=Math.sin(t*.54+i*1.91);
-   rect(c,7+q*1.5,y+14,12,2,'#6a6077');
-   rect(c,w-24-q*1.5,y+19,12,2,'#78697f');
-  }
- }else if(m.theme==='open'){
-  // Small drifting petals in the window sunlight.
-  for(let i=0;i<9;i++){
-   const y=10+(i*43+t*(2+(i%3)))%(h-20);
-   const x=(i%2?18:w-20)+Math.sin(t*.7+i*1.5)*7;
-   poly(c,[[x-2,y],[x+1,y-3],[x+3,y],[x,y+4]],i%3?'#f6e4cc':'#c7dddc');
-  }
+ }else if(m.theme==='school'||m.theme==='street'){
+  for(let i=0;i<4;i++){const x=10+i*100+Math.sin(time*.3+i)*4;const y=30+i*78;disc(c,x,y,1.2,'#f7e5cb');}
  }
 }
-function spawn(c,m,time){
- const X=m.spawn.x*T,Y=m.spawn.y*T;
- rect(c,X+2,Y+2,28,28,'#283649');border(c,X+2,Y+2,28,28,'#f5e7b8',2);
- rect(c,X+6,Y+6,20,20,m.palette.spawn);
- const glyphs={school:'♪',stage:'★',street:'♫',wonderland:'✦',empty:'◇',closed:'×',open:'✧'};
- c.fillStyle='#263b4d';c.textAlign='center';c.textBaseline='middle';c.font='bold 15px Arial';
- c.fillText(glyphs[m.theme]||'◆',X+16,Y+16);
- const s=2+Math.floor((Math.sin(time*4)+1)*1.5);
- rect(c,X+16-s,Y+16-s,s*2,s*2,'#fff3da');
- for(const [dx,dy] of [[4,4],[24,4],[4,24],[24,24]])rect(c,X+dx,Y+dy,4,4,'#fff2cf');
-}
-// Fixed scenery is painted once per arena. Only ambient props, enemies and
-// units animate every frame. This matters on small mobile devices.
-const STATIC_WORLD_CACHE=new WeakMap();
-function staticWorld(c,m){
- floor(c,m);route(c,m);scenery(c,m);sceneIdentity(c,m,0);
-}
-function cachedWorld(m){
- if(STATIC_WORLD_CACHE.has(m))return STATIC_WORLD_CACHE.get(m);
- let layer=null;
+const LAYERS=new WeakMap();
+function cached(m){
+ if(LAYERS.has(m))return LAYERS.get(m);
+ let canvas=null;
  try{
-  if(typeof OffscreenCanvas==='function')layer=new OffscreenCanvas(m.w*T,m.h*T);
-  else if(typeof document!=='undefined'&&document.createElement){
-   layer=document.createElement('canvas');layer.width=m.w*T;layer.height=m.h*T;
-  }
-  if(layer){
-   const ctx=layer.getContext('2d');
-   if(ctx){ctx.imageSmoothingEnabled=false;staticWorld(ctx,m);}
-   else layer=null;
-  }
- }catch{layer=null;}
- if(layer)STATIC_WORLD_CACHE.set(m,layer);
- return layer;
+  if(typeof OffscreenCanvas==='function')canvas=new OffscreenCanvas(m.w*T,m.h*T);
+  else if(typeof document!=='undefined'){canvas=document.createElement('canvas');canvas.width=m.w*T;canvas.height=m.h*T;}
+  const c=canvas?.getContext('2d');
+  if(c){c.imageSmoothingEnabled=true;const p=THEMES[m.theme]||THEMES.school;ground(c,m,p);drawPath(c,m,p);locationProps(c,m,p);LAYERS.set(m,canvas);}
+ }catch{canvas=null}
+ return canvas;
 }
 export function drawSekaiWorld(c,m,time=0,reduceMotion=false){
- c.save();c.imageSmoothingEnabled=false;
- const layer=cachedWorld(m);
- if(layer)c.drawImage(layer,0,0);
- else staticWorld(c,m);
- ambientLife(c,m,time,reduceMotion);
- spawn(c,m,reduceMotion?0:time);
+ c.save();const p=THEMES[m.theme]||THEMES.school;
+ const layer=cached(m);if(layer)c.drawImage(layer,0,0);else{ground(c,m,p);drawPath(c,m,p);locationProps(c,m,p);}
+ ambience(c,m,p,time,reduceMotion);gate(c,m,p,time);
  c.restore();
 }
