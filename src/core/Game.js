@@ -345,10 +345,12 @@ export class Game {
   if(!this.heartScene&&this.heartQueue.length){
    const pending=this.heartQueue.shift();
    const turn=this.heartCastCount[pending.heart.id]||0;
-   const actorId=pending.participants[turn%pending.participants.length]?.id;
+   const actor=pending.participants[turn%pending.participants.length];
+   const actorId=actor?.id;
+   const actorUid=actor?.uid;
    this.heartCastCount[pending.heart.id]=turn+1;
-   this.heartScene={...pending,actorId,elapsed:0,fired:false};
-   this.emit('onHeartStart',{...pending,actorId,strength:heartStrength(pending.participants)});
+   this.heartScene={...pending,actorId,actorUid,elapsed:0,fired:false};
+   this.emit('onHeartStart',{...pending,actorId,actorUid,strength:heartStrength(pending.participants)});
   }
  }
  update(realDt){
