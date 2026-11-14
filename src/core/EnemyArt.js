@@ -171,7 +171,8 @@ export function drawEnemyArt(c,game,e,time,rotated=false,reduceMotion=false){
   const heading=Math.atan2(next.y-current.y,next.x-current.x)+Math.PI/2;
   c.rotate(heading+(rotated?Math.PI/2:0)+(moving?Math.sin(age*10)*.055:0));
  }
- const pose=moving?Math.floor((age*2.8)%(Math.PI*4)/Math.PI)%4:0;
+ const beat=e.kind==='dash'?10:e.kind==='boss'?3.4:e.kind==='tank'?3.3:e.kind==='split'?5.5:5;
+ const pose=moving?(Math.floor(age*beat)&3):0;
  const sprite=enemyFrame(e.kind,pose,flash);
  if(sprite){
   // drawImage is substantially cheaper than rebuilding vector paths.
