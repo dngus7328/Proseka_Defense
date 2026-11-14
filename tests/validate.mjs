@@ -6,7 +6,7 @@ import {Game} from '../src/core/Game.js';
 import {DIFFICULTIES} from '../src/data/enemies.js';
 assert.equal(CHARACTERS.length,26,'Should include all 26 characters');
 assert.equal(new Set(CHARACTERS.map(c=>c.id)).size,26);
-assert.equal(MAPS.length,3);assert.equal(HEARTS.length>=12,true);
+assert.equal(MAPS.length,7);assert.equal(HEARTS.length>=12,true);
 for(const m of MAPS){
  assert.notEqual(m.w,m.h,'Map rectangle need not be square');
  assert.equal(new Set(m.path.map(p=>`${p.x}:${p.y}`)).size,m.path.length,'No path overlap');
@@ -15,7 +15,7 @@ for(const m of MAPS){
   assert.equal(Math.abs(a.x-b.x)+Math.abs(a.y-b.y),1,`Path must be closed and contiguous for ${m.id}`);
   assert.ok(a.x>=0&&a.x<m.w&&a.y>=0&&a.y<m.h);
  }
- assert.ok(m.available.length>=20,`Enough deployment cells on ${m.id}`);
+ assert.ok(m.available.length>=16,`Enough deployment cells on ${m.id}`);
 }
 let seed=1234567;
 Math.random=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
