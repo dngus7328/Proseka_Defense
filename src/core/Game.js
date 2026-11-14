@@ -15,6 +15,7 @@ export class Game {
   this.crystals=100;this.fragments=60;this.summons=0;this.units=[];this.enemies=[];this.effects=[];
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
+  this.heartQueue=[];this.heartScene=null;
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
  }
@@ -205,8 +206,22 @@ export class Game {
   if(strength.full){this.addEffect('heart',this.map.w/2-.5,this.map.h/2-.5,{life:1.45,color:'#efdbab',style:'star',full:true});}
   this.emit('onHeartFire',{heart,strength});this.emit('onSound','heart');this.emit('onChange');
  }
- heartUpdate(dt){
-  if(!this.enemies.length)return;
+ heartUpdate(dt,realDt){
+  // Cinematic skill activation: introduce the caster, then apply the actual attack.
+  // Scene timing is based on real time so 2x battle speed never makes the dialogue unreadable.
+  if(this.heartScene){
+   const scene=this.heartScene;
+   scene.elapsed+=realDt;
+   if(!scene.fired&&scene.elapsed>=.62){
+    scene.fired=true;
+    this.fireHeart(scene.heart,scene.participants);
+   }
+   if(scene.elapsed>=1.62){
+    this.emit('onHeartEnd',{heart:scene.heart});
+    this.heartScene=null;
+   }
+  }
+  if(!this.enemies.some(e=>e.hp>0))return;
   this.heartPulse+=dt;
   if(this.heartPulse<.18)return;
   const delta=this.heartPulse;this.heartPulse=0;
@@ -215,9 +230,16 @@ export class Game {
    if(!participants)continue;
    this.heartTimers[heart.id]=(this.heartTimers[heart.id]??3)-delta;
    if(this.heartTimers[heart.id]<=0){
-    this.fireHeart(heart,participants);
+    // Keep the real battle moving even when many combinations activate together.
+    if(this.heartQueue.length<3)this.heartQueue.push({heart,participants:[...participants]});
+    else this.fireHeart(heart,participants);
     this.heartTimers[heart.id]=Math.max(7,heart.cooldown/(1+this.upgrades.ability*.14));
    }
+  }
+  if(!this.heartScene&&this.heartQueue.length){
+   const pending=this.heartQueue.shift();
+   this.heartScene={...pending,elapsed:0,fired:false};
+   this.emit('onHeartStart',{...pending,strength:heartStrength(pending.participants)});
   }
  }
  update(realDt){
@@ -245,7 +267,7 @@ export class Game {
     hero.cooldown=fired?attackInterval(hero,this.upgrades):.15;
    }
   }
-  this.heartUpdate(dt);
+  this.heartUpdate(dt,realDt);
   this.enemies=this.enemies.filter(e=>e.hp>0);
   if(this.enemies.length>=this.capacity){this.end('lose');return;}
   if(this.waveTime>=30){
@@ -262,7 +284,9 @@ export class Game {
  }
  end(status){
   if(this.phase!=='playing')return;
-  this.phase='ending';this.result={status,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,damageByMember:{...this.damageByMember}};
+  this.phase='ending';
+  this.heartQueue=[];this.heartScene=null;this.emit('onHeartEnd',{});
+  this.result={status,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,damageByMember:{...this.damageByMember}};
   this.endReal=0;this.endFromSpeed=this.speed;this.endAnimSpeed=this.speed;
   this.emit('onEndStart',this.result);
  }
