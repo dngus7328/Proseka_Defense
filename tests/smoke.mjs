@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {MAPS} from '../src/data/maps.js';
-import {CHARACTERS} from '../src/data/characters.js';
+import {CHARACTERS,SIGNATURES} from '../src/data/characters.js';
 import {Game} from '../src/core/Game.js';
 import {LANGUAGES} from '../src/data/locales.js';
 import {TITLE_LOGOS} from '../src/data/branding.js';
@@ -79,3 +79,42 @@ assert(interfaceJs.includes('skill-cutin-dialogue'));
 console.log('OK — 26×4 transparent character sprites and delayed skill cut-in events');
 console.log('OK — transparent resource PNGs wired to HUD, summon and upgrade costs');
 console.log('OK — 7 maps, 26 characters, 7 RGBA emblems, 3 RGBA logos, summon tests');
+
+
+assert.equal(Object.keys(SIGNATURES).length,26);
+for(const char of CHARACTERS){
+ const game=new Game({mapId:'roof',difficulty:'normal'});
+ const enemy=game.spawnEnemy('tank',0);const pos=game.enemyPos(enemy);
+ enemy.hp=100000;enemy.maxHp=100000;
+ const unit={uid:1,id:char.id,star:4,x:pos.x-1,y:pos.y,cooldown:0,shots:SIGNATURES[char.id].every-1,motion:0,pose:0};
+ game.units=[unit];
+ assert(game.attack(unit),`${char.id}: no attack`);
+ assert(game.pendingHits.length>0,`${char.id}: no timed projectile damage`);
+ assert(game.effects.some(e=>e.type==='signature'),`${char.id}: signature not triggered`);
+ assert.equal(enemy.hp,100000,`${char.id}: damage should follow projectile arrival`);
+ game.updateStrikes(.45);
+ assert(enemy.hp<100000,`${char.id}: projectile impact did not deal damage`);
+ assert(game.effects.some(e=>e.type==='impact'),`${char.id}: no impact effects`);
+}
+for(const map of MAPS){
+ assert.equal(map.affinityRate,.55);
+ const game=new Game({mapId:map.id,difficulty:'normal'});
+ const group=CHARACTERS.filter(ch=>ch.group===map.affinityGroup);
+ assert(group.length>=4,`${map.id}: missing matching SEKAI characters`);
+ const prevRandom=Math.random;
+ try{
+  Math.random=()=>.1;
+  const character=game.chooseCharacter();
+  assert.equal(game.lastSummonSource,'affinity');
+  assert.equal(character.group,map.affinityGroup);
+ }finally{Math.random=prevRandom;}
+}
+{
+ const game=new Game({mapId:'roof',difficulty:'normal'});
+ const a={uid:1,id:'ichika',star:1,x:1,y:4,cooldown:1,damage:0};
+ const b={uid:2,id:'ichika',star:1,x:2,y:4,cooldown:1,damage:0};
+ game.units=[a,b];assert(game.mergeUnits(a,b));
+ assert.equal(a.star,2);assert.equal(game.units.length,1);
+ assert(game.effects.some(e=>e.type==='promotion'), 'rank promotion visual missing');
+}
+console.log('OK — all 26 individual signatures, timed impact damage, four-star attacks, seven affinity pools, and rank promotion');
