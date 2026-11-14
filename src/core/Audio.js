@@ -15,13 +15,19 @@ export class SoundEngine {
     if(time-this.lastImpact<(kind==='heavy'?.105:.085))return;
     this.lastImpact=time;
    }
-   if(kind==='special'&&time-this.lastSpecial<.25)return;
-   if(kind==='special')this.lastSpecial=time;
+   if((kind==='special'||kind.startsWith('heart-'))&&time-this.lastSpecial<.13)return;
+   if(kind==='special'||kind.startsWith('heart-'))this.lastSpecial=time;
    const tones={
     select:[515,.045,'sine',.75],
     summon:[610,.16,'triangle',1.1],
     merge:[830,.20,'triangle',1.0],
     heart:[430,.27,'triangle',1.25],
+    'heart-star':[570,.19,'triangle',1.02],
+    'heart-rain':[720,.22,'sine',.9],
+    'heart-slash':[300,.12,'sawtooth',.95],
+    'heart-burst':[470,.21,'square',.72],
+    'heart-wave':[380,.30,'sine',.92],
+    'heart-orbit':[620,.28,'triangle',1.07],
     lose:[245,.29,'triangle',.85],
     win:[720,.27,'triangle',1.15],
     upgrade:[750,.13,'sine',.8],
@@ -40,9 +46,9 @@ export class SoundEngine {
    gain.gain.exponentialRampToValueAtTime(power,time+.009);
    gain.gain.exponentialRampToValueAtTime(.0001,time+duration);
    osc.connect(gain);gain.connect(ctx.destination);osc.start(time);osc.stop(time+duration+.02);
-   if(kind==='heavy'||kind==='merge'||kind==='heart'){
+   if(kind==='heavy'||kind==='merge'||kind==='heart'||kind.startsWith('heart-')){
     const accent=ctx.createOscillator(),env=ctx.createGain();
-    accent.type='sine';accent.frequency.setValueAtTime(kind==='heart'?640:kind==='merge'?940:83,time);
+    accent.type='sine';accent.frequency.setValueAtTime(kind.startsWith('heart-')?frequency*1.4:kind==='heart'?640:kind==='merge'?940:83,time);
     accent.frequency.exponentialRampToValueAtTime(kind==='heavy'?57:1100,time+duration*.8);
     env.gain.setValueAtTime(.0001,time);
     env.gain.exponentialRampToValueAtTime(power*.56,time+.012);
