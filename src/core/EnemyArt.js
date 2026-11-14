@@ -122,6 +122,30 @@ function boss(c,t,flash){
  poly(c,[[-10,-21],[-8,-25],[-3,-21],[0,-26],[4,-21],[9,-25],[11,-21]],'#f0c59c');
  block(c,-17,12,6,5,'#e2b99c');block(c,11,12,6,5,'#e2b99c');
 }
+// Pre-render each enemy body in four low-resolution animation poses.
+// In combat, moving dozens of enemies now costs one blit each, instead of
+// rebuilding their elaborate paths, circles, and clothing every frame.
+const BODY_DRAWERS={pulse,dash,tank,split,resist,shard,boss};
+const BODY_CACHE=new Map();
+function enemyFrame(kind,pose,flash){
+ const key=kind+':'+pose+':'+(flash?1:0);
+ if(BODY_CACHE.has(key))return BODY_CACHE.get(key);
+ let surface=null;
+ try{
+  if(typeof OffscreenCanvas!=='undefined')surface=new OffscreenCanvas(96,96);
+  else if(typeof document!=='undefined'&&document.createElement){
+   surface=document.createElement('canvas');surface.width=96;surface.height=96;
+  }
+  const ctx=surface?.getContext('2d');
+  if(!ctx)return null;
+  ctx.imageSmoothingEnabled=false;
+  ctx.translate(48,48);
+  // Four contrasting timings for gait, split halves, and boss pendulums.
+  BODY_DRAWERS[kind]?.(ctx,pose*Math.PI/5,flash);
+  BODY_CACHE.set(key,surface);
+  return surface;
+ }catch{return null;}
+}
 export function drawEnemyArt(c,game,e,time,rotated=false,reduceMotion=false){
  const p=game.enemyPos(e),meta=ENEMIES[e.kind];
  if(!meta)return;
@@ -147,13 +171,12 @@ export function drawEnemyArt(c,game,e,time,rotated=false,reduceMotion=false){
   const heading=Math.atan2(next.y-current.y,next.x-current.x)+Math.PI/2;
   c.rotate(heading+(rotated?Math.PI/2:0)+(moving?Math.sin(age*10)*.055:0));
  }
- if(e.kind==='pulse')pulse(c,age,flash);
- else if(e.kind==='dash')dash(c,age,flash);
- else if(e.kind==='tank')tank(c,age,flash);
- else if(e.kind==='split')split(c,age,flash);
- else if(e.kind==='resist')resist(c,age,flash);
- else if(e.kind==='shard')shard(c,age,flash);
- else if(e.kind==='boss')boss(c,age,flash);
+ const pose=moving?Math.floor((age*2.8)%(Math.PI*4)/Math.PI)%4:0;
+ const sprite=enemyFrame(e.kind,pose,flash);
+ if(sprite){
+  // drawImage is substantially cheaper than rebuilding vector paths.
+  c.drawImage(sprite,-48,-48);
+ }else BODY_DRAWERS[e.kind]?.(c,age,flash);
  if(slow){
   c.strokeStyle='#b8dded';c.lineWidth=1.7;c.strokeRect(e.kind==='boss'?-23:-16,e.kind==='boss'?-29:-18,e.kind==='boss'?46:32,e.kind==='boss'?55:34);
   block(c,-2,-24,4,3,'#e6f9f9');
