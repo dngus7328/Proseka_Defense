@@ -114,7 +114,7 @@ export class Interface {
   const maps=el('mapChoices');const mapScrollLeft=maps.scrollLeft;maps.innerHTML='';MAPS.forEach(map=>{
    const button=document.createElement('button');button.className=`map-choice${this.config.mapId===map.id?' active':''}`;
    const canvas=document.createElement('canvas');canvas.className='map-thumb';
-   const icon=document.createElement('img');icon.className='map-icon';icon.src=`./assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;icon.alt='';
+   const icon=document.createElement('img');icon.className='map-icon';icon.src=`./Assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;icon.alt='';
    const name=document.createElement('strong');name.textContent=`${map.order} · ${map.shortNames?.[this.save.language]||map.names[this.save.language]}`;
    button.append(canvas,icon,name);this.renderer.drawThumbnail(canvas,map);
    button.addEventListener('click',()=>{this.config.mapId=map.id;this.renderLobby();});maps.append(button);
@@ -126,7 +126,7 @@ export class Interface {
  }
  syncMapArtwork(map){
   if(!map)return;
-  const url=`./assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;
+  const url=`./Assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;
   for(const id of ['battleCrest','worldCrest','lobbyCrest','statusWorldIcon'])if(el(id))el(id).src=url;
   if(el('worldTypeText'))el('worldTypeText').textContent=AREA_TYPES[map.id]||'SEKAI';
   if(el('lobbyWorldName'))el('lobbyWorldName').textContent=map.names[this.save.language]||map.names.ko;
@@ -256,7 +256,7 @@ export class Interface {
    const name=document.createElement('strong');name.className='upgrade-card-name';name.textContent=this.t(d.id);
    const bottom=document.createElement('div');bottom.className='upgrade-card-footer';
    const pips=document.createElement('span');pips.className='level-pips';for(let i=0;i<d.max;i++){const p=document.createElement('i');if(i<level)p.className='filled';pips.append(p);}
-   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./assets/currency/wish-piece.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
+   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./Assets/currency/wish-piece.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
    bottom.append(pips,cost);button.append(top,name,bottom);
    button.addEventListener('click',()=>g.upgrade(d.id));parent.append(button);
   }
