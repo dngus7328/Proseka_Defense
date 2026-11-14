@@ -301,7 +301,7 @@ export class Game {
   if(strength.full)this.addEffect('heartCrest',this.map.w/2-.5,this.map.h/2-.5,{
    life:.68,color:'#ecd7a9',style:heart.style
   });
-  this.emit('onHeartFire',{heart,strength});this.emit('onSound','heart');this.emit('onChange');
+  this.emit('onHeartFire',{heart,strength});this.emit('onSound',`heart-${heart.style}`);this.emit('onChange');
  }
  heartUpdate(dt,realDt){
   // Cinematic skill activation: introduce the caster, then apply the actual attack.
