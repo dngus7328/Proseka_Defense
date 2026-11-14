@@ -41,7 +41,7 @@ export class Game {
   const multiplier=this.isEndless&&this.wave>20?Math.pow(1.088,this.wave-20):1;
   let hp=(17+Math.pow(this.wave,1.55)*4.5)*kind.hp*this.difficultyData.hp*multiplier;
   if(type==='boss')hp*=this.difficultyData.boss;
-  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,hitPulse:0,radius:kind.radius,age:0,visualSeed:Math.random()*Math.PI*2};
+  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,hitPulse:0,radius:kind.radius,age:0,visualSeed:Math.random()*Math.PI*2,tempo:0,beatCooldown:type==='boss'?3.7:0};
   this.enemies.push(u);return u;
  }
  enemyPos(enemy){const p=this.map.path,n=p.length,index=((Math.floor(enemy.progress)%n)+n)%n,next=(index+1)%n,t=enemy.progress-Math.floor(enemy.progress);return{x:p[index].x*(1-t)+p[next].x*t,y:p[index].y*(1-t)+p[next].y*t};}
@@ -338,7 +338,9 @@ export class Game {
    this.spawnEnemy(this.waveRoster[this.spawnCursor]);this.spawnCursor++;
   }
   for(const enemy of this.enemies){
-   enemy.slow=Math.max(0,enemy.slow-dt);enemy.flash=Math.max(0,enemy.flash-dt);enemy.hitPulse=Math.max(0,(enemy.hitPulse||0)-dt);
+   enemy.slow=Math.max(0,enemy.slow-dt);
+   enemy.tempo=Math.max(0,(enemy.tempo||0)-dt);
+   enemy.flash=Math.max(0,enemy.flash-dt);enemy.hitPulse=Math.max(0,(enemy.hitPulse||0)-dt);
    // Dash types surge between small recovery beats; heavy enemies stomp.
    // Each enemy has its own phase so a crowd never moves in lockstep.
    const pace=enemy.kind==='dash'?(1+.22*Math.max(0,Math.sin(enemy.age*8+enemy.visualSeed))):
@@ -346,7 +348,24 @@ export class Game {
     enemy.kind==='split'?(1+.055*Math.sin(enemy.age*5+enemy.visualSeed)):
     enemy.kind==='boss'?(0.96+.04*Math.cos(enemy.age*2)) :1;
    enemy.age=(enemy.age||0)+dt;
-   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1);
+   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1)*(enemy.tempo>0?1.22:1);
+  }
+  // The Conductor boss leads nearby interference into a short faster beat.
+  // This is a readable enemy mechanic, not a random whole-screen speed-up.
+  for(const boss of this.enemies){
+   if(boss.kind!=='boss'||boss.hp<=0)continue;
+   boss.beatCooldown-=dt;
+   if(boss.beatCooldown>0)continue;
+   boss.beatCooldown+=4.8;
+   const center=this.enemyPos(boss);
+   for(const follower of this.enemies){
+    if(follower===boss||follower.hp<=0)continue;
+    if(dist(this.enemyPos(follower),center)<3.1){
+     follower.tempo=Math.max(follower.tempo||0,1.35);
+    }
+   }
+   this.addEffect('ring',center.x,center.y,{color:'#e4ba9f',radius:2.7,life:.44});
+   this.emit('onSound','special');
   }
   for(const hero of this.units){
    hero.cooldown-=dt;
