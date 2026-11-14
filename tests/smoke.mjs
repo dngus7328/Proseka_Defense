@@ -237,3 +237,24 @@ console.log('OK — rising summon costs, all 26 localized character voices, rota
  assert.equal(rendered,450,'45fps renderer accidentally dropped to 30fps');
 }
 console.log('OK — adaptive 45fps pacing retains fractional render credits');
+
+
+{
+ const ui=fs.readFileSync(path.join(root,'src/ui/Interface.js'),'utf8');
+ const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const css=fs.readFileSync(path.join(root,'styles/gameplay-v21.css'),'utf8');
+ assert(index.includes('id="teamStrip"'),'missing roster quick-select');
+ assert(index.includes('id="skillCondition"'),'missing skill combination progress');
+ assert(index.includes('gameplay-v21.css'),'game-first HUD stylesheet not loaded');
+ assert(ui.includes('updateTeamStrip('),'roster controls not wired');
+ assert(ui.includes('updateSkillCondition('),'skill roster tracker not wired');
+ assert(css.includes('.team-unit')&&css.includes('.skill-condition'),'missing responsive mobile HUD');
+ for(const direction of ['front','front-left','back-left','back']){
+  const p=path.join(root,'Assets','characters','emu',direction+'.png');
+  const buf=fs.readFileSync(p);
+  assert.equal(buf.readUInt32BE(16),192,'Emu PNG must preserve fixed sprite width');
+  assert.equal(buf.readUInt32BE(20),192,'Emu PNG must preserve fixed sprite height');
+  assert.equal(buf[25],6,'Emu PNG must be transparent RGBA');
+ }
+}
+console.log('OK — responsive unit roster, heart progress and corrected Emu 4-direction sprites');
