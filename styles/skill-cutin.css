@@ -356,3 +356,93 @@ body.heart-active .field-summary{visibility:hidden}
  .resource-card .mini-label{font-size:9px}
  .field-summary{min-height:25px;gap:5px;padding:2px 6px}
 }
+
+
+/* v1.14 — landscape is a layout change, never a rotation of the playfield.
+   Keep the original portrait tile grid, reserve a stable right control rail,
+   and do not distort the square map cells or squeeze buttons into tiny cards. */
+@media (orientation:landscape){
+ :root{--rail-w:clamp(208px,30vw,310px)}
+ .battle{
+  inset:env(safe-area-inset-top) calc(var(--rail-w) + env(safe-area-inset-right)) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  gap:4px;padding:2px 4px;
+ }
+ .board-frame,.battle-header,.wave-panel{
+  width:min(690px,calc(100vw - var(--rail-w) - 18px - env(safe-area-inset-left) - env(safe-area-inset-right)),calc((100dvh - 78px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*var(--map-ratio,.9167)))!important;
+  min-width:0;
+ }
+ .board-frame{
+  aspect-ratio:var(--map-aspect,11/12);
+  max-height:calc(100dvh - 78px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ }
+ .masthead{right:calc(8px + env(safe-area-inset-right));top:calc(5px + env(safe-area-inset-top))}
+ .resource-row{
+  right:env(safe-area-inset-right);left:auto;
+  top:calc(47px + env(safe-area-inset-top));bottom:auto;
+  width:var(--rail-w);height:43px;padding:3px 7px;
+ }
+ .resource-card{min-width:0;gap:4px}
+ .resource-card>div{min-width:0;gap:1px}
+ .resource-card .mini-label{font-size:9px}
+ .resource-card strong{font-size:16px}
+ .field-summary{
+  left:auto;right:calc(6px + env(safe-area-inset-right));top:calc(96px + env(safe-area-inset-top));
+  bottom:auto;transform:none;width:calc(var(--rail-w) - 12px);
+  min-height:29px;max-width:none;padding:3px 6px;
+ }
+ .main-actions{
+  left:auto;right:env(safe-area-inset-right);top:calc(132px + env(safe-area-inset-top));
+  bottom:env(safe-area-inset-bottom);width:var(--rail-w);height:auto;
+  display:flex;flex-direction:column;align-items:stretch;justify-content:center;
+  gap:8px;padding:8px;border-left:2px solid #23445c;border-top:0;
+ }
+ .main-actions .summon-action{
+  flex:0 0 auto;width:100%;max-width:none;min-width:0;
+  min-height:56px;height:clamp(58px,23dvh,96px);
+  display:flex;flex-direction:row;align-items:center;justify-content:center;
+  gap:9px;
+ }
+ .secondary-actions{
+  flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:1fr;gap:5px;width:100%;min-width:0;
+  height:clamp(56px,16dvh,69px);
+ }
+ .secondary-actions>.square-action{
+  grid-column:auto!important;grid-row:auto!important;
+  width:100%;max-width:none;min-width:0;min-height:0;
+  padding:4px 2px;gap:3px;
+ }
+ .secondary-actions>.square-action strong{
+  font-size:10px;line-height:1.2;white-space:normal;word-break:keep-all;
+  overflow-wrap:break-word;
+ }
+ .selection-panel{
+  left:auto;right:calc(var(--rail-w) + 8px + env(safe-area-inset-right));
+  bottom:calc(8px + env(safe-area-inset-bottom));
+  width:min(330px,calc(100vw - var(--rail-w) - 20px));
+ }
+ .upgrades{
+  left:auto;right:env(safe-area-inset-right);
+  width:var(--rail-w);
+  top:calc(96px + env(safe-area-inset-top));
+  bottom:env(safe-area-inset-bottom);
+  max-height:none;
+ }
+}
+@media (orientation:landscape) and (max-height:320px){
+ .resource-row{top:calc(41px + env(safe-area-inset-top));height:32px}
+ .resource-card .mini-label{font-size:8px}
+ .resource-card strong{font-size:14px}
+ .field-summary{top:calc(78px + env(safe-area-inset-top));min-height:23px;padding:1px 5px}
+ .main-actions{
+  top:calc(108px + env(safe-area-inset-top));
+  gap:4px;padding:4px 6px;
+ }
+ .main-actions .summon-action{height:48px;min-height:48px}
+ .secondary-actions{height:49px}
+ .secondary-actions>.square-action strong{font-size:9px}
+ .board-frame,.battle-header,.wave-panel{
+  width:min(690px,calc(100vw - var(--rail-w) - 18px - env(safe-area-inset-left) - env(safe-area-inset-right)),calc((100dvh - 67px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*var(--map-ratio,.9167)))!important;
+ }
+ .board-frame{max-height:calc(100dvh - 67px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+}
