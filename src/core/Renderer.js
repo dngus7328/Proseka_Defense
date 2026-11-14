@@ -241,7 +241,19 @@ export class Renderer {
      c.fillRect(Math.round(x+Math.cos(a)*outer)-q/2,Math.round(y+Math.sin(a)*outer)-q/2,q,q);
     }
     if(e.type==='signature'){
-     c.lineWidth=2;c.strokeRect(x-radius*.36,y-radius*.36,radius*.72,radius*.72);
+     const marks={
+      string:'♪',spark:'✦',drum:'◎',bass:'≡',cheer:'★',crystal:'◇',pom:'✺',
+      rain:'≋',microphone:'♩',graffiti:'×',flame:'♨',keyboard:'♯',
+      spotlight:'▲',confetti:'▥',robot:'⊞',gear:'⚙',sheet:'♫',
+      frost:'❄',paint:'◈',ribbon:'∞',note:'♪',bell:'♬',slash:'╱',
+      echo:'◉',rose:'✿',snow:'❅'
+     };
+     c.globalAlpha=t>.3?1:t*2.9;
+     c.font='bold 19px Arial';c.textAlign='center';c.textBaseline='middle';
+     c.fillStyle='#203c4b';c.fillText(marks[motif]||'✦',x+2,y-5+2);
+     c.fillStyle='#fff6df';c.fillText(marks[motif]||'✦',x,y-5);
+     c.lineWidth=2;c.strokeStyle=e.color||'#e7f3e7';
+     c.strokeRect(x-radius*.36,y-radius*.36,radius*.72,radius*.72);
      c.fillStyle='#fff8e6';c.fillRect(x-3,y-3,6,6);
     }else if(e.style==='splash'||e.style==='burst'){
      c.lineWidth=2;c.beginPath();c.ellipse(x,y,radius*.8,radius*.6,0,0,2*Math.PI);c.stroke();
