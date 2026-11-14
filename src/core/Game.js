@@ -21,7 +21,7 @@ export class Game {
  }
  get currentMap(){return this.map;}
  get selected(){return this.units.find(u=>u.uid===this.selectedId)||null;}
- get cost(){return 28;}
+ get cost(){return 28+this.summons;} // +1 crystal for every successful summon; resets each run
  get capacity(){return 60;}
  get isEndless(){return this.difficulty==='endless';}
  get maxWave(){return this.isEndless?Infinity:20;}
@@ -82,14 +82,15 @@ export class Game {
   const occupied=new Set(this.units.map(u=>tileKey(u.x,u.y)));
   const open=this.map.available.filter(p=>!occupied.has(tileKey(p.x,p.y)));
   if(!open.length){this.emit('onToast','boardFull');return false;}
+  const price=this.cost;
   const character=this.chooseCharacter();
   const center={x:this.map.w/2,y:this.map.h/2};
   const near=nearest(open,center).slice(0,Math.min(open.length,23));
   const cell=near[rnd(near.length)];
-  this.crystals-=this.cost;
+  this.crystals-=price;
   const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false,shots:0,entrance:.55,promotion:0};
   this.units.push(unit);this.summons++;this.addEffect('spawn',cell.x,cell.y,{color:character.hair,life:.48,star:1});
-  this.emit('onSummon',{unit,character,source:this.lastSummonSource,affinity:this.map.affinityGroup});
+  this.emit('onSummon',{unit,character,source:this.lastSummonSource,affinity:this.map.affinityGroup,price,nextPrice:this.cost});
   this.emit('onSound','summon');this.emit('onChange');this.detectHearts();return true;
  }
  mergeUnits(a,b){
