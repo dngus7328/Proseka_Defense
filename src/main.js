@@ -2,7 +2,7 @@ import {Renderer} from './core/Renderer.js?v=1.14.1';
 import {Game} from './core/Game.js';
 import {loadSave,persistSave} from './core/Save.js';
 import {SoundEngine} from './core/Audio.js';
-import {Interface} from './ui/Interface.js?v=1.15.0';
+import {Interface} from './ui/Interface.js?v=1.15.1';
 import {DIFFICULTIES} from './data/enemies.js';
 
 const save=loadSave();

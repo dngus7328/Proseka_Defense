@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="./styles/mobile-v16.css"/>
   <link rel="stylesheet" href="./styles/skill-cutin.css"/>
   <link rel="stylesheet" href="./styles/gameplay-v21.css?v=1.14.1"/>
-  <link rel="stylesheet" href="./styles/title-intro.css?v=1.15.0"/>
+  <link rel="stylesheet" href="./styles/title-intro.css?v=1.15.1"/>
 </head>
 <body>
   <div class="app" id="app">
@@ -68,10 +68,10 @@
       <div class="title-main">
         <div class="title-backdrop" id="titleBackdrop" aria-hidden="true">
           <canvas id="titlePreview"></canvas>
-          <img class="title-layer title-bg" src="./Assets/title/title-background.webp" alt="" decoding="async" fetchpriority="high" draggable="false"/>
-          <img class="title-layer title-enemies" src="./Assets/title/title-enemies.webp" alt="" decoding="async" draggable="false"/>
-          <img class="title-layer title-characters" src="./Assets/title/title-characters.webp" alt="" decoding="async" draggable="false"/>
-          <img class="title-layer title-final" src="./Assets/title/title-final.webp" alt="" decoding="async" fetchpriority="high" draggable="false"/>
+          <img class="title-layer title-bg" src="./Assets/title/title-background.webp?rev=20261115-uploaded" alt="" decoding="async" fetchpriority="high" draggable="false"/>
+          <img class="title-layer title-enemies" src="./Assets/title/title-enemies.webp?rev=20261115-uploaded" alt="" decoding="async" draggable="false"/>
+          <img class="title-layer title-characters" src="./Assets/title/title-characters.webp?rev=20261115-uploaded" alt="" decoding="async" draggable="false"/>
+          <img class="title-layer title-final" src="./Assets/title/title-final.webp?rev=20261115-uploaded" alt="" decoding="async" fetchpriority="high" draggable="false"/>
           <div class="title-backdrop-filter"></div><div class="title-ellipse"></div>
          </div>
         <div class="title-logo-wrap"><img id="titleLanguageLogo" class="title-logo-image" src="./Assets/logos/ko.png" alt="프로젝트 세카이 랜덤 디펜스" draggable="false" decoding="async"/></div><div class="title-art-caption" aria-hidden="true"><span>WELCOME TO SEKAI</span><b>♪</b><span>UNOFFICIAL FAN GAME</span></div>
@@ -93,6 +93,6 @@
   <div class="overlay" id="heartsOverlay"><div class="dialog collection-dialog"><div class="dialog-head"><div><p class="dialog-overline">DISCOVERY</p><h2 data-i18n="hearts">세카이의 마음</h2></div><button class="close-dialog" data-close="heartsOverlay">×</button></div><div class="collection-count" id="collectionCount">0 / 0</div><div class="heart-list" id="heartList"></div></div></div>
   <div class="overlay" id="pauseOverlay"><div class="dialog pause-dialog"><p class="dialog-overline">SEKAI / DEFENSE</p><h2 data-i18n="paused">일시정지</h2><div class="pause-actions"><button class="primary-button full" id="resumeButton" data-i18n="resume">계속하기</button><button class="quiet-button full" id="pauseSettings" data-i18n="settings">설정</button><button class="quiet-button full" id="quitButton" data-i18n="exit">나가기</button></div></div></div>
   <div class="overlay" id="resultOverlay"><div class="dialog result-dialog"><div class="result-art"><span class="result-bars"></span><span id="resultSymbol">✦</span></div><p class="dialog-overline">RUN COMPLETE</p><h2 id="resultTitle">CLEAR</h2><div class="result-time"><span data-i18n="time">시간</span><strong id="resultTime">00:00</strong></div><div class="result-summary"><div class="result-table-head"><strong data-i18n="damageByMember">멤버별 대미지</strong><span>DMG</span></div><div class="damage-list" id="damageList"></div></div><div class="result-actions"><button id="resultExit" class="quiet-button" data-i18n="exit">나가기</button><button id="resultRetry" class="quiet-button" data-i18n="retry">다시하기</button><button id="resultNext" class="primary-button" data-i18n="next">다음으로</button></div></div></div>
-  <script type="module" src="./src/main.js?v=1.15.0"></script>
+  <script type="module" src="./src/main.js?v=1.15.1"></script>
 </body>
 </html>
