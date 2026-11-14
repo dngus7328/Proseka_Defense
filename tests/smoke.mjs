@@ -288,3 +288,16 @@ console.log('OK — responsive unit roster, heart progress and corrected Emu 4-d
  }
 }
 console.log('OK — upright landscape board, responsive aspect ratio and stable pointer mapping');
+
+{
+ const source=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const titleCSS=fs.readFileSync(path.join(root,'styles','title-intro.css'),'utf8');
+ const titleJS=fs.readFileSync(path.join(root,'src','ui','TitleIntro.js'),'utf8');
+ for(const name of ['title-background','title-enemies','title-characters','title-final']){
+  assert.ok(source.includes(`Assets/title/${name}.webp`),'title layer missing: '+name);
+ }
+ assert.ok(source.includes('titleSkipIntro'),'intro skip button missing');
+ assert.ok(titleCSS.includes('prefers-reduced-motion'),'missing motion accessibility');
+ assert.ok(titleJS.includes("loadLayers()"),'missing title image loading guard');
+}
+console.log('OK — layered title intro wiring and reduced-motion fallback');
