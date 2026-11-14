@@ -219,7 +219,7 @@ export class Renderer {
   const logicalHeight=(rotated?map.w:map.h)*TILE;
   // Crisp sprites with bounded GPU/CPU work on phones.
   const isSmall=window.innerWidth<700||window.innerHeight<500;
-  const scale=isSmall?1.6:2.25;
+  const scale=this.effectsLite?1.25:(isSmall?1.6:2.25);
   const changed=this.currentMap?.id!==map.id||this.rotated!==rotated||
     this.mapLogicalWidth!==logicalWidth||this.mapLogicalHeight!==logicalHeight||
     this.renderScale!==scale;
