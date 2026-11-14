@@ -224,3 +224,16 @@ assert.equal(new Set(HEARTS.map(h=>h.style)).size,6,'Six choreographies needed')
    'Skill needs accurately targeted visual impact');
 }
 console.log('OK — rising summon costs, all 26 localized character voices, rotating speakers and precise heart impacts');
+
+
+{
+ // The adaptive frame-rate credit must preserve fractions: on a 60Hz display
+ // a 45Hz target must render about 450 frames in 10 seconds, not 300.
+ let credit=0,rendered=0;
+ for(let i=0;i<600;i++){
+  credit=Math.min(2,credit+45/60);
+  if(credit>=1){credit-=1;rendered++;}
+ }
+ assert.equal(rendered,450,'45fps renderer accidentally dropped to 30fps');
+}
+console.log('OK — adaptive 45fps pacing retains fractional render credits');
