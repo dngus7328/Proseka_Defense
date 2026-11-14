@@ -12,6 +12,8 @@ export class Renderer {
   this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;
   this.spriteImages=Object.create(null);
   this.currentTitleMap=null;
+  this.reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  this.effectsLite=false;
   this.loadCharacterSprites();
  }
  loadCharacterSprites(){
@@ -73,7 +75,7 @@ export class Renderer {
   c.clearRect(0,0,this.canvas.width,this.canvas.height);
   c.save();
   if(this.rotated){c.translate(this.canvas.width,0);c.rotate(Math.PI/2);}
-  if(game.cameraShake>0){const q=game.cameraShake;const j=Math.sin(time*129)*q;c.translate(j,Math.cos(time*151)*q*.65);}
+  if(game.cameraShake>0&&!this.reduceMotion&&!this.effectsLite){const q=game.cameraShake;const j=Math.sin(time*129)*q;c.translate(j,Math.cos(time*151)*q*.65);}
   drawSekaiWorld(c,m,time);
   this.drawPlacement(c,m,game);
   if(game.selected)this.drawRange(c,game.selected,game);
