@@ -12,7 +12,7 @@ export class Game {
   this.difficulty=config.difficulty;
   this.difficultyData=DIFFICULTIES.find(d=>d.id===this.difficulty)||DIFFICULTIES[0];
   this.phase='playing';this.speed=1;this.virtualTime=0;this.visualTime=0;this.realTime=0;this.wave=1;this.waveTime=0;
-  this.crystals=100;this.fragments=60;this.summons=0;this.units=[];this.enemies=[];this.effects=[];this.pendingHits=[];this.cameraShake=0;
+  this.crystals=100;this.fragments=60;this.summons=0;this.units=[];this.enemies=[];this.effects=[];this.pendingHits=[];this.cameraShake=0;this.lastShakeTime=-Infinity;
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;
@@ -176,7 +176,10 @@ export class Game {
    if(hit.slow>0&&enemy.kind!=='resist')enemy.slow=Math.max(enemy.slow,hit.slow);
    enemy.hitPulse=Math.max(enemy.hitPulse,hit.strong?.24:.13);
    this.dealDamage(enemy,hit.amount,hit.source);
-   if(hit.strong)this.cameraShake=Math.max(this.cameraShake,Math.min(3.1,1.0+hit.star*.34));
+   if(hit.strong&&this.realTime-this.lastShakeTime>.27){
+    this.cameraShake=Math.max(this.cameraShake,Math.min(2.15,.6+hit.star*.27));
+    this.lastShakeTime=this.realTime;
+   }
    const size=hit.strong?1.23:hit.style==='burst'||hit.style==='splash'?.95:.62;
    this.addEffect('impact',at.x,at.y,{life:hit.strong?.36:.23,color:hit.color,
     motif:hit.motif,star:hit.star,size,style:hit.style});
