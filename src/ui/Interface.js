@@ -1,4 +1,4 @@
-import {GROUPS,CHARACTER_BY_ID,attackValue,attackRange} from '../data/characters.js';
+import {GROUPS,CHARACTER_BY_ID,SIGNATURES,attackValue,attackRange} from '../data/characters.js';
 import {MAPS} from '../data/maps.js';
 import {HEARTS} from '../data/hearts.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
@@ -205,7 +205,19 @@ export class Interface {
   });
   maps.scrollLeft=mapScrollLeft;
   const selected=MAPS.find(m=>m.id===this.config.mapId);
-  if(selected){el('app').dataset.theme=selected.theme;this.syncMapArtwork(selected);}
+  if(selected){
+   el('app').dataset.theme=selected.theme;this.syncMapArtwork(selected);
+   const host=document.querySelector('.lobby-art-copy');
+   if(host){
+    let badge=el('mapAffinity');if(!badge){badge=document.createElement('div');badge.id='mapAffinity';badge.className='map-affinity';host.append(badge);}
+    const group=GROUPS.find(g=>g.id===selected.affinityGroup);
+    const title=group?.short||'VIRTUAL SINGER';
+    const rate=Math.round(selected.affinityRate*100);
+    badge.textContent=this.save.language==='ja'?`セカイ優先抽選 ${rate}% · ${title}`:
+     this.save.language==='en'?`SEKAI PRIORITY ${rate}% · ${title}`:
+     `세카이 소환 우선 ${rate}% · ${title}`;
+   }
+  }
   if(selected&&el('lobbyPreview'))this.renderer.drawThumbnail(el('lobbyPreview'),selected);
  }
  syncMapArtwork(map){
@@ -277,7 +289,16 @@ export class Interface {
   if(stack.children.length>3)stack.firstChild.remove();
   window.setTimeout(()=>outer.remove(),2200);
  }
- onHeartSeen(id){
+ onSummon({unit,character,source}){
+  const name=character.names[this.save.language];
+  const bonus=source==='affinity'?(this.save.language==='ja'?'セカイボーナス':this.save.language==='en'?'SEKAI BONUS':'세카이 보정'):'';
+  this.setStatus(`${name}${bonus?' · '+bonus:''}`);
+ }
+ onPromotion({unit}){
+  const name=CHARACTER_BY_ID[unit.id]?.names[this.save.language]||unit.id;
+  this.setStatus(`${name}  ${'★'.repeat(unit.star)}`);
+ }
+  onHeartSeen(id){
   if(this.save.discovered.includes(id))return;
   this.save.discovered.push(id);persistSave(this.save);this.renderHearts();
   this.toast(this.t('discovered'),true);
@@ -361,6 +382,14 @@ export class Interface {
   if(key!==this.lastHero||force){
    el('heroName').textContent=def.names[this.save.language];
    el('heroMeta').textContent=`${'★'.repeat(u.star)} · ${GROUPS.find(x=>x.id===def.group).short}`;
+   let badge=el('heroSignature');
+   if(!badge){
+    badge=document.createElement('span');badge.id='heroSignature';badge.className='hero-signature';
+    el('heroMeta').insertAdjacentElement('afterend',badge);
+   }
+   const sig=SIGNATURES[u.id];
+   badge.textContent=sig?`${sig.names[this.save.language]} · ${sig.every}${this.save.language==='en'?' shots':this.save.language==='ja'?'回ごと':'회 공격마다'}`:'';
+   badge.title=badge.textContent;
    const container=el('heroPortrait');container.innerHTML='';const canvas=document.createElement('canvas');this.renderer.drawPortrait(canvas,u);container.append(canvas);
    this.lastHero=key;
   }
