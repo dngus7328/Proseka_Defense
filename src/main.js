@@ -22,7 +22,9 @@ function startGame(config){
    onWave:({wave})=>{ui.status(`WAVE ${String(wave).padStart(2,'0')}`);},
    onBossWave:()=>{ui.toast('checkpoint');},
    onHeartSeen:id=>ui.onHeartSeen(id),
+   onHeartStart:entry=>ui.onHeartStart(entry),
    onHeartFire:entry=>ui.onHeartFire(entry),
+   onHeartEnd:entry=>ui.onHeartEnd(entry),
    onSound:type=>sound.beep(type),
    onEndStart:()=>{ui.status('FINISH');},
    onResult:result=>finishRun(result)
