@@ -320,3 +320,19 @@ console.log('OK — layered title intro, cache revision and failed-image retry')
  assert.ok(layout.includes('@media (orientation:landscape)'),'landscape short-height handling is required');
 }
 console.log('OK — uncropped title art and dedicated portrait/landscape title controls');
+
+{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const layout=fs.readFileSync(path.join(root,'styles','title-stage-v3.css'),'utf8');
+ assert.ok(html.includes('title-stage-v3.css?v=1.16.0'),'new title layout missing');
+ assert.ok(!html.includes('title-layout-v2.css'),'outdated letterbox title layout still loaded');
+ assert.ok(html.indexOf('title-stage-v3.css')>html.indexOf('title-intro.css'),'title override order incorrect');
+ assert.ok(layout.includes('object-fit:contain !important'),'character assets must retain native proportion');
+ assert.ok(layout.includes('object-fit:cover !important'),'scenic background should fill screen');
+ assert.ok(layout.includes('.title-backdrop.art-ready .title-final{display:none !important}'),'non-native ratios must not render rectangular source');
+ assert.ok(layout.includes('min-aspect-ratio:17/10'),'original composite should be used near native aspect');
+ assert.ok(layout.includes('titleLogoStageV3'),'logo intro animation missing');
+ assert.ok(layout.includes('@media (orientation:portrait)'),'portrait title layout missing');
+ assert.ok(layout.includes('@media (orientation:landscape)'),'short landscape title layout missing');
+}
+console.log('OK — immersive title stage and portrait/landscape artwork alignment');
