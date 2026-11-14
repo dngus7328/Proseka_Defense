@@ -15,7 +15,7 @@ export class Game {
   this.crystals=100;this.fragments=60;this.summons=0;this.units=[];this.enemies=[];this.effects=[];this.pendingHits=[];this.cameraShake=0;this.lastShakeTime=-Infinity;
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
-  this.heartQueue=[];this.heartScene=null;
+  this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
  }
@@ -327,8 +327,11 @@ export class Game {
   }
   if(!this.heartScene&&this.heartQueue.length){
    const pending=this.heartQueue.shift();
-   this.heartScene={...pending,elapsed:0,fired:false};
-   this.emit('onHeartStart',{...pending,strength:heartStrength(pending.participants)});
+   const turn=this.heartCastCount[pending.heart.id]||0;
+   const actorId=pending.participants[turn%pending.participants.length]?.id;
+   this.heartCastCount[pending.heart.id]=turn+1;
+   this.heartScene={...pending,actorId,elapsed:0,fired:false};
+   this.emit('onHeartStart',{...pending,actorId,strength:heartStrength(pending.participants)});
   }
  }
  update(realDt){
