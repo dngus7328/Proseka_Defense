@@ -1,0 +1,181 @@
+/* Title layout v2: complete 1672x941 artwork, never cropped.
+   Loaded after title-intro.css; does not change gameplay or original art. */
+#titleOverlay .title-screen{
+ --title-ink:#344b75;
+ --title-panel-w:clamp(192px,28vw,360px);
+ position:relative;width:100%;height:100dvh;overflow:hidden;
+ color:var(--title-ink);
+ background:linear-gradient(160deg,#9cccf3 0%,#e2e6fb 56%,#f8e1df 100%);
+}
+#titleOverlay .title-screen::before{
+ content:"";position:absolute;z-index:1;top:0;right:0;bottom:0;
+ width:var(--title-panel-w);
+ background:linear-gradient(180deg,#f7f8f5 0%,#ecf1f9 100%);
+ border-left:2px solid #7f9cb8;
+ box-shadow:-5px 0 18px #31517d14;
+ pointer-events:none;
+}
+#titleOverlay .title-main{position:absolute;inset:0;display:block;pointer-events:none}
+#titleOverlay .title-backdrop{
+ position:absolute;z-index:2;
+ top:50%;left:calc((100% - var(--title-panel-w))/2);
+ transform:translate(-50%,-50%);
+ inset-block-end:auto;right:auto;
+ width:min(calc(100vw - var(--title-panel-w) - 28px),calc((100dvh - 36px)*1672/941));
+ height:auto;aspect-ratio:1672 / 941;
+ border:3px solid #fff8ef;outline:1px solid #718bb0;
+ border-radius:10px;box-shadow:0 5px 0 #476b9655;
+ overflow:hidden;background:#a2cbf3;isolation:isolate;
+}
+#titleOverlay .title-backdrop canvas,
+#titleOverlay .title-backdrop .title-layer{
+ position:absolute;inset:0;width:100%;height:100%;
+ object-fit:contain!important;object-position:center center;
+ border:0;border-radius:0;
+}
+#titleOverlay .title-backdrop-filter{display:none!important}
+#titleOverlay .title-ellipse{display:none!important}
+#titleOverlay .title-logo-wrap{
+ position:absolute;z-index:8;
+ top:24%;left:auto;right:12px;
+ width:calc(var(--title-panel-w) - 24px);max-width:none;
+ margin:0;padding:0;display:grid;place-items:center;
+ transform:none;pointer-events:none;
+}
+#titleOverlay .title-logo-image{
+ display:block;width:100%;height:auto;max-width:100%;
+ max-height:min(28dvh,190px);object-fit:contain;
+ mix-blend-mode:normal;filter:drop-shadow(0 3px 1px #ffffffa6);
+}
+#titleOverlay .title-header{
+ position:absolute;z-index:11;inset:0 0 auto auto;
+ display:flex;justify-content:flex-end;align-items:center;
+ width:var(--title-panel-w);
+ padding:calc(11px + env(safe-area-inset-top)) 12px 0;
+ background:none;
+}
+#titleOverlay .title-header-actions{
+ width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px;
+}
+#titleOverlay .title-small-control{
+ display:flex;justify-content:center;align-items:center;
+ width:100%;min-width:0;min-height:38px;padding:7px 4px;
+ border:1px solid #7b97b1;border-bottom:3px solid #6989a9;
+ border-radius:8px;background:#fffaf1;color:#38516e;
+ box-shadow:none;font-size:clamp(11px,1.4vw,13px);
+ font-weight:850;white-space:nowrap;
+}
+#titleOverlay .title-small-control:active{
+ transform:translateY(2px);border-bottom-width:1px;
+}
+/* Remove redundant microtext that overflowed narrow landscape screens. */
+#titleOverlay .title-art-caption{display:none!important}
+#titleOverlay .title-bottom{
+ position:absolute;z-index:11;
+ left:auto;right:12px;
+ bottom:calc(24px + env(safe-area-inset-bottom));
+ width:calc(var(--title-panel-w) - 24px);
+ max-width:none;margin:0;padding:0;display:block;
+}
+#titleOverlay .title-credit{display:none}
+#titleOverlay .title-enter{
+ width:100%;height:clamp(48px,11dvh,64px);max-width:none;
+ display:flex;align-items:center;justify-content:center;gap:11px;
+ padding:0 12px;background:#ffd87b;
+ border:2px solid #56749d;border-bottom:5px solid #9c7c5c;
+ border-radius:11px;color:#344967;
+ box-shadow:0 2px 0 #f9edd3 inset;clip-path:none;
+ font-size:clamp(16px,2vw,21px);font-weight:900;text-shadow:none;
+}
+#titleOverlay .title-enter svg{
+ height:21px;width:21px;stroke:currentColor;
+}
+#titleOverlay .title-enter:active{
+ transform:translateY(2px);border-bottom-width:3px;
+}
+#titleOverlay .title-skip{
+ position:absolute;z-index:12;
+ left:auto;right:calc(12px + env(safe-area-inset-right));
+ bottom:calc(114px + env(safe-area-inset-bottom));
+ color:#3f6387;background:#fefaf3ed;
+ border:1px solid #90a7bc;border-radius:20px;
+ padding:6px 12px;font-size:11px;font-weight:850;
+}
+@media (orientation:portrait){
+ #titleOverlay .title-screen::before{
+  width:100%;height:36%;top:auto;bottom:0;
+  background:linear-gradient(0deg,#fff8ed 0%,#fffbf4bd 68%,transparent 100%);
+  border:0;box-shadow:none;
+ }
+ #titleOverlay .title-header{
+  top:0;right:0;width:100%;
+  padding:calc(12px + env(safe-area-inset-top)) 16px 0;
+ }
+ #titleOverlay .title-header-actions{
+  width:min(245px,67vw);gap:7px;
+ }
+ #titleOverlay .title-small-control{min-height:37px;font-size:12px}
+ #titleOverlay .title-logo-wrap{
+  top:clamp(88px,15.5dvh,154px);left:15px;right:15px;
+  width:calc(100% - 30px);max-width:440px;margin:0 auto;
+ }
+ #titleOverlay .title-logo-image{
+  max-height:clamp(94px,17dvh,154px);
+ }
+ #titleOverlay .title-backdrop{
+  left:50%;top:50%;
+  width:calc(100vw - 24px);max-width:600px;
+  aspect-ratio:1672 / 941;transform:translate(-50%,-50%);
+  border-width:2px;border-radius:9px;
+ }
+ #titleOverlay .title-bottom{
+  bottom:calc(25px + env(safe-area-inset-bottom));
+  left:16px;right:16px;width:auto;
+ }
+ #titleOverlay .title-enter{
+  height:61px;font-size:21px;border-radius:11px;
+ }
+ #titleOverlay .title-skip{
+  bottom:calc(100px + env(safe-area-inset-bottom));right:18px;
+ }
+}
+@media (orientation:portrait) and (max-height:640px){
+ #titleOverlay .title-logo-wrap{top:clamp(65px,12dvh,95px)}
+ #titleOverlay .title-logo-image{max-height:clamp(73px,14dvh,105px)}
+ #titleOverlay .title-backdrop{top:49%}
+ #titleOverlay .title-bottom{
+  bottom:calc(12px + env(safe-area-inset-bottom));
+ }
+ #titleOverlay .title-enter{height:48px}
+}
+@media (orientation:landscape) and (max-height:430px){
+ #titleOverlay .title-logo-wrap{
+  top:21%;width:calc(var(--title-panel-w) - 24px);
+ }
+ #titleOverlay .title-logo-image{max-height:25dvh}
+ #titleOverlay .title-bottom{
+  bottom:calc(14px + env(safe-area-inset-bottom));
+ }
+ #titleOverlay .title-enter{height:49px;font-size:17px}
+ #titleOverlay .title-skip{
+  bottom:calc(75px + env(safe-area-inset-bottom));
+ }
+}
+@media (orientation:landscape) and (max-height:315px){
+ #titleOverlay .title-header{padding-top:5px}
+ #titleOverlay .title-small-control{
+  min-height:28px;padding:4px;font-size:10px;
+ }
+ #titleOverlay .title-logo-wrap{top:16%}
+ #titleOverlay .title-logo-image{max-height:23dvh}
+ #titleOverlay .title-bottom{bottom:5px}
+ #titleOverlay .title-enter{height:42px}
+ #titleOverlay .title-skip{bottom:50px}
+}
+@media (prefers-reduced-motion:reduce){
+ #titleOverlay .title-logo-wrap,
+ #titleOverlay .title-header,
+ #titleOverlay .title-bottom{
+  animation:none!important;transition:none!important;
+ }
+}
