@@ -2,6 +2,7 @@ import {CHARACTER_BY_ID,CHARACTERS,SIGNATURES,STAR_SCALE} from '../data/characte
 import {ENEMIES} from '../data/enemies.js';
 import {tileKey} from '../data/maps.js';
 import {drawSekaiWorld} from './SekaiMapArt.js';
+import {drawEnemyArt} from './EnemyArt.js';
 const TILE=32;
 const DIRECTIONS=['front','front-left','back-left','back'];
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
@@ -183,31 +184,7 @@ export class Renderer {
   c.restore();
  }
  drawEnemy(c,game,e,time){
-  const p=game.enemyPos(e),t=ENEMIES[e.kind],x=Math.round((p.x+.5)*TILE),y=Math.round((p.y+.5)*TILE),r=e.radius*TILE;
-  const size=Math.round(r*2);c.save();c.translate(x,y);
-  const hitScale=e.hitPulse>0?1+Math.sin(e.hitPulse/.24*Math.PI)*.13:1;
-  c.scale(hitScale,hitScale);
-  c.fillStyle='#20333ba8';c.fillRect(-Math.round(r),Math.round(r*.65),size+1,3);
-  c.fillStyle=e.flash>0?'#fff4d6':t.color;
-  if(e.kind==='dash'){
-    c.beginPath();c.moveTo(0,-r);c.lineTo(r,r);c.lineTo(-r,r);c.closePath();c.fill();
-  }else if(e.kind==='tank'||e.kind==='boss'){
-    const q=e.kind==='boss'?2:1;c.fillRect(-r,-r,size,size);c.fillStyle=t.accent;c.fillRect(-r+q*2,-r+q*2,size-q*4,3);
-    if(e.kind==='boss'){c.fillStyle='#2c3455';c.fillRect(-r-4,0,4,8);c.fillRect(r,0,4,8);c.fillStyle=t.accent;c.fillRect(-r/2,-r-3,r,3);}
-  }else if(e.kind==='split'){
-    c.fillRect(-r,-r,size,size);c.fillStyle=t.accent;c.fillRect(-r+3,-r+3,Math.max(2,size-6),Math.max(2,size-6));c.fillStyle=t.color;c.fillRect(-r/2,-r/2,r,r);
-  }else{
-    c.fillRect(-r,-r,size,size);c.fillStyle=t.accent;c.fillRect(-r+2,-r+3,Math.max(2,size-5),2);
-  }
-  c.fillStyle='#293449';c.fillRect(-4,-1,3,3);c.fillRect(3,-1,3,3);
-  if(e.kind==='resist'){c.strokeStyle='#d2e4bd';c.lineWidth=1.5;c.strokeRect(-r-2,-r-2,size+4,size+4);}
-  if(e.slow>0){c.strokeStyle='#c5ecfa';c.strokeRect(-r-2,-r-2,size+4,size+4);}
-  c.restore();
-  if(e.kind==='boss'||e.kind==='tank'||e.hp<e.maxHp*.85){
-   const bw=e.kind==='boss'?42:25,oy=r+7;
-   c.fillStyle='#283540';c.fillRect(x-bw/2,y-oy,bw,4);
-   c.fillStyle=e.kind==='boss'?'#f0b8a6':'#a9e6c9';c.fillRect(x-bw/2+1,y-oy+1,Math.max(0,(bw-2)*e.hp/e.maxHp),2);
-  }
+  drawEnemyArt(c,game,e,time,this.rotated,this.reduceMotion||this.effectsLite);
  }
  drawEffects(c,game,time){
   for(const e of game.effects){
