@@ -287,7 +287,7 @@ export class Renderer {
   const impact=attackPhase>0&&attackPhase<1?Math.sin(attackPhase*Math.PI):0;
   const recoil=impact*(u.star>=3?4.1:2.8);
   const sway=(calm?0:Math.sin(time*1.8+u.uid)*1.25);
-  const swing=impact*u.pose*(u.star>=3?10:7.2)+sway;
+  const swing=impact*(u.pose||0)*(u.star>=3?10:7.2)+sway;
   const inAmount=Math.max(0,(u.entrance||0)/.55);
   const promotionAmount=Math.max(0,(u.promotion||0)/.85);
   const rise=promotionAmount?Math.sin(Math.PI*(1-promotionAmount))*6.5:0;
