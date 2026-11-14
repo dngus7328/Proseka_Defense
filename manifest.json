@@ -8,160 +8,160 @@
   ],
   "characters": {
     "ichika": {
-      "front": "./assets/characters/ichika/front.png",
-      "front-left": "./assets/characters/ichika/front-left.png",
-      "back-left": "./assets/characters/ichika/back-left.png",
-      "back": "./assets/characters/ichika/back.png"
+      "front": "./Assets/characters/ichika/front.png",
+      "front-left": "./Assets/characters/ichika/front-left.png",
+      "back-left": "./Assets/characters/ichika/back-left.png",
+      "back": "./Assets/characters/ichika/back.png"
     },
     "saki": {
-      "front": "./assets/characters/saki/front.png",
-      "front-left": "./assets/characters/saki/front-left.png",
-      "back-left": "./assets/characters/saki/back-left.png",
-      "back": "./assets/characters/saki/back.png"
+      "front": "./Assets/characters/saki/front.png",
+      "front-left": "./Assets/characters/saki/front-left.png",
+      "back-left": "./Assets/characters/saki/back-left.png",
+      "back": "./Assets/characters/saki/back.png"
     },
     "honami": {
-      "front": "./assets/characters/honami/front.png",
-      "front-left": "./assets/characters/honami/front-left.png",
-      "back-left": "./assets/characters/honami/back-left.png",
-      "back": "./assets/characters/honami/back.png"
+      "front": "./Assets/characters/honami/front.png",
+      "front-left": "./Assets/characters/honami/front-left.png",
+      "back-left": "./Assets/characters/honami/back-left.png",
+      "back": "./Assets/characters/honami/back.png"
     },
     "shiho": {
-      "front": "./assets/characters/shiho/front.png",
-      "front-left": "./assets/characters/shiho/front-left.png",
-      "back-left": "./assets/characters/shiho/back-left.png",
-      "back": "./assets/characters/shiho/back.png"
+      "front": "./Assets/characters/shiho/front.png",
+      "front-left": "./Assets/characters/shiho/front-left.png",
+      "back-left": "./Assets/characters/shiho/back-left.png",
+      "back": "./Assets/characters/shiho/back.png"
     },
     "minori": {
-      "front": "./assets/characters/minori/front.png",
-      "front-left": "./assets/characters/minori/front-left.png",
-      "back-left": "./assets/characters/minori/back-left.png",
-      "back": "./assets/characters/minori/back.png"
+      "front": "./Assets/characters/minori/front.png",
+      "front-left": "./Assets/characters/minori/front-left.png",
+      "back-left": "./Assets/characters/minori/back-left.png",
+      "back": "./Assets/characters/minori/back.png"
     },
     "haruka": {
-      "front": "./assets/characters/haruka/front.png",
-      "front-left": "./assets/characters/haruka/front-left.png",
-      "back-left": "./assets/characters/haruka/back-left.png",
-      "back": "./assets/characters/haruka/back.png"
+      "front": "./Assets/characters/haruka/front.png",
+      "front-left": "./Assets/characters/haruka/front-left.png",
+      "back-left": "./Assets/characters/haruka/back-left.png",
+      "back": "./Assets/characters/haruka/back.png"
     },
     "airi": {
-      "front": "./assets/characters/airi/front.png",
-      "front-left": "./assets/characters/airi/front-left.png",
-      "back-left": "./assets/characters/airi/back-left.png",
-      "back": "./assets/characters/airi/back.png"
+      "front": "./Assets/characters/airi/front.png",
+      "front-left": "./Assets/characters/airi/front-left.png",
+      "back-left": "./Assets/characters/airi/back-left.png",
+      "back": "./Assets/characters/airi/back.png"
     },
     "shizuku": {
-      "front": "./assets/characters/shizuku/front.png",
-      "front-left": "./assets/characters/shizuku/front-left.png",
-      "back-left": "./assets/characters/shizuku/back-left.png",
-      "back": "./assets/characters/shizuku/back.png"
+      "front": "./Assets/characters/shizuku/front.png",
+      "front-left": "./Assets/characters/shizuku/front-left.png",
+      "back-left": "./Assets/characters/shizuku/back-left.png",
+      "back": "./Assets/characters/shizuku/back.png"
     },
     "kohane": {
-      "front": "./assets/characters/kohane/front.png",
-      "front-left": "./assets/characters/kohane/front-left.png",
-      "back-left": "./assets/characters/kohane/back-left.png",
-      "back": "./assets/characters/kohane/back.png"
+      "front": "./Assets/characters/kohane/front.png",
+      "front-left": "./Assets/characters/kohane/front-left.png",
+      "back-left": "./Assets/characters/kohane/back-left.png",
+      "back": "./Assets/characters/kohane/back.png"
     },
     "an": {
-      "front": "./assets/characters/an/front.png",
-      "front-left": "./assets/characters/an/front-left.png",
-      "back-left": "./assets/characters/an/back-left.png",
-      "back": "./assets/characters/an/back.png"
+      "front": "./Assets/characters/an/front.png",
+      "front-left": "./Assets/characters/an/front-left.png",
+      "back-left": "./Assets/characters/an/back-left.png",
+      "back": "./Assets/characters/an/back.png"
     },
     "akito": {
-      "front": "./assets/characters/akito/front.png",
-      "front-left": "./assets/characters/akito/front-left.png",
-      "back-left": "./assets/characters/akito/back-left.png",
-      "back": "./assets/characters/akito/back.png"
+      "front": "./Assets/characters/akito/front.png",
+      "front-left": "./Assets/characters/akito/front-left.png",
+      "back-left": "./Assets/characters/akito/back-left.png",
+      "back": "./Assets/characters/akito/back.png"
     },
     "toya": {
-      "front": "./assets/characters/toya/front.png",
-      "front-left": "./assets/characters/toya/front-left.png",
-      "back-left": "./assets/characters/toya/back-left.png",
-      "back": "./assets/characters/toya/back.png"
+      "front": "./Assets/characters/toya/front.png",
+      "front-left": "./Assets/characters/toya/front-left.png",
+      "back-left": "./Assets/characters/toya/back-left.png",
+      "back": "./Assets/characters/toya/back.png"
     },
     "tsukasa": {
-      "front": "./assets/characters/tsukasa/front.png",
-      "front-left": "./assets/characters/tsukasa/front-left.png",
-      "back-left": "./assets/characters/tsukasa/back-left.png",
-      "back": "./assets/characters/tsukasa/back.png"
+      "front": "./Assets/characters/tsukasa/front.png",
+      "front-left": "./Assets/characters/tsukasa/front-left.png",
+      "back-left": "./Assets/characters/tsukasa/back-left.png",
+      "back": "./Assets/characters/tsukasa/back.png"
     },
     "emu": {
-      "front": "./assets/characters/emu/front.png",
-      "front-left": "./assets/characters/emu/front-left.png",
-      "back-left": "./assets/characters/emu/back-left.png",
-      "back": "./assets/characters/emu/back.png"
+      "front": "./Assets/characters/emu/front.png",
+      "front-left": "./Assets/characters/emu/front-left.png",
+      "back-left": "./Assets/characters/emu/back-left.png",
+      "back": "./Assets/characters/emu/back.png"
     },
     "nene": {
-      "front": "./assets/characters/nene/front.png",
-      "front-left": "./assets/characters/nene/front-left.png",
-      "back-left": "./assets/characters/nene/back-left.png",
-      "back": "./assets/characters/nene/back.png"
+      "front": "./Assets/characters/nene/front.png",
+      "front-left": "./Assets/characters/nene/front-left.png",
+      "back-left": "./Assets/characters/nene/back-left.png",
+      "back": "./Assets/characters/nene/back.png"
     },
     "rui": {
-      "front": "./assets/characters/rui/front.png",
-      "front-left": "./assets/characters/rui/front-left.png",
-      "back-left": "./assets/characters/rui/back-left.png",
-      "back": "./assets/characters/rui/back.png"
+      "front": "./Assets/characters/rui/front.png",
+      "front-left": "./Assets/characters/rui/front-left.png",
+      "back-left": "./Assets/characters/rui/back-left.png",
+      "back": "./Assets/characters/rui/back.png"
     },
     "kanade": {
-      "front": "./assets/characters/kanade/front.png",
-      "front-left": "./assets/characters/kanade/front-left.png",
-      "back-left": "./assets/characters/kanade/back-left.png",
-      "back": "./assets/characters/kanade/back.png"
+      "front": "./Assets/characters/kanade/front.png",
+      "front-left": "./Assets/characters/kanade/front-left.png",
+      "back-left": "./Assets/characters/kanade/back-left.png",
+      "back": "./Assets/characters/kanade/back.png"
     },
     "mafuyu": {
-      "front": "./assets/characters/mafuyu/front.png",
-      "front-left": "./assets/characters/mafuyu/front-left.png",
-      "back-left": "./assets/characters/mafuyu/back-left.png",
-      "back": "./assets/characters/mafuyu/back.png"
+      "front": "./Assets/characters/mafuyu/front.png",
+      "front-left": "./Assets/characters/mafuyu/front-left.png",
+      "back-left": "./Assets/characters/mafuyu/back-left.png",
+      "back": "./Assets/characters/mafuyu/back.png"
     },
     "ena": {
-      "front": "./assets/characters/ena/front.png",
-      "front-left": "./assets/characters/ena/front-left.png",
-      "back-left": "./assets/characters/ena/back-left.png",
-      "back": "./assets/characters/ena/back.png"
+      "front": "./Assets/characters/ena/front.png",
+      "front-left": "./Assets/characters/ena/front-left.png",
+      "back-left": "./Assets/characters/ena/back-left.png",
+      "back": "./Assets/characters/ena/back.png"
     },
     "mizuki": {
-      "front": "./assets/characters/mizuki/front.png",
-      "front-left": "./assets/characters/mizuki/front-left.png",
-      "back-left": "./assets/characters/mizuki/back-left.png",
-      "back": "./assets/characters/mizuki/back.png"
+      "front": "./Assets/characters/mizuki/front.png",
+      "front-left": "./Assets/characters/mizuki/front-left.png",
+      "back-left": "./Assets/characters/mizuki/back-left.png",
+      "back": "./Assets/characters/mizuki/back.png"
     },
     "miku": {
-      "front": "./assets/characters/miku/front.png",
-      "front-left": "./assets/characters/miku/front-left.png",
-      "back-left": "./assets/characters/miku/back-left.png",
-      "back": "./assets/characters/miku/back.png"
+      "front": "./Assets/characters/miku/front.png",
+      "front-left": "./Assets/characters/miku/front-left.png",
+      "back-left": "./Assets/characters/miku/back-left.png",
+      "back": "./Assets/characters/miku/back.png"
     },
     "rin": {
-      "front": "./assets/characters/rin/front.png",
-      "front-left": "./assets/characters/rin/front-left.png",
-      "back-left": "./assets/characters/rin/back-left.png",
-      "back": "./assets/characters/rin/back.png"
+      "front": "./Assets/characters/rin/front.png",
+      "front-left": "./Assets/characters/rin/front-left.png",
+      "back-left": "./Assets/characters/rin/back-left.png",
+      "back": "./Assets/characters/rin/back.png"
     },
     "len": {
-      "front": "./assets/characters/len/front.png",
-      "front-left": "./assets/characters/len/front-left.png",
-      "back-left": "./assets/characters/len/back-left.png",
-      "back": "./assets/characters/len/back.png"
+      "front": "./Assets/characters/len/front.png",
+      "front-left": "./Assets/characters/len/front-left.png",
+      "back-left": "./Assets/characters/len/back-left.png",
+      "back": "./Assets/characters/len/back.png"
     },
     "luka": {
-      "front": "./assets/characters/luka/front.png",
-      "front-left": "./assets/characters/luka/front-left.png",
-      "back-left": "./assets/characters/luka/back-left.png",
-      "back": "./assets/characters/luka/back.png"
+      "front": "./Assets/characters/luka/front.png",
+      "front-left": "./Assets/characters/luka/front-left.png",
+      "back-left": "./Assets/characters/luka/back-left.png",
+      "back": "./Assets/characters/luka/back.png"
     },
     "meiko": {
-      "front": "./assets/characters/meiko/front.png",
-      "front-left": "./assets/characters/meiko/front-left.png",
-      "back-left": "./assets/characters/meiko/back-left.png",
-      "back": "./assets/characters/meiko/back.png"
+      "front": "./Assets/characters/meiko/front.png",
+      "front-left": "./Assets/characters/meiko/front-left.png",
+      "back-left": "./Assets/characters/meiko/back-left.png",
+      "back": "./Assets/characters/meiko/back.png"
     },
     "kaito": {
-      "front": "./assets/characters/kaito/front.png",
-      "front-left": "./assets/characters/kaito/front-left.png",
-      "back-left": "./assets/characters/kaito/back-left.png",
-      "back": "./assets/characters/kaito/back.png"
+      "front": "./Assets/characters/kaito/front.png",
+      "front-left": "./Assets/characters/kaito/front-left.png",
+      "back-left": "./Assets/characters/kaito/back-left.png",
+      "back": "./Assets/characters/kaito/back.png"
     }
   },
   "sourceSheets": {
