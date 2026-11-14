@@ -19,7 +19,9 @@ function floor(c,m){
   stage:['#b6aec6','#beb5cc','#a49ebc','#e0cfe0'],
   street:['#b3a69a','#c1b0a1','#9d998f','#e2cbb6'],
   wonderland:['#e6c3af','#efceb5','#d8b9bb','#fae3bd'],
-  empty:['#e1e0e8','#e8e7ef','#d4d5de','#f5f4f7']
+  empty:['#e1e0e8','#e8e7ef','#d4d5de','#f5f4f7'],
+  closed:['#555468','#5e5c71','#45485b','#827889'],
+  open:['#d8e4e6','#e7e4df','#bbced4','#f6e9ce']
  };
  const p=palettes[m.theme];rect(c,0,0,w,h,p[0]);
  for(let y=0;y<m.h;y++)for(let x=0;x<m.w;x++){
@@ -37,6 +39,14 @@ function floor(c,m){
   }else if(m.theme==='wonderland'){
    rect(c,X,Y+30,32,2,'#d9aca8');rect(c,X+30,Y,2,32,'#d9aca8');
    if((x+y)%3===0){rect(c,X+5,Y+5,22,22,'#ead1c4');rect(c,X+7,Y+7,18,18,'#f0d6c4');}
+  }else if(m.theme==='closed'){
+   rect(c,X,Y+30,32,2,'#444558');rect(c,X+30,Y,2,32,'#444558');
+   if(q%5===0){rect(c,X+7,Y+8,16,2,'#8d8191');rect(c,X+20,Y+14,8,1,'#a58b96');}
+   if(q%9===0)rect(c,X+10,Y+23,5,3,'#ba8e86');
+  }else if(m.theme==='open'){
+   rect(c,X,Y+31,32,1,'#becbd2');rect(c,X+31,Y,1,32,'#becbd2');
+   rect(c,X+5,Y+5,22,1,'#f7f5e9');
+   if(q%6===0){rect(c,X+10,Y+15,7,2,'#e5cfaf');rect(c,X+17,Y+15,7,2,'#d0dce0');}
   }else{
    if(x%3===0)rect(c,X,Y,1,32,'#d0d1d9');
    if(y%3===0)rect(c,X,Y,32,1,'#caccd6');
@@ -72,6 +82,26 @@ function floor(c,m){
    else{rect(c,X+9,Y+17,14,8,'#6d9c9b');circle(c,X+16,Y+13,9,'#f9ddaf');circle(c,X+16,Y+13,4,'#e88eaa');}
   }
   rect(c,0,h-31,w,31,'#dca9ab');for(let x=10;x<w;x+=45){rect(c,x,h-16,28,6,'#7cb9ad');circle(c,x+14,h-19,8,'#f5d4a9');circle(c,x+14,h-19,4,'#dc87ac');}
+ }else if(m.theme==='closed'){
+  // Movie scene: rows of sealed windows, dark panes and ash-hued sand.
+  rect(c,0,0,w,32,'#37394c');
+  for(let i=0;i<5;i++){const X=12+i*69;rect(c,X,3,44,25,'#7c7083');rect(c,X+3,5,38,20,'#232b3b');
+   rect(c,X+22,5,2,20,'#ac95a2');rect(c,X+3,14,38,2,'#ac95a2');rect(c,X+8,19,10,3,'#956d7d');}
+  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){let X=x*T,Y=y*T;rect(c,X,Y,32,32,'#4e4d62');
+   rect(c,X+5,Y+4,22,25,'#857584');rect(c,X+7,Y+6,18,21,'#242c3d');
+   rect(c,X+15,Y+6,2,21,'#b09ca8');rect(c,X+7,Y+16,18,2,'#b09ca8');
+   if(y%3===0)rect(c,X+8,Y+24,12,2,'#c09091');}
+  rect(c,0,h-31,w,31,'#514758');for(let i=0;i<9;i++){const X=7+i*37;rect(c,X,h-20,20,3,'#8f7b84');rect(c,X+5,h-15,12,1,'#a79096');}
+ }else if(m.theme==='open'){
+  // Movie counterpart: bright opened windows, reflected light and soft warm stone.
+  rect(c,0,0,w,32,'#b6d5dd');
+  for(let i=0;i<5;i++){const X=12+i*69;rect(c,X,3,44,25,'#fafaf0');rect(c,X+3,5,38,20,'#9ed3e1');
+   rect(c,X+3,5,38,8,'#dcf2f3');rect(c,X+22,5,2,20,'#fffef0');rect(c,X+3,14,38,2,'#fffef0');}
+  for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){let X=x*T,Y=y*T;rect(c,X,Y,32,32,'#a9cbd5');
+   rect(c,X+4,Y+4,24,25,'#fdf9e9');rect(c,X+6,Y+6,20,21,'#b7e4e8');
+   rect(c,X+15,Y+6,2,21,'#fffdf1');rect(c,X+6,Y+16,20,2,'#fffdf1');
+   if(y%3===0)rect(c,X+8,Y+8,12,3,'#ffe6ad');}
+  rect(c,0,h-31,w,31,'#c2dbe0');for(let i=0;i<9;i++){let X=7+i*37;rect(c,X,h-22,20,3,'#fffaeb');rect(c,X+5,h-16,12,1,'#f1e3be');}
  }else{
   rect(c,0,0,w,31,'#d0d1dd');rect(c,24,6,w-48,1,'#f8f6f9');
   for(let y=1;y<m.h-1;y++)for(const x of [0,m.w-1]){const X=x*T,Y=y*T;rect(c,X,Y,32,32,y%3===0?'#c5c7d1':'#d3d4dd');
@@ -113,6 +143,20 @@ function scenery(c,m){
   circle(c,X,Y,10,'#f9eacb');circle(c,X,Y,6,'#b8d9c5');dot(c,X-2,Y-2,'#fbf6d4',4);
   for(const [x,y] of [[7,7],[7,8]]){const [xx,yy]=R(x,y);rect(c,xx+10,yy+17,13,5,'#7ba7ac');circle(c,xx+16,yy+12,9,'#e3a1b0');circle(c,xx+16,yy+12,5,'#f7d89d');}
   for(let i=0;i<6;i++){const xx=24+i*49;circle(c,xx,35,4,i%2?'#e4a9a5':'#a4c7ac');}
+ }else if(m.theme==='closed'){
+  // The cinema SEKAI: fractured window panes, ash-like deposits and rigid frames.
+  for(const {x,y} of m.landmarks){const X=x*T,Y=y*T;shadow(c,X+4,Y+4,24,25);rect(c,X+4,Y+3,24,25,'#444556');
+   border(c,X+4,Y+3,24,25,'#afa0a6',2);rect(c,X+8,Y+7,16,18,'#242a3c');
+   rect(c,X+15,Y+7,2,18,'#a89ba4');rect(c,X+8,Y+16,16,2,'#a89ba4');
+   if((x+y)%2===0){rect(c,X+9,Y+22,13,3,'#a78289');dot(c,X+10,Y+10,'#cda6a4',4);}
+  }
+ }else if(m.theme==='open'){
+  // Corresponding open window space: daylight, clean framing and light pools.
+  for(const {x,y} of m.landmarks){const X=x*T,Y=y*T;shadow(c,X+3,Y+4,26,23);rect(c,X+3,Y+3,26,23,'#fdfaf0');
+   border(c,X+3,Y+3,26,23,'#9dbcc3',2);rect(c,X+7,Y+7,18,15,'#c6e6e9');
+   rect(c,X+15,Y+7,2,15,'#fff6da');rect(c,X+7,Y+14,18,2,'#fff6da');
+   if((x+y)%2===0){rect(c,X+7,Y+21,18,2,'#f4d7ad');rect(c,X+9,Y+24,12,2,'#ffffff');}
+  }
  }else{
   // Still, monochrome geometry with a low truss and scattered angular shards.
   for(const {x,y} of m.landmarks){const [X,Y]=R(x,y);shadow(c,X+4,Y+7,24,19);
@@ -135,6 +179,8 @@ function route(c,m){
   else if(m.theme==='street'){if((x*3+y)%7===0)rect(c,X+11,Y+15,10,2,'#b7b0a6');}
   else if(m.theme==='wonderland'){if((x+y)%4===0){dot(c,X+13,Y+13,'#ebc1c9',3);dot(c,X+18,Y+18,'#f2ddaa',3);}}
   else if(m.theme==='empty'){if((x+y)%5===0)rect(c,X+12,Y+15,8,2,'#bdc1cf');}
+  else if(m.theme==='closed'){if((x+y)%4===0)rect(c,X+11,Y+15,11,2,'#d1b5ac');}
+  else if(m.theme==='open'){if((x+y)%4===0)rect(c,X+11,Y+15,10,2,'#ecf5ec');}
   else if((x+y)%5===0)rect(c,X+13,Y+13,7,5,'#7b8493');
  }
  // Use arrows, but sparingly. No text cluttering the board.

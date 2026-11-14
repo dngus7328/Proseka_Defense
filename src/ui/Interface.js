@@ -8,6 +8,8 @@ import {persistSave} from '../core/Save.js';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
 const timeText=(sec)=>`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
+const AREA_ICONS={roof:'roof',stage:'stage',city:'city',wonderland:'wonderland',night:'night',closedwindow:'closedwindow',openwindow:'openwindow'};
+const AREA_TYPES={roof:'SCHOOL SEKAI',stage:'STAGE SEKAI',city:'STREET SEKAI',wonderland:'WONDERLAND SEKAI',night:'EMPTY SEKAI',closedwindow:'CLOSED WINDOW',openwindow:'OPEN WINDOW'};
 const escapeHTML=(s)=>String(s).replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 export class Interface {
  constructor(save,renderer,sound){
@@ -18,7 +20,7 @@ export class Interface {
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.game=game;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -27,9 +29,11 @@ export class Interface {
   this.noticeTimer=window.setTimeout(()=>{this.noticeTimer=null;this.showTitle();},4600);
  }
  showTitle(){
+  el('app').dataset.theme=(MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]).theme;
   if(this.noticeTimer!==null){window.clearTimeout(this.noticeTimer);this.noticeTimer=null;}
   this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
-  this.renderer.drawTitleScene(el('titlePreview'),MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]);
+  const map=MAPS.find(m=>m.id===this.config.mapId)||MAPS[0];this.syncMapArtwork(map);
+  this.renderer.drawTitleScene(el('titlePreview'),map);
  }
  hideOverlays(){for(const o of document.querySelectorAll('.overlay'))o.classList.remove('visible');}
  showOverlay(id){this.closeUpgrades();this.hideOverlays();el(id)?.classList.add('visible');document.body.classList.toggle('menu-mode',!this.game);}
@@ -107,15 +111,26 @@ export class Interface {
    if(!available[i])button.innerHTML=`${escapeHTML(this.t(d.id))}<span class="lock">⌑</span>`;
    button.addEventListener('click',()=>{this.config.difficulty=d.id;this.renderLobby();});diff.append(button);
   });
-  const maps=el('mapChoices');maps.innerHTML='';MAPS.forEach(map=>{
+  const maps=el('mapChoices');const mapScrollLeft=maps.scrollLeft;maps.innerHTML='';MAPS.forEach(map=>{
    const button=document.createElement('button');button.className=`map-choice${this.config.mapId===map.id?' active':''}`;
    const canvas=document.createElement('canvas');canvas.className='map-thumb';
-   const name=document.createElement('strong');name.textContent=`${map.order} · ${map.names[this.save.language]}`;
-   button.append(canvas,name);this.renderer.drawThumbnail(canvas,map);
+   const icon=document.createElement('img');icon.className='map-icon';icon.src=`./assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;icon.alt='';
+   const name=document.createElement('strong');name.textContent=`${map.order} · ${map.shortNames?.[this.save.language]||map.names[this.save.language]}`;
+   button.append(canvas,icon,name);this.renderer.drawThumbnail(canvas,map);
    button.addEventListener('click',()=>{this.config.mapId=map.id;this.renderLobby();});maps.append(button);
   });
+  maps.scrollLeft=mapScrollLeft;
   const selected=MAPS.find(m=>m.id===this.config.mapId);
+  if(selected){el('app').dataset.theme=selected.theme;this.syncMapArtwork(selected);}
   if(selected&&el('lobbyPreview'))this.renderer.drawThumbnail(el('lobbyPreview'),selected);
+ }
+ syncMapArtwork(map){
+  if(!map)return;
+  const url=`./assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;
+  for(const id of ['battleCrest','worldCrest','lobbyCrest','statusWorldIcon'])if(el(id))el(id).src=url;
+  if(el('worldTypeText'))el('worldTypeText').textContent=AREA_TYPES[map.id]||'SEKAI';
+  if(el('lobbyWorldName'))el('lobbyWorldName').textContent=map.names[this.save.language]||map.names.ko;
+  if(el('lobbyWorldIndex'))el('lobbyWorldIndex').textContent=`${map.order} / ${String(MAPS.length).padStart(2,'0')}`;
  }
  openSettings(){
   if(this.overlayVisible('settingsOverlay'))return;
@@ -199,6 +214,7 @@ export class Interface {
   el('enemyCount').innerHTML=`${g.enemies.length} <span class="tiny-fraction">/ ${g.capacity}</span>`;
   el('waveFill').style.width=`${Math.min(100,g.waveTime/30*100)}%`;
   el('crystalText').textContent=format(g.crystals);el('fragmentText').textContent=format(g.fragments);
+  el('unitCount').textContent=String(g.units.length);el('unitCapacity').textContent=`/ ${g.map.available.length}`;el('maxStarCount').textContent=String(g.units.filter(u=>u.star===4).length);
   el('summonCost').textContent=String(g.cost);
   el('summonButton').disabled=g.crystals<g.cost||g.phase!=='playing';
   el('autoMergeButton').disabled=g.phase!=='playing'||!g.units.some(u=>u.star<4&&g.units.some(v=>u.uid!==v.uid&&v.id===u.id&&v.star===u.star));
@@ -240,7 +256,7 @@ export class Interface {
    const name=document.createElement('strong');name.className='upgrade-card-name';name.textContent=this.t(d.id);
    const bottom=document.createElement('div');bottom.className='upgrade-card-footer';
    const pips=document.createElement('span');pips.className='level-pips';for(let i=0;i<d.max;i++){const p=document.createElement('i');if(i<level)p.className='filled';pips.append(p);}
-   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<span class="cost-piece" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M10 17 3 11 5 4 10 6 15 4 17 11Z" fill="#ef9eb4" stroke="#93556f" stroke-width="1.2"/><path d="M10 6V16M5 4L10 10 15 4" fill="none" stroke="#fff4ed" stroke-width="1.1"/></svg></span>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
+   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./assets/currency/wish-piece.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
    bottom.append(pips,cost);button.append(top,name,bottom);
    button.addEventListener('click',()=>g.upgrade(d.id));parent.append(button);
   }

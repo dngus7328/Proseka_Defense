@@ -78,7 +78,7 @@ export class Game {
   const near=nearest(open,center).slice(0,Math.min(open.length,23));
   const cell=near[rnd(near.length)];
   this.crystals-=this.cost;
-  const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0};
+  const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false};
   this.units.push(unit);this.summons++;this.addEffect('spawn',cell.x,cell.y,{color:character.hair});
   this.emit('onSound','summon');this.emit('onChange');this.detectHearts();return true;
  }
@@ -143,7 +143,16 @@ export class Game {
   if(!candidates.length)return false;
   const targets=nearest(candidates,p), target=targets[0],tp=this.enemyPos(target);
   const c=CHARACTER_BY_ID[unit.id];const atk=attackValue(unit,this.upgrades),style=c.attack;
-  unit.motion=.2;unit.pose=tp.x>p.x?1:-1;unit.facing=tp.y>=p.y?'front':'back';
+  unit.motion=.2;unit.pose=tp.x>p.x?1:-1;
+  // Four supplied angles: front / front-left / back-left / back.
+  // Left-oblique frames are horizontally mirrored for rightward attacks.
+  const dirX=tp.x-p.x, dirY=tp.y-p.y;
+  unit.aimX=dirX;unit.aimY=dirY;
+  if(Math.abs(dirX)>.38 && Math.abs(dirX)>Math.abs(dirY)*.5){
+   unit.facing=dirY>=0?'front-left':'back-left';unit.mirrored=dirX>0;
+  }else{
+   unit.facing=dirY>=0?'front':'back';unit.mirrored=false;
+  }
   if(style==='pierce'){
    const dx=tp.x-p.x,dy=tp.y-p.y,d=Math.max(.01,Math.hypot(dx,dy));
    const hits=candidates.filter(e=>{const ep=this.enemyPos(e),ex=ep.x-p.x,ey=ep.y-p.y,proj=(ex*dx+ey*dy)/d;return proj>0&&proj<range&&Math.abs(ex*dy-ey*dx)/d<.42;});

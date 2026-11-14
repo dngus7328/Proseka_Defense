@@ -1,13 +1,50 @@
-import {CHARACTER_BY_ID,STAR_SCALE} from '../data/characters.js';
+import {CHARACTER_BY_ID,CHARACTERS,STAR_SCALE} from '../data/characters.js';
 import {ENEMIES} from '../data/enemies.js';
 import {tileKey} from '../data/maps.js';
 import {drawSekaiWorld} from './SekaiMapArt.js';
 const TILE=32;
+const DIRECTIONS=['front','front-left','back-left','back'];
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
 const lerp=(a,b,t)=>a+(b-a)*t;
 const point=(x,y)=>({x,y});
 export class Renderer {
- constructor(canvas){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;}
+ constructor(canvas){
+  this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;
+  this.spriteImages=Object.create(null);
+  this.currentTitleMap=null;
+  this.loadCharacterSprites();
+ }
+ loadCharacterSprites(){
+  const titleCharacters=new Set(['miku','ichika','emu','kanade']);
+  for(const hero of CHARACTERS){
+   const directions=Object.create(null);
+   this.spriteImages[hero.id]=directions;
+   for(const angle of DIRECTIONS){
+    const img=new Image();
+    directions[angle]=img;
+    img.addEventListener('load',()=>{
+     // Title artwork is drawn only on demand, so refresh it when one of its sprites arrives.
+     if(angle==='front'&&titleCharacters.has(hero.id)&&this.currentTitleMap&&document.getElementById('titleOverlay')?.classList.contains('visible')){
+      this.drawTitleScene(document.getElementById('titlePreview'),this.currentTitleMap);
+     }
+    });
+    img.src=`./assets/characters/${hero.id}/${angle}.png`;
+   }
+  }
+ }
+ getSprite(characterId,direction='front'){
+  const img=this.spriteImages[characterId]?.[direction];
+  return img?.complete&&img.naturalWidth>0?img:null;
+ }
+ drawSprite(c,id,direction,x,y,width,flip=false){
+  const image=this.getSprite(id,direction);
+  if(!image)return false;
+  c.save();c.translate(x,y);if(flip)c.scale(-1,1);
+  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+  // 192px source sheets have a shared center and foot baseline.
+  c.drawImage(image,-width/2,-width,width,width);
+  c.restore();return true;
+ }
  setMap(map){
   // A portrait-oriented map stays one logical world in every orientation.
   // For landscape we rotate its camera, not the units or the enemy path.
@@ -76,43 +113,32 @@ export class Renderer {
   c.restore();
  }
  drawHero(c,game,u,time){
-  const s=CHARACTER_BY_ID[u.id],x=(u.x+.5)*TILE,y=(u.y+.5)*TILE;
-  const bob=Math.round(Math.sin(time*3.7+u.uid*1.8)*.65);
-  const attackMotion=u.motion>0?(u.motion/.2):0;
-  const swing=attackMotion?Math.sin((1-attackMotion)*Math.PI)*u.pose*11:Math.sin(time*1.8+u.uid)*1.8;
+  const x=(u.x+.5)*TILE,y=(u.y+.5)*TILE;
+  const bob=Math.sin(time*3.7+u.uid*1.8)*.6;
+  const attackMotion=u.motion>0?Math.min(1,u.motion/.2):0;
+  const swing=attackMotion?Math.sin((1-attackMotion)*Math.PI)*u.pose*9:Math.sin(time*1.8+u.uid)*1.5;
   const jump=attackMotion?Math.sin((1-attackMotion)*Math.PI)*2:0;
-  const scale=(.83+(u.star-1)*.09)*1.16;
-  c.save();c.translate(Math.round(x),Math.round(y+bob-jump));c.rotate(swing*Math.PI/180);c.scale(scale,scale);
-  this.drawPixelPerson(c,s,u.facing||'front',u.star);
+  const size=42+(u.star-1)*3;
+  let facing=u.facing||'front',mirrored=!!u.mirrored;
+  if(this.rotated&&Number.isFinite(u.aimX)&&Number.isFinite(u.aimY)){
+   // Map camera rotation changes the on-screen attack vector by 90 degrees.
+   const dx=-u.aimY,dy=u.aimX;
+   if(Math.abs(dx)>.38&&Math.abs(dx)>Math.abs(dy)*.5){facing=dy>=0?'front-left':'back-left';mirrored=dx>0;}
+   else{facing=dy>=0?'front':'back';mirrored=false;}
+  }
+  c.save();c.translate(Math.round(x),Math.round(y));
+  // The landscape camera rotates the map, but the character artwork remains upright.
+  if(this.rotated)c.rotate(-Math.PI/2);
+  c.translate(0,bob-jump+10);c.rotate(swing*Math.PI/180);
+  // Rightward attacks mirror the supplied left-facing artwork at runtime only.
+  // Source PNG files are never modified.
+  this.drawSprite(c,u.id,facing,0,6+size*6/192,size,mirrored);
   c.restore();
   const color=game.selectedId===u.uid?'#f8edbe':u.star===4?'#e7d9a1':'#49636a';
-  c.fillStyle='#243e3aab';c.fillRect(x-13,y+12,26,4);
+  c.fillStyle='#243e3aab';c.fillRect(x-13,y+13,26,4);
   c.fillStyle=color;
-  for(let i=0;i<u.star;i++)c.fillRect(Math.round(x-u.star*2.5+i*5+1),Math.round(y+13),3,3);
-  if(game.selectedId===u.uid){c.strokeStyle='#f9f2d8';c.lineWidth=1.5;c.strokeRect(x-15,y-17,30,31);}
- }
- drawPixelPerson(c,s,facing='front',star=1){
-  // The entire 2-direction mock character is a custom programmatic pixel sprite.
-  // Replace this renderer with owned character PNGs later without changing the game rules.
-  const px=(x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(x,y,w,h);};
-  const dark='#2e3447',skin='#f1d7c1',cloth=s.cloth,hair=s.hair;
-  px(-10,7,20,11,dark);px(-9,7,18,10,cloth);px(-10,11,4,8,dark);px(6,11,4,8,dark);
-  px(-8,17,6,4,dark);px(2,17,6,4,dark);
-  px(-10,-11,20,21,dark);px(-9,-12,18,20,hair);
-  if(s.style===1){px(-11,-8,5,19,hair);px(6,-10,5,22,hair);}
-  if(s.style===2){px(-7,-14,15,5,hair);px(-11,-7,4,13,hair);}
-  if(s.style===3){px(-11,-5,4,13,hair);px(7,-8,5,18,hair);px(-8,-13,17,4,hair);}
-  if(s.style===4){px(-8,-13,17,4,hair);px(-9,-5,4,8,hair);}
-  if(facing==='front'){
-    px(-7,-6,14,12,skin);px(-5,-8,13,4,hair);px(-5,-1,2,2,dark);px(4,-1,2,2,dark);
-    px(-1,3,3,1,'#c2948a');
-  }else{
-    px(-7,-6,14,12,hair);px(-5,-8,12,4,hair);
-    px(-5,7,10,3,s.cloth);
-  }
-  if(s.style===2){px(7,-10,4,4,hair);px(-10,-9,3,3,hair);}
-  if(s.style===3){px(-11,1,4,11,hair);px(8,1,4,11,hair);}
-  px(-7,7,14,2,'#f3ede69c');
+  for(let i=0;i<u.star;i++)c.fillRect(Math.round(x-u.star*2.5+i*5+1),Math.round(y+14),3,3);
+  if(game.selectedId===u.uid){c.strokeStyle='#f9f2d8';c.lineWidth=1.5;c.strokeRect(x-15,y-19,30,36);}
  }
  drawEnemy(c,game,e,time){
   const p=game.enemyPos(e),t=ENEMIES[e.kind],x=Math.round((p.x+.5)*TILE),y=Math.round((p.y+.5)*TILE),r=e.radius*TILE;
@@ -177,26 +203,24 @@ export class Renderer {
   c.restore();
  }
  drawTitleScene(canvas,map){
-  // Pixel figures are drawn with the same renderer as the battle, not image assets.
+  this.currentTitleMap=map;
   this.drawThumbnail(canvas,map);
   const c=canvas.getContext('2d');
   const w=canvas.width,h=canvas.height;
   const roster=['miku','ichika','emu','kanade'];
-  const positions=[[.395,.73],[.465,.67],[.545,.73],[.615,.68]];
+  const positions=[[.40,.72],[.465,.68],[.535,.72],[.60,.68]];
   c.save();
   for(let i=0;i<roster.length;i++){
-    const ch=CHARACTER_BY_ID[roster[i]],x=Math.round(w*positions[i][0]),y=Math.round(h*positions[i][1]);
-    c.fillStyle='#071a2b77';c.fillRect(x-12,y+17,24,4);
-    c.fillStyle='#f9df8366';c.fillRect(x-13,y+12,26,2);
-    c.save();c.translate(x,y);c.scale(1.1,1.1);
-    this.drawPixelPerson(c,ch,'front',3);c.restore();
-    c.fillStyle=['#41cbc1','#77a8e9','#f4c567','#b7a1dc','#e0c765'][i];
-    c.fillRect(x-2,y-22,4,3);
+   const x=Math.round(w*positions[i][0]),y=Math.round(h*positions[i][1]);
+   c.fillStyle='#071a2b77';c.fillRect(x-16,y+15,32,5);
+   c.fillStyle='#f9df8366';c.fillRect(x-16,y+11,32,2);
+   this.drawSprite(c,roster[i],'front',x,y+16,45);
   }
   c.restore();
  }
  drawPortrait(canvas,unit){
-  const c=canvas.getContext('2d');canvas.width=60;canvas.height=60;c.clearRect(0,0,60,60);
-  c.imageSmoothingEnabled=false;c.save();c.translate(30,30);c.scale(1.7,1.7);this.drawPixelPerson(c,CHARACTER_BY_ID[unit.id],'front',unit.star);c.restore();
+  const c=canvas.getContext('2d');canvas.width=80;canvas.height=80;
+  c.clearRect(0,0,80,80);
+  this.drawSprite(c,unit.id,'front',40,75,76);
  }
 }
