@@ -239,7 +239,12 @@ export class Renderer {
   drawEnemyArt(c,game,e,time,this.rotated,this.reduceMotion||this.effectsLite);
  }
  drawEffects(c,game,time){
-  for(const e of game.effects){
+  // At high density, prioritize recent attacks and impactful effects.
+  // This bounds the canvas work without changing damage or cooldown logic.
+  const maxDraw=this.effectsLite?48:game.enemies.length>=35?72:110;
+  const start=Math.max(0,game.effects.length-maxDraw);
+  for(let index=start;index<game.effects.length;index++){
+   const e=game.effects[index];
    const t=e.initial?e.life/e.initial:0;
    const x=(e.x+.5)*TILE,y=(e.y+.5)*TILE,age=1-t;
    c.save();c.globalAlpha=Math.max(0,Math.min(1,t));c.strokeStyle=e.color||'#e7f3e7';c.fillStyle=e.color||'#e7f3e7';
