@@ -38,6 +38,36 @@ export const CHARACTERS=[
 ];
 export const CHARACTER_BY_ID=Object.fromEntries(CHARACTERS.map(c=>[c.id,c]));
 export const GROUP_BY_ID=Object.fromEntries(GROUPS.map(g=>[g.id,g]));
+// Each character's recognizable attack motif and periodic combat signature.
+// Assets stay untouched: the differentiation is procedural effects and actual attack behavior.
+export const SIGNATURES={
+ "ichika":{motif:"string",kind:"sweep",every:4,power:1,names:{ko:"직선 공명",ja:"まっすぐな共鳴",en:"Straight Resonance"}},
+ "saki":{motif:"spark",kind:"blast",every:4,power:0.83,names:{ko:"별빛 폭발",ja:"星のきらめき",en:"Starburst"}},
+ "honami":{motif:"drum",kind:"ripple",every:5,power:0.74,names:{ko:"잔향 파동",ja:"余韻の波",en:"Resonant Wave"}},
+ "shiho":{motif:"bass",kind:"repeat",every:5,power:0.9,names:{ko:"박자 연타",ja:"ビート連打",en:"Bass Drive"}},
+ "minori":{motif:"cheer",kind:"chain",every:5,power:0.83,names:{ko:"점프 스텝",ja:"ジャンプステップ",en:"Jump Step"}},
+ "haruka":{motif:"crystal",kind:"sweep",every:5,power:1.22,names:{ko:"푸른 화음",ja:"青のハーモニー",en:"Blue Harmony"}},
+ "airi":{motif:"pom",kind:"blast",every:4,power:1.04,names:{ko:"반짝 피날레",ja:"きらめくフィナーレ",en:"Bright Finale"}},
+ "shizuku":{motif:"rain",kind:"chill",every:4,power:0.74,names:{ko:"물결의 숨",ja:"静かな波紋",en:"Quiet Ripple"}},
+ "kohane":{motif:"microphone",kind:"repeat",every:4,power:0.75,names:{ko:"작은 비트",ja:"小さなビート",en:"Tiny Beat"}},
+ "an":{motif:"graffiti",kind:"chain",every:4,power:1,names:{ko:"도약하는 소리",ja:"跳ねる音",en:"Rising Beat"}},
+ "akito":{motif:"flame",kind:"smash",every:4,power:1.28,names:{ko:"뜨거운 비트",ja:"熱いビート",en:"Burning Beat"}},
+ "toya":{motif:"keyboard",kind:"chill",every:5,power:1.12,names:{ko:"차가운 코드",ja:"冷たいコード",en:"Cold Chord"}},
+ "tsukasa":{motif:"spotlight",kind:"smash",every:4,power:1.55,names:{ko:"스타 피니시",ja:"スター・フィニッシュ",en:"Star Finish"}},
+ "emu":{motif:"confetti",kind:"blast",every:4,power:0.96,names:{ko:"원더 팡!",ja:"ワンダーポップ！",en:"Wonder Pop!"}},
+ "nene":{motif:"robot",kind:"chill",every:5,power:0.8,names:{ko:"스톱 비트",ja:"ストップビート",en:"Stop Beat"}},
+ "rui":{motif:"gear",kind:"chain",every:4,power:1.18,names:{ko:"기묘한 장치",ja:"不思議な仕掛け",en:"Odd Contraption"}},
+ "kanade":{motif:"sheet",kind:"ripple",every:4,power:1,names:{ko:"새벽의 선율",ja:"夜明けの旋律",en:"Dawn Melody"}},
+ "mafuyu":{motif:"frost",kind:"chill",every:4,power:1,names:{ko:"고요한 울림",ja:"静かな響き",en:"Quiet Echo"}},
+ "ena":{motif:"paint",kind:"blast",every:4,power:0.95,names:{ko:"컬러 스트로크",ja:"カラーストローク",en:"Color Stroke"}},
+ "mizuki":{motif:"ribbon",kind:"chain",every:5,power:0.9,names:{ko:"리본 리듬",ja:"リボンのリズム",en:"Ribbon Rhythm"}},
+ "miku":{motif:"note",kind:"chain",every:4,power:1.05,names:{ko:"미래의 노래",ja:"未来の歌",en:"Tomorrow's Song"}},
+ "rin":{motif:"bell",kind:"repeat",every:4,power:0.78,names:{ko:"벨 스텝",ja:"ベルステップ",en:"Bell Step"}},
+ "len":{motif:"slash",kind:"sweep",every:4,power:1.16,names:{ko:"날카로운 음",ja:"鋭い音",en:"Sharp Note"}},
+ "luka":{motif:"echo",kind:"ripple",every:4,power:0.88,names:{ko:"부드러운 잔향",ja:"優しい余韻",en:"Soft Echo"}},
+ "meiko":{motif:"rose",kind:"smash",every:5,power:1.62,names:{ko:"강렬한 후렴",ja:"力強いサビ",en:"Power Chorus"}},
+ "kaito":{motif:"snow",kind:"chill",every:4,power:0.95,names:{ko:"눈빛 포옹",ja:"雪のコーラス",en:"Snow Chorus"}}
+};
 export const STAR_SCALE=[1,1.10,1.20,1.30];
 export function attackValue(hero,upgrades){let c=CHARACTER_BY_ID[hero.id];return Math.round(c.atk*(1+1.05*(hero.star-1)+.29*(upgrades.attack||0)));}
 export function attackInterval(hero,upgrades){let c=CHARACTER_BY_ID[hero.id];return Math.max(.25,c.rate/(1+.13*(upgrades.speed||0)+.085*(hero.star-1)));}
