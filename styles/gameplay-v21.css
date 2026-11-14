@@ -266,3 +266,10 @@
  .board-frame{width:min(calc(100vw - 10px),calc((100dvh - 86px - 116px - 68px)*var(--map-ratio,.9167)));max-height:calc(100dvh - 86px - 116px - 68px)}
  .battle{justify-content:center}
 }
+/* Selection replaces the lower roster area rather than covering the lane. */
+@media (orientation:portrait){
+ .selection-panel{bottom:calc(126px + 11px + env(safe-area-inset-bottom))!important;max-height:170px;overflow-y:auto}
+}
+@media (orientation:portrait) and (max-height:720px){
+ .selection-panel{bottom:calc(116px + 8px + env(safe-area-inset-bottom))!important;max-height:140px}
+}
