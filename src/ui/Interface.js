@@ -5,6 +5,7 @@ import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
+import {TitleIntro} from './TitleIntro.js?v=1.15.0';
 import {persistSave} from '../core/Save.js';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
@@ -18,6 +19,7 @@ export class Interface {
   this.config={difficulty:'normal',mapId:'roof'};
   this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';this.lastTeamSignature='';this.lastSkillSignature='';
   this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
+  this.titleIntro=new TitleIntro();
   this.skillCutin=document.createElement('section');this.skillCutin.id='skillCutin';this.skillCutin.className='skill-cutin';this.skillCutin.setAttribute('aria-live','polite');this.skillCutin.setAttribute('aria-atomic','true');document.body.append(this.skillCutin);
  }
  t(key){return getText(this.save.language,key);}
@@ -37,6 +39,7 @@ export class Interface {
   this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
   const map=MAPS.find(m=>m.id===this.config.mapId)||MAPS[0];this.syncMapArtwork(map);
   this.renderer.drawTitleScene(el('titlePreview'),map);
+  this.titleIntro?.show();
  }
  hideOverlays(){for(const o of document.querySelectorAll('.overlay'))o.classList.remove('visible');}
  showOverlay(id){this.closeUpgrades();this.hideOverlays();el(id)?.classList.add('visible');document.body.classList.toggle('menu-mode',!this.game);}
@@ -103,7 +106,7 @@ export class Interface {
   });
  }
  isModalOpen(){return [...document.querySelectorAll('.overlay')].some(e=>e.classList.contains('visible'));}
- showLobby(){this.game=null;this.closeUpgrades();this.config.difficulty='normal';this.renderLobby();this.showOverlay('lobbyOverlay');}
+ showLobby(){this.titleIntro?.skip();this.game=null;this.closeUpgrades();this.config.difficulty='normal';this.renderLobby();this.showOverlay('lobbyOverlay');}
  renderLobby(){
   const diff=el('difficultyChoices');if(!diff)return;
   const cleared=this.save.cleared;
