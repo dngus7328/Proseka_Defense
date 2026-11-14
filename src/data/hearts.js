@@ -6,7 +6,7 @@ export const HEARTS=[
  {id:'vbs-beat',type:'group',group:'vbs',required:['kohane','an','akito','toya'],names:{ko:'비트 오버드라이브',ja:'ビート・オーバードライブ',en:'Beat Overdrive'},style:'slash',cooldown:17},
  {id:'wxs-final',type:'group',group:'wxs',required:['tsukasa','emu','nene','rui'],names:{ko:'원더풀 피날레',ja:'ワンダフル・フィナーレ',en:'Wonder Finale'},style:'burst',cooldown:18},
  {id:'n25-dawn',type:'group',group:'n25',required:['kanade','mafuyu','ena','mizuki'],names:{ko:'새벽을 밝히는 노래',ja:'夜明けを照らす歌',en:'Song at Dawn'},style:'wave',cooldown:20},
- {id:'vs-signal',type:'group',group:'vs',required:['miku','rin','len','luka'],names:{ko:'여섯 빛의 공명',ja:'六つの光の共鳴',en:'Sixfold Resonance'},style:'orbit',cooldown:19},
+ {id:'vs-signal',type:'group',group:'vs',required:['miku','rin','len','luka','meiko','kaito'],names:{ko:'여섯 빛의 공명',ja:'六つの光の共鳴',en:'Sixfold Resonance'},style:'orbit',cooldown:19},
  {id:'star-siblings',type:'pair',required:['saki','tsukasa'],names:{ko:'별이 빛나는 무대',ja:'星が輝くステージ',en:'Starlit Stage'},style:'star',cooldown:16},
  {id:'sisters',type:'pair',required:['shiho','shizuku'],names:{ko:'자매의 화음',ja:'姉妹のハーモニー',en:'Sisters’ Harmony'},style:'wave',cooldown:16},
  {id:'colors',type:'pair',required:['akito','ena'],names:{ko:'충돌하는 색채',ja:'交差する色彩',en:'Crossing Colors'},style:'burst',cooldown:17},
