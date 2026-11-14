@@ -304,3 +304,19 @@ console.log('OK — upright landscape board, responsive aspect ratio and stable 
  assert.ok(source.includes('rev=20261115-uploaded'), 'title image URL revision missing');
 }
 console.log('OK — layered title intro, cache revision and failed-image retry');
+
+
+// Title images are 1672×941 landscape illustrations.
+// The responsive title layout must display them fully instead of stretching/cropping.
+{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const layout=fs.readFileSync(path.join(root,'styles','title-layout-v2.css'),'utf8');
+ assert.ok(html.includes('title-layout-v2.css?v=1.15.2'),'responsive title stylesheet must load');
+ assert.ok(html.indexOf('title-layout-v2.css')>html.indexOf('title-intro.css'),'title layout override must load after intro');
+ assert.ok(layout.includes('aspect-ratio:1672 / 941'),'title artwork aspect ratio must be preserved');
+ assert.ok(layout.includes('object-fit:contain!important'),'title layers must not be cropped');
+ assert.ok(layout.includes('title-art-caption{display:none'),'redundant overlay text must not cover the art');
+ assert.ok(layout.includes('@media (orientation:portrait)'),'portrait layout is required');
+ assert.ok(layout.includes('@media (orientation:landscape)'),'landscape short-height handling is required');
+}
+console.log('OK — uncropped title art and dedicated portrait/landscape title controls');
