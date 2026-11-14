@@ -299,8 +299,8 @@ console.log('OK — upright landscape board, responsive aspect ratio and stable 
  assert.ok(source.includes('titleSkipIntro'),'intro skip button missing');
  assert.ok(titleCSS.includes('prefers-reduced-motion'),'missing motion accessibility');
  assert.ok(titleJS.includes("loadLayers()"),'missing title image loading guard');
-}
-assert.ok(titleJS.includes('loadLayers(true)'), 'title images must support retry after upload');
+ assert.ok(titleJS.includes('loadLayers(true)'), 'title images must support retry after upload');
  assert.ok(titleJS.includes('art-ready'), 'loaded image should replace fallback Canvas');
  assert.ok(source.includes('rev=20261115-uploaded'), 'title image URL revision missing');
+}
 console.log('OK — layered title intro, cache revision and failed-image retry');
