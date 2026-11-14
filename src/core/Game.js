@@ -1,4 +1,4 @@
-import {CHARACTERS,CHARACTER_BY_ID,GROUPS,attackValue,attackInterval,attackRange} from '../data/characters.js';
+import {CHARACTERS,CHARACTER_BY_ID,GROUPS,SIGNATURES,attackValue,attackInterval,attackRange} from '../data/characters.js';
 import {MAP_BY_ID,tileKey} from '../data/maps.js';
 import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
@@ -12,7 +12,7 @@ export class Game {
   this.difficulty=config.difficulty;
   this.difficultyData=DIFFICULTIES.find(d=>d.id===this.difficulty)||DIFFICULTIES[0];
   this.phase='playing';this.speed=1;this.virtualTime=0;this.visualTime=0;this.realTime=0;this.wave=1;this.waveTime=0;
-  this.crystals=100;this.fragments=60;this.summons=0;this.units=[];this.enemies=[];this.effects=[];
+  this.crystals=100;this.fragments=60;this.summons=0;this.units=[];this.enemies=[];this.effects=[];this.pendingHits=[];this.cameraShake=0;
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;
@@ -41,7 +41,7 @@ export class Game {
   const multiplier=this.isEndless&&this.wave>20?Math.pow(1.088,this.wave-20):1;
   let hp=(17+Math.pow(this.wave,1.55)*4.5)*kind.hp*this.difficultyData.hp*multiplier;
   if(type==='boss')hp*=this.difficultyData.boss;
-  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,radius:kind.radius};
+  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,hitPulse:0,radius:kind.radius};
   this.enemies.push(u);return u;
  }
  enemyPos(enemy){const p=this.map.path,n=p.length,index=((Math.floor(enemy.progress)%n)+n)%n,next=(index+1)%n,t=enemy.progress-Math.floor(enemy.progress);return{x:p[index].x*(1-t)+p[next].x*t,y:p[index].y*(1-t)+p[next].y*t};}
@@ -62,11 +62,19 @@ export class Game {
  }
  moveSelected(){if(!this.selected)return;this.moveMode=!this.moveMode;this.emit('onMoveMode',this.moveMode);}
  chooseCharacter(){
-  // Existing members have a moderate weight to make same-character merging practical.
-  // All 26 characters remain available; the player does not choose a focus group.
-  const existing=[...new Set(this.units.map(u=>u.id))];
-  if(existing.length&&Math.random()<.62)return CHARACTER_BY_ID[existing[rnd(existing.length)]];
-  return CHARACTERS[rnd(CHARACTERS.length)];
+  // All 26 are always in the pool. The selected SEKAI has an explicit 55%
+  // priority roll, owned characters have a separate 25% merge-assistance
+  // roll, and the remaining roll uses the entire roster uniformly.
+  const affinity=CHARACTERS.filter(c=>c.group===this.map.affinityGroup);
+  const ownedIds=[...new Set(this.units.map(u=>u.id))];
+  const owned=ownedIds.map(id=>CHARACTER_BY_ID[id]).filter(Boolean);
+  const roll=Math.random();
+  let pool=CHARACTERS,source='all';
+  if(affinity.length&&roll<(this.map.affinityRate||0)){pool=affinity;source='affinity';}
+  else if(owned.length&&roll<(this.map.affinityRate||0)+.25){pool=owned;source='owned';}
+  const character=pool[rnd(pool.length)];
+  this.lastSummonSource=source;
+  return character;
  }
  summon(){
   if(this.phase!=='playing')return false;
@@ -79,8 +87,9 @@ export class Game {
   const near=nearest(open,center).slice(0,Math.min(open.length,23));
   const cell=near[rnd(near.length)];
   this.crystals-=this.cost;
-  const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false};
-  this.units.push(unit);this.summons++;this.addEffect('spawn',cell.x,cell.y,{color:character.hair});
+  const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false,shots:0};
+  this.units.push(unit);this.summons++;this.addEffect('spawn',cell.x,cell.y,{color:character.hair,life:.48,star:1});
+  this.emit('onSummon',{unit,character,source:this.lastSummonSource,affinity:this.map.affinityGroup});
   this.emit('onSound','summon');this.emit('onChange');this.detectHearts();return true;
  }
  mergeUnits(a,b){
@@ -88,7 +97,8 @@ export class Game {
   const oldDamage=b.damage;a.star++;a.damage+=oldDamage;a.cooldown=.1;
   this.units=this.units.filter(u=>u.uid!==b.uid);
   if(this.selectedId===b.uid)this.selectedId=a.uid;
-  this.addEffect('merge',a.x,a.y,{color:CHARACTER_BY_ID[a.id].hair});
+  this.addEffect('promotion',a.x,a.y,{color:CHARACTER_BY_ID[a.id].hair,star:a.star,life:.75});
+  this.emit('onPromotion',{unit:a});
   this.emit('onSound','merge');this.detectHearts();return true;
  }
  mergeSelected(){
@@ -138,43 +148,110 @@ export class Game {
   const eligible=this.enemies.filter(e=>e.hp>0&&dist(this.enemyPos(e),center)<=radius).slice(0,limit);
   eligible.forEach(e=>this.dealDamage(e,damage,source));return eligible.length;
  }
+ // Resolve damage when its projectile arrives rather than at launch.
+ // This gives the attack an audible/visible hit moment and makes every
+ // combat style feel less like a constant line effect.
+ queueStrike(unit,enemy,amount,delay,props={}){
+  if(!enemy||enemy.hp<=0||this.pendingHits.length>=280)return;
+  const from={x:unit.x,y:unit.y},to=this.enemyPos(enemy),def=CHARACTER_BY_ID[unit.id],signature=SIGNATURES[unit.id];
+  const travel=Math.max(.025,Math.min(.35,delay));
+  const color=props.color||def.hair;
+  this.pendingHits.push({enemyId:enemy.uid,amount,source:unit.id,remain:travel,
+   color,style:props.style||def.attack,motif:signature?.motif||'note',star:unit.star,
+   slow:props.slow||0,strong:!!props.strong,signature:!!props.signature,
+   splashRadius:props.splashRadius||0});
+  if(props.trail!==false){
+   this.addEffect('projectile',from.x,from.y,{tx:to.x,ty:to.y,color,
+     motif:signature?.motif||'note',life:travel,star:unit.star,style:props.style||def.attack});
+  }
+ }
+ updateStrikes(dt){
+  const remaining=[];
+  for(const hit of this.pendingHits){
+   hit.remain-=dt;
+   if(hit.remain>0){remaining.push(hit);continue;}
+   const enemy=this.enemies.find(e=>e.uid===hit.enemyId&&e.hp>0);
+   if(!enemy)continue;
+   const at=this.enemyPos(enemy);
+   if(hit.slow>0&&enemy.kind!=='resist')enemy.slow=Math.max(enemy.slow,hit.slow);
+   enemy.hitPulse=Math.max(enemy.hitPulse,hit.strong?.24:.13);
+   this.dealDamage(enemy,hit.amount,hit.source);
+   if(hit.strong)this.cameraShake=Math.max(this.cameraShake,Math.min(3.1,1.0+hit.star*.34));
+   const size=hit.strong?1.23:hit.style==='burst'||hit.style==='splash'?.95:.62;
+   this.addEffect('impact',at.x,at.y,{life:hit.strong?.36:.23,color:hit.color,
+    motif:hit.motif,star:hit.star,size,style:hit.style});
+   if(hit.splashRadius)this.addEffect('ring',at.x,at.y,{life:.25,color:hit.color,radius:hit.splashRadius});
+   if(hit.strong||hit.star>=4){
+    this.addEffect('damage',at.x,at.y,{life:.48,color:hit.strong?'#ffe0aa':'#f8f2e1',value:Math.ceil(hit.amount),star:hit.star});
+    this.emit('onSound',hit.strong?'heavy':'hit');
+   }
+  }
+  this.pendingHits=remaining;
+ }
  attack(unit){
-  const p={x:unit.x,y:unit.y};const range=attackRange(unit);
+  const p={x:unit.x,y:unit.y},range=attackRange(unit);
   const candidates=this.enemies.filter(e=>e.hp>0&&dist(this.enemyPos(e),p)<=range);
   if(!candidates.length)return false;
-  const targets=nearest(candidates,p), target=targets[0],tp=this.enemyPos(target);
-  const c=CHARACTER_BY_ID[unit.id];const atk=attackValue(unit,this.upgrades),style=c.attack;
-  unit.motion=.2;unit.pose=tp.x>p.x?1:-1;
-  // Four supplied angles: front / front-left / back-left / back.
-  // Left-oblique frames are horizontally mirrored for rightward attacks.
-  const dirX=tp.x-p.x, dirY=tp.y-p.y;
+  const targets=nearest(candidates,p),target=targets[0],tp=this.enemyPos(target);
+  const c=CHARACTER_BY_ID[unit.id],atk=attackValue(unit,this.upgrades),style=c.attack,signature=SIGNATURES[unit.id];
+  unit.shots=(unit.shots||0)+1;
+  unit.motion=.23;unit.pose=tp.x>p.x?1:-1;
+  const dirX=tp.x-p.x,dirY=tp.y-p.y;
   unit.aimX=dirX;unit.aimY=dirY;
-  if(Math.abs(dirX)>.38 && Math.abs(dirX)>Math.abs(dirY)*.5){
+  if(Math.abs(dirX)>.38&&Math.abs(dirX)>Math.abs(dirY)*.5){
    unit.facing=dirY>=0?'front-left':'back-left';unit.mirrored=dirX>0;
   }else{
    unit.facing=dirY>=0?'front':'back';unit.mirrored=false;
   }
   if(style==='pierce'){
-   const dx=tp.x-p.x,dy=tp.y-p.y,d=Math.max(.01,Math.hypot(dx,dy));
+   const dx=dirX,dy=dirY,d=Math.max(.01,Math.hypot(dx,dy));
    const hits=candidates.filter(e=>{const ep=this.enemyPos(e),ex=ep.x-p.x,ey=ep.y-p.y,proj=(ex*dx+ey*dy)/d;return proj>0&&proj<range&&Math.abs(ex*dy-ey*dx)/d<.42;});
-   hits.slice(0,1+Math.floor(unit.star/1.2)).forEach(e=>this.dealDamage(e,atk,unit.id));
-   this.addEffect('line',p.x,p.y,{tx:p.x+dx/d*range,ty:p.y+dy/d*range,color:c.hair,life:.16});
+   hits.slice(0,1+Math.floor(unit.star/1.2)).forEach((e,i)=>this.queueStrike(unit,e,atk,.045+i*.018,{trail:i===0,style:'pierce'}));
+   this.addEffect('line',p.x,p.y,{tx:p.x+dx/d*range,ty:p.y+dy/d*range,color:c.hair,life:.13,star:unit.star});
   }else if(style==='burst'||style==='splash'){
    const rad=(style==='burst'?.56:.77)+(unit.star-1)*.13;
-   this.damageCircle(tp,rad,atk*(style==='burst'?1:.85),unit.id,unit.star+2);
-   this.addEffect('ring',tp.x,tp.y,{color:c.hair,radius:rad,life:.29});
+   const victims=nearest(candidates,tp).filter(e=>dist(this.enemyPos(e),tp)<=rad).slice(0,unit.star+2);
+   victims.forEach((e,i)=>this.queueStrike(unit,e,atk*(style==='burst'?1:.85),.12,{trail:i===0,style,splashRadius:i===0?rad:0}));
   }else if(style==='chain'||style==='bounce'){
    const num=style==='chain'?1+unit.star:1+Math.floor(unit.star/2);
-   let prev=p;const chain=nearest(candidates,tp).slice(0,num);
-   for(const [i,e] of chain.entries()){const pt=this.enemyPos(e);this.dealDamage(e,atk*Math.pow(.8,i),unit.id);this.addEffect('line',prev.x,prev.y,{tx:pt.x,ty:pt.y,color:c.hair,life:.19});prev=pt;}
+   const chain=nearest(candidates,tp).slice(0,num);
+   for(const [i,e] of chain.entries()){
+    this.queueStrike(unit,e,atk*Math.pow(.8,i),.055+i*.055,{style:style==='bounce'?'bounce':'chain'});
+   }
   }else if(style==='slow'){
-   this.dealDamage(target,atk,unit.id);
-   if(target.kind!=='resist')target.slow=Math.max(target.slow,1.6+.2*unit.star);
-   this.addEffect('ring',tp.x,tp.y,{radius:.5,color:'#c4d6ef',life:.3});
+   this.queueStrike(unit,target,atk,.12,{slow:1.6+.2*unit.star,style:'slow'});
   }else{
-   this.dealDamage(target,atk,unit.id);
-   if(unit.star>=3&&targets[1])this.dealDamage(targets[1],atk*.6,unit.id);
-   this.addEffect('line',p.x,p.y,{tx:tp.x,ty:tp.y,color:c.hair,life:.15});
+   this.queueStrike(unit,target,atk,.07,{style:'rapid'});
+   if(unit.star>=3&&targets[1])this.queueStrike(unit,targets[1],atk*.6,.11,{style:'rapid'});
+  }
+  if(signature&&unit.shots%signature.every===0){
+   const power=atk*signature.power*(.65+.12*unit.star);
+   const at=tp;
+   const strike=(e,mul,delay,props={})=>this.queueStrike(unit,e,power*mul,delay,{...props,signature:true,strong:true});
+   if(signature.kind==='sweep'){
+    const dx=dirX,dy=dirY,d=Math.max(.01,Math.hypot(dx,dy));
+    candidates.filter(e=>{const ep=this.enemyPos(e),ex=ep.x-p.x,ey=ep.y-p.y;return (ex*dx+ey*dy)>0&&Math.abs(ex*dy-ey*dx)/d<.7;})
+     .slice(0,2+unit.star).forEach((e,i)=>strike(e,.72,.09+i*.018,{trail:i===0,style:'pierce'}));
+   }else if(signature.kind==='blast'){
+    nearest(candidates,at).filter(e=>dist(this.enemyPos(e),at)<.9+.12*unit.star)
+     .slice(0,3+unit.star).forEach((e,i)=>strike(e,.68,.13,{trail:i===0,style:'burst',splashRadius:i===0?.9:0}));
+   }else if(signature.kind==='ripple'){
+    nearest(candidates,at).filter(e=>dist(this.enemyPos(e),at)<1.2)
+     .slice(0,3+unit.star).forEach((e,i)=>strike(e,.54,.11,{trail:i===0,slow:.75+.2*unit.star,style:'splash'}));
+   }else if(signature.kind==='repeat'){
+    strike(target,.66,.07,{style:'rapid'});
+    strike(target,.55,.18,{style:'rapid'});
+   }else if(signature.kind==='chain'){
+    nearest(candidates,at).slice(0,Math.min(4,1+unit.star))
+     .forEach((e,i)=>strike(e,Math.pow(.7,i),.08+i*.06,{style:'chain'}));
+   }else if(signature.kind==='chill'){
+    nearest(candidates,at).filter(e=>dist(this.enemyPos(e),at)<1.05)
+     .slice(0,2+unit.star).forEach((e,i)=>strike(e,.55,.14,{trail:i===0,slow:2.1+.3*unit.star,style:'slow'}));
+   }else if(signature.kind==='smash'){
+    strike(target,1.35,.17,{style:'splash',splashRadius:.62});
+    if(unit.star>=3)nearest(candidates,at).slice(1,3).forEach(e=>strike(e,.52,.17,{trail:false,style:'splash'}));
+   }
+   this.addEffect('signature',at.x,at.y,{motif:signature.motif,color:c.hair,life:.55,star:unit.star});
   }
   return true;
  }
@@ -253,11 +330,12 @@ export class Game {
   const dt=Math.min(.06,realDt)*this.speed;
   this.realTime+=Math.max(0,realDt);this.virtualTime+=dt;this.waveTime+=dt;
   this.updateVisuals(dt);
+  this.updateStrikes(dt);
   while(this.spawnCursor<this.waveRoster.length&&this.waveTime>=(.8+this.spawnCursor*this.spawnStep)){
    this.spawnEnemy(this.waveRoster[this.spawnCursor]);this.spawnCursor++;
   }
   for(const enemy of this.enemies){
-   enemy.slow=Math.max(0,enemy.slow-dt);enemy.flash=Math.max(0,enemy.flash-dt);
+   enemy.slow=Math.max(0,enemy.slow-dt);enemy.flash=Math.max(0,enemy.flash-dt);enemy.hitPulse=Math.max(0,(enemy.hitPulse||0)-dt);
    enemy.progress+=dt*enemy.speed*(enemy.slow>0?.52:1);
   }
   for(const hero of this.units){
@@ -278,6 +356,7 @@ export class Game {
  }
  updateVisuals(dt){
   this.visualTime+=dt;
+  this.cameraShake=Math.max(0,this.cameraShake-dt*18);
   this.effects.forEach(e=>e.life-=dt);
   this.effects=this.effects.filter(e=>e.life>0);
   this.units.forEach(u=>u.motion=Math.max(0,u.motion-dt));
@@ -285,7 +364,7 @@ export class Game {
  end(status){
   if(this.phase!=='playing')return;
   this.phase='ending';
-  this.heartQueue=[];this.heartScene=null;this.emit('onHeartEnd',{});
+  this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.emit('onHeartEnd',{});
   this.result={status,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,damageByMember:{...this.damageByMember}};
   this.endReal=0;this.endFromSpeed=this.speed;this.endAnimSpeed=this.speed;
   this.emit('onEndStart',this.result);
