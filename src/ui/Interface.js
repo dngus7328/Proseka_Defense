@@ -10,6 +10,88 @@ const format=(n)=>Math.round(n).toLocaleString();
 const timeText=(sec)=>`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
 const AREA_ICONS={roof:'roof',stage:'stage',city:'city',wonderland:'wonderland',night:'night',closedwindow:'closedwindow',openwindow:'openwindow'};
 const AREA_TYPES={roof:'SCHOOL SEKAI',stage:'STAGE SEKAI',city:'STREET SEKAI',wonderland:'WONDERLAND SEKAI',night:'EMPTY SEKAI',closedwindow:'CLOSED WINDOW',openwindow:'OPEN WINDOW'};
+const SKILL_LINES={
+ "leo-chorus": {
+  "ko": "이 소리를, 모두에게 닿게 할 거야!",
+  "ja": "この音を、みんなに届けるよ！",
+  "en": "Let our sound reach everyone!"
+ },
+ "mmj-stage": {
+  "ko": "모두에게 희망을 전할게!",
+  "ja": "みんなに希望を届けるよ！",
+  "en": "We'll bring hope to everyone!"
+ },
+ "vbs-beat": {
+  "ko": "우리의 비트, 끝까지 울려 퍼져라!",
+  "ja": "私たちのビート、響かせよう！",
+  "en": "Feel our beat!"
+ },
+ "wxs-final": {
+  "ko": "자, 최고의 쇼를 시작하자!",
+  "ja": "さあ、最高のショーを始めよう！",
+  "en": "Let the greatest show begin!"
+ },
+ "n25-dawn": {
+  "ko": "이 마음이, 누군가에게 닿기를…",
+  "ja": "この想いが、誰かに届きますように…",
+  "en": "May these feelings reach someone…"
+ },
+ "vs-signal": {
+  "ko": "다 함께, 노래를 이어 가자!",
+  "ja": "みんなで、歌をつなごう！",
+  "en": "Let's carry the song together!"
+ },
+ "star-siblings": {
+  "ko": "반짝이는 순간을 만들어 보자!",
+  "ja": "きらめく瞬間を作ろう！",
+  "en": "Let's make this moment shine!"
+ },
+ "sisters": {
+  "ko": "우리의 호흡을 맞춰 보자!",
+  "ja": "ふたりの息を合わせよう！",
+  "en": "Let's find our harmony!"
+ },
+ "colors": {
+  "ko": "우리만의 색으로 승부하자!",
+  "ja": "自分たちの色で勝負しよう！",
+  "en": "Let's show our true colors!"
+ },
+ "rooftop": {
+  "ko": "상상 밖의 무대를 보여줄게.",
+  "ja": "想像を超えた舞台を見せよう。",
+  "en": "Let's go beyond imagination."
+ },
+ "twins": {
+  "ko": "둘이 함께라면 문제없어!",
+  "ja": "ふたり一緒なら大丈夫！",
+  "en": "Together, we've got this!"
+ },
+ "miku-ichika": {
+  "ko": "시작의 멜로디를 울리자!",
+  "ja": "始まりのメロディーを響かせよう！",
+  "en": "Let the first melody ring out!"
+ },
+ "miku-kanade": {
+  "ko": "너의 마음을, 노래로 전할게.",
+  "ja": "その想いを、歌にするよ。",
+  "en": "I'll give those feelings a song."
+ },
+ "an-kohane": {
+  "ko": "우리의 힘을 보여줄 차례야!",
+  "ja": "私たちの力を見せる番だよ！",
+  "en": "Time to show what we can do!"
+ },
+ "emu-nene": {
+  "ko": "모두가 웃는 공연을 만들자!",
+  "ja": "みんなが笑顔になるショーを！",
+  "en": "A show that makes everyone smile!"
+ },
+ "mafuyu-kanade": {
+  "ko": "이 노래가 너를 지켜 줄 수 있기를.",
+  "ja": "この歌が、あなたを守れますように。",
+  "en": "I hope this song can protect you."
+ }
+};
 const escapeHTML=(s)=>String(s).replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 export class Interface {
  constructor(save,renderer,sound){
@@ -17,10 +99,11 @@ export class Interface {
   this.config={difficulty:'normal',mapId:'roof'};
   this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';
   this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
+  this.skillCutin=document.createElement('section');this.skillCutin.id='skillCutin';this.skillCutin.className='skill-cutin';this.skillCutin.setAttribute('aria-live','polite');this.skillCutin.setAttribute('aria-atomic','true');document.body.append(this.skillCutin);
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.clearHeartCutin();this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -29,6 +112,7 @@ export class Interface {
   this.noticeTimer=window.setTimeout(()=>{this.noticeTimer=null;this.showTitle();},4600);
  }
  showTitle(){
+  this.clearHeartCutin();
   el('app').dataset.theme=(MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]).theme;
   if(this.noticeTimer!==null){window.clearTimeout(this.noticeTimer);this.noticeTimer=null;}
   this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
@@ -198,11 +282,53 @@ export class Interface {
   this.save.discovered.push(id);persistSave(this.save);this.renderHearts();
   this.toast(this.t('discovered'),true);
  }
- onHeartFire({heart}){
-  const name=heart.names[this.save.language];this.setStatus(`${this.t('heartActive')} / ${name}`);
-  const node=el('boardFloat');node.textContent=name;
-  window.setTimeout(()=>{if(node.textContent===name)node.textContent='';},1500);
+ onHeartStart({heart,participants,strength}){
+  const actor=CHARACTER_BY_ID[participants[0]?.id];
+  if(!actor||!this.skillCutin)return;
+  const lang=this.save.language;
+  const name=heart.names[lang]||heart.names.ko;
+  const words=SKILL_LINES[heart.id]?.[lang]||SKILL_LINES[heart.id]?.ko||'';
+  const actorName=actor.names[lang]||actor.names.ko;
+  const group=GROUPS.find(g=>g.id===actor.group);
+  const accent=group?.color||'#b3d9db';
+  const teammates=participants.slice(1,4).map(unit=>'<img src="./Assets/characters/'+encodeURIComponent(unit.id)+'/front.png" alt="" draggable="false">').join('');
+  const type=heart.type==='group'?(lang==='ja'?'ユニットスキル':lang==='en'?'UNIT SKILL':'유닛 스킬'):(lang==='ja'?'リンクスキル':lang==='en'?'LINK SKILL':'연계 스킬');
+  const activated=lang==='ja'?'スキル発動':lang==='en'?'SKILL ACTIVATED':'스킬 발동';
+  this.skillCutin.style.setProperty('--skill-accent',accent);
+  this.skillCutin.dataset.heart=heart.id;
+  this.skillCutin.classList.toggle('simple',this.save.effects==='lite');
+  this.skillCutin.innerHTML=`
+   <div class="skill-cutin-backdrop" aria-hidden="true"></div>
+   <div class="skill-cutin-panel">
+    <div class="skill-cutin-head"><span>${escapeHTML(activated)}</span><span>${escapeHTML(type)}</span></div>
+    <div class="skill-cutin-body">
+      <div class="skill-cutin-art"><img class="skill-cutin-lead" src="./Assets/characters/${encodeURIComponent(actor.id)}/front.png" alt="" draggable="false"/><div class="skill-cutin-team" aria-hidden="true">${teammates}</div></div>
+      <div class="skill-cutin-dialogue"><span class="skill-cutin-speaker">${escapeHTML(actorName)}</span><p>${escapeHTML(words)}</p><strong>${escapeHTML(name)}</strong><span class="skill-cutin-stars" aria-hidden="true">${'★'.repeat(Math.max(1,Math.min(4,Math.round(strength.average))))}</span></div>
+    </div>
+    <div class="skill-cutin-progress" aria-hidden="true"></div>
+   </div>`;
+  this.skillCutin.classList.remove('visible','impact');
+  // Restart entrance animation even when a new combination activates immediately.
+  void this.skillCutin.offsetWidth;
+  this.skillCutin.classList.add('visible');
+  this.setStatus(`${this.t('heartActive')} / ${name}`);
  }
+ onHeartFire({heart}){
+  const name=heart.names[this.save.language];
+  if(this.skillCutin?.dataset.heart===heart.id)this.skillCutin.classList.add('impact');
+  this.setStatus(`${this.t('heartActive')} / ${name}`);
+  const node=el('boardFloat');node.textContent=name;
+  window.setTimeout(()=>{if(node.textContent===name)node.textContent='';},1000);
+ }
+ onHeartEnd(){
+  this.clearHeartCutin();
+ }
+ clearHeartCutin(){
+  if(!this.skillCutin)return;
+  this.skillCutin.classList.remove('visible','impact');
+  this.skillCutin.removeAttribute('data-heart');
+ }
+
  update(force=false){
   const g=this.game;if(!g){el('headerMode').textContent='STANDBY';return;}
   el('headerMode').textContent=g.difficulty.toUpperCase();
@@ -262,6 +388,7 @@ export class Interface {
   }
  }
  showResult(result){
+  this.clearHeartCutin();
   el('resultTitle').textContent=result.status==='win'?this.t('win'):this.t('lose');
   el('resultTime').textContent=timeText(result.elapsed);
   el('resultSymbol').textContent=result.status==='win'?'✦':'×';
