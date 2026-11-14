@@ -11,7 +11,21 @@ const sound=new SoundEngine();
 const ui=new Interface(save,renderer,sound);
 let game=null;
 let currentConfig=null;
-let previous=performance.now(),uiAccum=0;
+// Game time uses a fixed simulation step. Drawing can be throttled without
+// causing wave timing, enemy travel or 2x speed to run slower.
+const SIM_STEP=1/60,MAX_SIM_STEPS=7;
+let previous=performance.now(),simAccum=0,uiAccum=0;
+let lastRender=0,averageDraw=0,averageRaf=16.7,renderLimit=60;
+let renderedThisSecond=0,lastSampleTime=previous;
+const showPerf=typeof location!=='undefined'&&new URLSearchParams(location.search).has('fps');
+let fpsPanel=null;
+if(showPerf){
+ fpsPanel=document.createElement('output');
+ fpsPanel.id='fpsDebug';
+ fpsPanel.setAttribute('aria-label','실시간 화면 성능');
+ fpsPanel.style.cssText='position:fixed;right:7px;top:65px;z-index:9999;pointer-events:none;background:#1b2b3ddd;color:#f7f7df;border:1px solid #a9c8bf;padding:5px 7px;font:700 11px monospace;border-radius:4px';
+ fpsPanel.textContent='FPS --';document.body.append(fpsPanel);
+}
 
 function startGame(config){
  currentConfig={...config};
@@ -55,11 +69,52 @@ function next(){
 ui.bindGameHandlers({onStart:startGame,onExit:exitGame,onRetry:retry,onNext:next});
 ui.notice();
 function frame(now){
- const dt=Math.min(.09,Math.max(0,(now-previous)/1000));previous=now;
+ const rawDt=Math.max(0,(now-previous)/1000);
+ previous=now;
+ if(document.visibilityState==='hidden'){
+  // Never spend CPU/GPU while the tab is hidden, and never fast-forward a
+  // whole hidden interval after the user returns.
+  simAccum=0;lastRender=now;requestAnimationFrame(frame);return;
+ }
+ const dt=Math.min(.16,rawDt);
+ averageRaf=averageRaf*.965+Math.max(0,rawDt*1000)*.035;
  if(game){
-  game.update(dt);renderer.draw(game);
+  const active=game.phase==='playing'||game.phase==='ending';
+  if(active){
+   simAccum=Math.min(.14,simAccum+dt);
+   let steps=0;
+   while(simAccum>=SIM_STEP&&steps<MAX_SIM_STEPS){
+    game.update(SIM_STEP);
+    simAccum-=SIM_STEP;
+    steps++;
+   }
+   if(steps===MAX_SIM_STEPS&&simAccum>=SIM_STEP){
+    // A slow machine should recover rather than enter a permanent catch-up spiral.
+    simAccum=0;
+   }
+  }else{
+   simAccum=0;
+  }
+  // Keep the fast path at 60 FPS. Fall back to 45 or 30 only if the
+  // browser reports sustained expensive painting or missed refreshes.
+  const newLimit=averageRaf>27||averageDraw>17?30:
+   averageRaf>20||averageDraw>11?45:60;
+  renderLimit=newLimit;
+  const idle=game.phase==='paused'||game.phase==='ended';
+  if(!lastRender||now-lastRender>=((idle?125:1000/renderLimit)*.78)){
+   lastRender=now;
+   const start=performance.now();
+   renderer.draw(game);
+   const paintMs=performance.now()-start;
+   averageDraw=averageDraw?averageDraw*.93+paintMs*.07:paintMs;
+   renderedThisSecond++;
+  }
   uiAccum+=dt;
-  if(uiAccum>.17){ui.update();uiAccum=0;}
+  if(uiAccum>=.2){ui.update();uiAccum%=.2;}
+ }
+ if(showPerf&&fpsPanel&&now-lastSampleTime>=1000){
+  fpsPanel.textContent=`FPS ${renderedThisSecond} | Draw ${averageDraw.toFixed(1)}ms | Target ${renderLimit}`;
+  lastSampleTime=now;renderedThisSecond=0;
  }
  requestAnimationFrame(frame);
 }
