@@ -204,11 +204,13 @@ assert.equal(new Set(HEARTS.map(h=>h.style)).size,6,'Six choreographies needed')
  g.heartTimers['leo-chorus']=0;
  g.heartUpdate(.2,.2);
  assert.equal(spoken[0],'ichika','First speaker incorrect');
+ assert.equal(g.heartScene.actorUid,1,'Caster marker must resolve exact unit UID');
  g.heartUpdate(.2,1.55);
  g.spawnEnemy('tank',0);
  g.heartTimers['leo-chorus']=0;
  g.heartUpdate(.2,.2);
  assert.equal(spoken[1],'saki','Speaker should rotate to the next participant');
+ assert.equal(g.heartScene.actorUid,2,'Next caster marker did not rotate with dialogue');
 }
 {
  const g=new Game({mapId:'roof',difficulty:'normal'});
