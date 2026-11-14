@@ -25,6 +25,8 @@ function startGame(config){
    onHeartStart:entry=>ui.onHeartStart(entry),
    onHeartFire:entry=>ui.onHeartFire(entry),
    onHeartEnd:entry=>ui.onHeartEnd(entry),
+   onSummon:entry=>ui.onSummon(entry),
+   onPromotion:entry=>ui.onPromotion(entry),
    onSound:type=>sound.beep(type),
    onEndStart:()=>{ui.status('FINISH');},
    onResult:result=>finishRun(result)
