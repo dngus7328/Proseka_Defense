@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { TITLE_LOGOS } from '../src/data/branding.js';
 const page=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-if(!page.includes('id="titleLanguageLogo"')||!page.includes('v07-logo.css')) throw new Error('Missing title logo element or stylesheet');
+if(!page.includes('id="titleLanguageLogo"')||!page.includes('skill-cutin.css')) throw new Error('Missing title logo element or stylesheet');
 for(const lang of ['ko','ja','en']) {
   const logo=TITLE_LOGOS[lang];
   if(!logo?.src||!logo.alt)throw new Error(`Missing ${lang} branding`);
