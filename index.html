@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./styles/arcade.css"/>
   <link rel="stylesheet" href="./styles/mobile-v16.css"/>
   <link rel="stylesheet" href="./styles/skill-cutin.css"/>
+  <link rel="stylesheet" href="./styles/gameplay-v21.css"/>
 </head>
 <body>
   <div class="app" id="app">
@@ -23,6 +24,8 @@
         <div class="battle-header"><div class="stage-id"><img id="battleCrest" class="battle-crest" src="./Assets/ui/roof.png" alt=""/><span class="stage-signal"></span><span id="mapTitle">SEKAI 01</span><span class="muted-dot">·</span><span id="modeTitle" class="stage-mode">NORMAL</span></div><div class="battle-hud"><span id="timerText">00:00</span><button id="speedButton" class="speed-button" aria-label="배속 변경"><svg viewBox="0 0 16 16" fill="currentColor"><path d="m2 3 6 5-6 5zM8 3l6 5-6 5z"/></svg><strong id="speedText">1×</strong></button></div></div>
         <div class="board-frame"><div class="board-grain" aria-hidden="true"></div><canvas id="gameCanvas" aria-label="도트 타일 맵. 배치한 캐릭터를 터치해 선택" tabindex="0"></canvas><div class="board-float" id="boardFloat" aria-live="polite"></div><div class="board-corner left" aria-hidden="true"></div><div class="board-corner right" aria-hidden="true"></div></div>
         <div class="wave-panel"><div class="wave-head"><div><span class="mini-label" data-i18n="wave">WAVE</span><strong id="waveText">01 <span class="tiny-fraction">/ 20</span></strong></div><div class="wave-track"><span id="waveFill"></span></div><div class="enemy-count"><span class="mini-label" data-i18n="enemies">적</span><strong id="enemyCount">0 <span class="tiny-fraction">/ 60</span></strong></div></div></div>
+        <div class="skill-condition" id="skillCondition" aria-label="세카이의 마음 조합 진행"><span class="skill-condition-name" id="skillConditionName">세카이의 마음</span><div class="skill-condition-avatars" id="skillConditionAvatars"></div><strong id="skillConditionCount">0 / 4</strong></div>
+        <nav class="team-strip" id="teamStrip" aria-label="배치한 캐릭터 빠른 선택"><span class="team-strip-caption">MEMBERS</span><div class="team-strip-slots" id="teamStripSlots"></div></nav>
       </section>
       <aside class="sidepanel">
         <div class="resource-row"><div class="resource-card"><span class="resource-icon coin currency-crystal" aria-hidden="true"><img src="./Assets/currency/crystal.png" alt=""/></span><div><span class="mini-label" data-i18n="crystals">크리스탈</span><strong id="crystalText">100</strong></div></div><div class="resource-card"><span class="resource-icon upgrade currency-fragment" aria-hidden="true"><img src="./Assets/currency/wish-piece.png" alt=""/></span><div><span class="mini-label" data-i18n="fragments">마음의 조각</span><strong id="fragmentText">60</strong></div></div></div>
