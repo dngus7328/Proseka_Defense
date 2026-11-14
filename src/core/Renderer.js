@@ -214,17 +214,18 @@ export class Renderer {
  setMap(map){
   // Keep every gameplay coordinate in logical 32px tiles; only the backing
   // bitmap resolution changes. This avoids deforming original PNG sprites.
-  const rotated=window.innerWidth>window.innerHeight;
-  const logicalWidth=(rotated?map.h:map.w)*TILE;
-  const logicalHeight=(rotated?map.w:map.h)*TILE;
+  // Keep the battlefield upright in both screen orientations.
+  // A landscape viewport changes layout, not the game's world coordinates.
+  const logicalWidth=map.w*TILE;
+  const logicalHeight=map.h*TILE;
   // Crisp sprites with bounded GPU/CPU work on phones.
   const isSmall=window.innerWidth<700||window.innerHeight<500;
   const scale=this.effectsLite?1.25:(isSmall?1.6:2.25);
-  const changed=this.currentMap?.id!==map.id||this.rotated!==rotated||
+  const changed=this.currentMap?.id!==map.id||
     this.mapLogicalWidth!==logicalWidth||this.mapLogicalHeight!==logicalHeight||
     this.renderScale!==scale;
   if(!changed)return;
-  this.currentMap=map;this.rotated=rotated;
+  this.currentMap=map;
   this.mapLogicalWidth=logicalWidth;this.mapLogicalHeight=logicalHeight;
   this.renderScale=scale;
   this.canvas.width=Math.round(logicalWidth*scale);
@@ -240,8 +241,7 @@ export class Renderer {
  mapClick(event){
   const r=this.canvas.getBoundingClientRect();
   const px=(event.clientX-r.left)/r.width,py=(event.clientY-r.top)/r.height;
-  // Clockwise camera rotation: displayed [x,y] maps back to [y,1-x].
-  if(this.rotated)return {x:Math.floor(py*this.currentMap.w),y:Math.floor((1-px)*this.currentMap.h)};
+  // Pointer coordinates match the original 11 × 12 map in either viewport.
   return {x:Math.floor(px*this.currentMap.w),y:Math.floor(py*this.currentMap.h)};
  }
  draw(game){
@@ -252,7 +252,6 @@ export class Renderer {
   // Higher-resolution output with the *same* world layout / hit positions.
   c.setTransform(this.renderScale,0,0,this.renderScale,0,0);
   c.save();
-  if(this.rotated){c.translate(this.mapLogicalWidth,0);c.rotate(Math.PI/2);}
   if(game.cameraShake>0&&!this.reduceMotion&&!this.effectsLite){const q=game.cameraShake;const j=Math.sin(time*129)*q;c.translate(j,Math.cos(time*151)*q*.65);}
   drawSekaiWorld(c,m,time,this.reduceMotion||this.effectsLite);
   this.drawPlacement(c,m,game);
@@ -314,14 +313,8 @@ export class Renderer {
   const lean=(u.aimX||u.pose||0)>=0?1:-1;
   const rush=lean*impact*(signature?.kind==='smash'?3.8:2.2);
   const size=42+(u.star-1)*2.5;
-  let facing=u.facing||'front',mirrored=!!u.mirrored;
-  if(this.rotated&&Number.isFinite(u.aimX)&&Number.isFinite(u.aimY)){
-   const dx=-u.aimY,dy=u.aimX;
-   if(Math.abs(dx)>.38&&Math.abs(dx)>Math.abs(dy)*.5){facing=dy>=0?'front-left':'back-left';mirrored=dx>0;}
-   else{facing=dy>=0?'front':'back';mirrored=false;}
-  }
+  const facing=u.facing||'front',mirrored=!!u.mirrored;
   c.save();c.translate(Math.round(x),Math.round(y));
-  if(this.rotated)c.rotate(-Math.PI/2);
   // Rank is visible from the ground ornament and badge without recoloring the sprite.
   c.save();c.translate(0,10);
   c.fillStyle='#20323c85';c.beginPath();c.ellipse(0,8,14+u.star*1.5,5.5,0,0,Math.PI*2);c.fill();
@@ -379,7 +372,6 @@ export class Renderer {
   if(game.heartScene?.actorUid===u.uid){
    const p=Math.min(1,Math.max(0,game.heartScene.elapsed/.62));
    c.save();c.translate(Math.round(x),Math.round(y+12));
-   if(this.rotated)c.rotate(-Math.PI/2);
    c.strokeStyle='#fff0c7';c.fillStyle='#fff0c7';c.lineWidth=2;
    const r=12+(1-p)*5;
    c.strokeRect(-r,-r*.65,r*2,r*1.3);
@@ -393,7 +385,6 @@ export class Renderer {
   }
   // Stacked stars make the exact rank identifiable at gameplay zoom.
   c.save();c.translate(Math.round(x),Math.round(y+15));
-  if(this.rotated)c.rotate(-Math.PI/2);
   const badgeW=8+u.star*9;
   c.fillStyle=u.star===4?'#544931':u.star===3?'#485367':'#304e5b';
   c.fillRect(-badgeW/2,-1,badgeW,10);
@@ -405,7 +396,7 @@ export class Renderer {
   c.restore();
  }
  drawEnemy(c,game,e,time){
-  drawEnemyArt(c,game,e,time,this.rotated,this.reduceMotion||this.effectsLite);
+  drawEnemyArt(c,game,e,time,false,this.reduceMotion||this.effectsLite);
  }
  drawEffects(c,game,time){
   // At high density, prioritize recent attacks and impactful effects.
