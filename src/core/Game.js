@@ -41,7 +41,7 @@ export class Game {
   const multiplier=this.isEndless&&this.wave>20?Math.pow(1.088,this.wave-20):1;
   let hp=(17+Math.pow(this.wave,1.55)*4.5)*kind.hp*this.difficultyData.hp*multiplier;
   if(type==='boss')hp*=this.difficultyData.boss;
-  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,hitPulse:0,radius:kind.radius};
+  const u={uid:this.nextEnemyId++,kind:type,hp,maxHp:hp,progress:at,speed:kind.speed*this.difficultyData.speed,slow:0,flash:0,hitPulse:0,radius:kind.radius,age:0,visualSeed:Math.random()*Math.PI*2};
   this.enemies.push(u);return u;
  }
  enemyPos(enemy){const p=this.map.path,n=p.length,index=((Math.floor(enemy.progress)%n)+n)%n,next=(index+1)%n,t=enemy.progress-Math.floor(enemy.progress);return{x:p[index].x*(1-t)+p[next].x*t,y:p[index].y*(1-t)+p[next].y*t};}
@@ -87,14 +87,14 @@ export class Game {
   const near=nearest(open,center).slice(0,Math.min(open.length,23));
   const cell=near[rnd(near.length)];
   this.crystals-=this.cost;
-  const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false,shots:0};
+  const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false,shots:0,entrance:.55,promotion:0};
   this.units.push(unit);this.summons++;this.addEffect('spawn',cell.x,cell.y,{color:character.hair,life:.48,star:1});
   this.emit('onSummon',{unit,character,source:this.lastSummonSource,affinity:this.map.affinityGroup});
   this.emit('onSound','summon');this.emit('onChange');this.detectHearts();return true;
  }
  mergeUnits(a,b){
   if(!a||!b||a.uid===b.uid||a.id!==b.id||a.star!==b.star||a.star>=4)return false;
-  const oldDamage=b.damage;a.star++;a.damage+=oldDamage;a.cooldown=.1;
+  const oldDamage=b.damage;a.star++;a.damage+=oldDamage;a.cooldown=.1;a.promotion=.85;
   this.units=this.units.filter(u=>u.uid!==b.uid);
   if(this.selectedId===b.uid)this.selectedId=a.uid;
   this.addEffect('promotion',a.x,a.y,{color:CHARACTER_BY_ID[a.id].hair,star:a.star,life:.75});
@@ -339,7 +339,14 @@ export class Game {
   }
   for(const enemy of this.enemies){
    enemy.slow=Math.max(0,enemy.slow-dt);enemy.flash=Math.max(0,enemy.flash-dt);enemy.hitPulse=Math.max(0,(enemy.hitPulse||0)-dt);
-   enemy.progress+=dt*enemy.speed*(enemy.slow>0?.52:1);
+   // Dash types surge between small recovery beats; heavy enemies stomp.
+   // Each enemy has its own phase so a crowd never moves in lockstep.
+   const pace=enemy.kind==='dash'?(1+.22*Math.max(0,Math.sin(enemy.age*8+enemy.visualSeed))):
+    enemy.kind==='tank'?(0.94+.06*Math.sin(enemy.age*4+enemy.visualSeed)):
+    enemy.kind==='split'?(1+.055*Math.sin(enemy.age*5+enemy.visualSeed)):
+    enemy.kind==='boss'?(0.96+.04*Math.cos(enemy.age*2)) :1;
+   enemy.age=(enemy.age||0)+dt;
+   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1);
   }
   for(const hero of this.units){
    hero.cooldown-=dt;
@@ -362,7 +369,7 @@ export class Game {
   this.cameraShake=Math.max(0,this.cameraShake-dt*18);
   this.effects.forEach(e=>e.life-=dt);
   this.effects=this.effects.filter(e=>e.life>0);
-  this.units.forEach(u=>u.motion=Math.max(0,u.motion-dt));
+  this.units.forEach(u=>{u.motion=Math.max(0,u.motion-dt);u.entrance=Math.max(0,(u.entrance||0)-dt);u.promotion=Math.max(0,(u.promotion||0)-dt);});
  }
  end(status){
   if(this.phase!=='playing')return;
