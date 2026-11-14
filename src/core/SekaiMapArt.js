@@ -353,7 +353,35 @@ function spawn(c,m,time){
  rect(c,X+16-s,Y+16-s,s*2,s*2,'#fff3da');
  for(const [dx,dy] of [[4,4],[24,4],[4,24],[24,24]])rect(c,X+dx,Y+dy,4,4,'#fff2cf');
 }
+// Fixed scenery is painted once per arena. Only ambient props, enemies and
+// units animate every frame. This matters on small mobile devices.
+const STATIC_WORLD_CACHE=new WeakMap();
+function staticWorld(c,m){
+ floor(c,m);route(c,m);scenery(c,m);sceneIdentity(c,m,0);
+}
+function cachedWorld(m){
+ if(STATIC_WORLD_CACHE.has(m))return STATIC_WORLD_CACHE.get(m);
+ let layer=null;
+ try{
+  if(typeof OffscreenCanvas==='function')layer=new OffscreenCanvas(m.w*T,m.h*T);
+  else if(typeof document!=='undefined'&&document.createElement){
+   layer=document.createElement('canvas');layer.width=m.w*T;layer.height=m.h*T;
+  }
+  if(layer){
+   const ctx=layer.getContext('2d');
+   if(ctx){ctx.imageSmoothingEnabled=false;staticWorld(ctx,m);}
+   else layer=null;
+  }
+ }catch{layer=null;}
+ if(layer)STATIC_WORLD_CACHE.set(m,layer);
+ return layer;
+}
 export function drawSekaiWorld(c,m,time=0,reduceMotion=false){
  c.save();c.imageSmoothingEnabled=false;
- floor(c,m);route(c,m);scenery(c,m);sceneIdentity(c,m,time);ambientLife(c,m,time,reduceMotion);spawn(c,m,reduceMotion?0:time);c.restore();
+ const layer=cachedWorld(m);
+ if(layer)c.drawImage(layer,0,0);
+ else staticWorld(c,m);
+ ambientLife(c,m,time,reduceMotion);
+ spawn(c,m,reduceMotion?0:time);
+ c.restore();
 }
