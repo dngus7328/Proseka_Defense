@@ -12,6 +12,7 @@ export class Renderer {
  constructor(canvas){
   this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.currentMap=null;this.tileSize=TILE;this.ctx.imageSmoothingEnabled=false;
   this.spriteImages=Object.create(null);
+  this.spriteRenders=new Map();
   this.currentTitleMap=null;
   this.reduceMotion=!!window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
   this.effectsLite=false;
@@ -39,12 +40,35 @@ export class Renderer {
   const img=this.spriteImages[characterId]?.[direction];
   return img?.complete&&img.naturalWidth>0?img:null;
  }
+ getPreparedSprite(id,direction,width){
+  const raw=this.getSprite(id,direction);
+  if(!raw)return null;
+  // Draw each character/direction/rank combination at high quality only once.
+  // Runtime sprite motion then moves an already small transparent bitmap.
+  const pixels=Math.max(8,Math.round(width));
+  const key=id+'/'+direction+'/'+pixels;
+  const ready=this.spriteRenders.get(key);
+  if(ready)return ready;
+  let canvas=null;
+  try{
+   if(typeof OffscreenCanvas!=='undefined')canvas=new OffscreenCanvas(pixels,pixels);
+   else if(typeof document!=='undefined'){
+    canvas=document.createElement('canvas');canvas.width=pixels;canvas.height=pixels;
+   }
+   const ctx=canvas?.getContext('2d',{alpha:true});
+   if(!ctx)return raw;
+   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+   ctx.drawImage(raw,0,0,pixels,pixels);
+   if(this.spriteRenders.size>=600)this.spriteRenders.clear();
+   this.spriteRenders.set(key,canvas);
+   return canvas;
+  }catch{return raw;}
+ }
  drawSprite(c,id,direction,x,y,width,flip=false){
-  const image=this.getSprite(id,direction);
+  const image=this.getPreparedSprite(id,direction,width);
   if(!image)return false;
   c.save();c.translate(x,y);if(flip)c.scale(-1,1);
-  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
-  // 192px source sheets have a shared center and foot baseline.
+  c.imageSmoothingEnabled=true;c.imageSmoothingQuality='low';
   c.drawImage(image,-width/2,-width,width,width);
   c.restore();return true;
  }
