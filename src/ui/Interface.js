@@ -219,7 +219,10 @@ export class Interface {
  renderHearts(){
   const list=el('heartList');if(!list)return;
   el('collectionCount').textContent=`${this.save.discovered.length} / ${HEARTS.length}`;
-  list.innerHTML='';HEARTS.forEach(h=>{
+  // Curated combos are always browseable; the 315 procedurally named duos
+  // appear as they are discovered, instead of filling the UI with 315 ???s.
+  const shown=HEARTS.filter(h=>!h.isGenerated||this.save.discovered.includes(h.id));
+  list.innerHTML='';shown.forEach(h=>{
    const known=this.save.discovered.includes(h.id);
    const row=document.createElement('div');row.className='heart-item'+(known?'':' locked');
    const icon=document.createElement('div');icon.className='heart-mark';icon.textContent=known?'♡':'?';
@@ -227,6 +230,14 @@ export class Interface {
    const info=document.createElement('small');info.textContent=known?h.required.map(id=>CHARACTER_BY_ID[id].names[this.save.language]).join(' + '):'· · ·';
    title.append(name,info);row.append(icon,title);list.append(row);
   });
+  const unknown=HEARTS.length-shown.length;
+  if(unknown){
+   const caption=document.createElement('p');caption.className='heart-undiscovered';
+   caption.textContent=this.save.language==='ja'?`未発見のペア ${unknown}組`:
+    this.save.language==='en'?`${unknown} more duo combinations to discover`:
+    `아직 발견하지 못한 2인 조합 ${unknown}개`;
+   list.append(caption);
+  }
   el('heartCount').textContent=String(this.save.discovered.length);
  }
  toast(message,raw=false){
