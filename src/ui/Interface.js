@@ -295,9 +295,15 @@ export class Interface {
   el('modeTitle').textContent=this.t(g.difficulty).toUpperCase();
   el('timerText').textContent=timeText(g.realTime);
   el('speedText').textContent=`${g.speed}×`;
-  el('waveText').innerHTML=`${String(g.wave).padStart(2,'0')} <span class="tiny-fraction">/ ${g.isEndless?'∞':20}</span>`;
+  const finalSeconds=g.finalCleanupSecondsLeft;
+  const finalCountdown=finalSeconds!==null;
+  // Make the final deadline visible rather than surprising the player with a loss.
+  el('waveText').innerHTML=finalCountdown
+   ? `FINAL <span class="tiny-fraction">${Math.ceil(finalSeconds)}s</span>`
+   : `${String(g.wave).padStart(2,'0')} <span class="tiny-fraction">/ ${g.isEndless?'∞':20}</span>`;
   el('enemyCount').innerHTML=`${g.enemies.length} <span class="tiny-fraction">/ ${g.capacity}</span>`;
-  el('waveFill').style.width=`${Math.min(100,g.waveTime/30*100)}%`;
+  el('waveFill').style.width=`${Math.max(0,Math.min(100,(finalCountdown?finalSeconds/30:g.waveTime/30)*100))}%`;
+  el('waveText').closest('.wave-panel')?.classList.toggle('final-countdown',finalCountdown);
   const enemyPressure=g.enemies.length/g.capacity;
   el('enemyCount').closest('.enemy-count')?.classList.toggle('danger',enemyPressure>=.72);
   el('enemyCount').closest('.enemy-count')?.classList.toggle('critical',enemyPressure>=.9);
