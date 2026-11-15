@@ -49,6 +49,16 @@ try{
   });
   assert(titleArt.count===1&&!titleArt.extraCanvas&&titleArt.display!=='none'&&titleArt.ready,
    vp.name+' duplicate title art detected: '+JSON.stringify(titleArt));
+  const titleBounds=await page.evaluate(()=>{
+   const ids=['titleLanguageLogo','titleEnter','titleHearts','titleSettings'];
+   return Object.fromEntries(ids.map(id=>{
+    const el=document.getElementById(id),r=el.getBoundingClientRect();
+    return [id,{x:r.x,y:r.y,w:r.width,h:r.height}];
+   }));
+  });
+  for(const [id,r] of Object.entries(titleBounds))
+   assert(r.w>30&&r.h>20&&r.x>=-2&&r.y>=-2&&r.x+r.w<=vp.width+2&&r.y+r.h<=vp.height+2,
+    vp.name+' title has clipped '+id+': '+JSON.stringify(r));
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
   await page.locator('#titleEnter').click({timeout:12000});
   await page.waitForFunction(()=>{
@@ -168,7 +178,7 @@ try{
     effect:ui?.querySelector('.skill-cutin-words')?.textContent};
   });
   assert(caster.actor==='tsukasa'&&caster.name?.length>0&&caster.technique?.length>0&&
-   caster.effect?.includes('피해'),
+   caster.effect?.includes('장벽'),
    vp.name+' invisible caster / unexplained effect: '+JSON.stringify(caster));
   const skillSize=await page.locator('#skillCutin').boundingBox();
   assert(skillSize&&skillSize.height>=36&&skillSize.height<=48&&skillSize.y<=62
@@ -184,7 +194,16 @@ try{
   await page.screenshot({path:path.join('artifacts',vp.name+'-skill-lead.png')});
   await page.waitForTimeout(580);
   assert(await page.locator('#skillCutin').evaluate(el=>el.classList.contains('impact')),
-   vp.name+' special attack impact missing');
+   vp.name+' special attack activation feedback missing');
+  const stageSkill=await page.evaluate(()=>{
+   const g=window.__sekaiTest.getGame();
+   const active=g.heartStates?.find(s=>s.type==='barrier');
+   return {gates:active?.gates?.length||0,remaining:active?.remaining,
+    mechanics:g.lastHeartEffect?.mechanic,
+    target:document.querySelector('#skillCutin .skill-cutin-words')?.textContent};
+  });
+  assert(stageSkill.gates>=3&&stageSkill.mechanics==='barrier'&&stageSkill.remaining>3,
+   vp.name+' special needs real barriers visible on the path: '+JSON.stringify(stageSkill));
   await page.screenshot({path:path.join('artifacts',vp.name+'-skill-impact.png')});
   await page.waitForTimeout(1050);
   // Keep a brief, nonblocking result banner long enough to understand it.
