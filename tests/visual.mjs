@@ -164,9 +164,16 @@ try{
   await page.waitForFunction(()=>document.getElementById('skillCutin')?.classList.contains('visible'));
   await page.waitForTimeout(250);
   const skillSize=await page.locator('#skillCutin').boundingBox();
-  assert(skillSize&&skillSize.height>=40&&skillSize.height<=70&&skillSize.y<=62
+  assert(skillSize&&skillSize.height>=36&&skillSize.height<=48&&skillSize.y<=62
     &&skillSize.width>=180,
    vp.name+' special attack message must stay in the top HUD: '+JSON.stringify(skillSize));
+  if(vp.width<vp.height){
+   const resources=await page.locator('.resource-row').boundingBox();
+   assert(resources&&skillSize.y+skillSize.height<=resources.y+1,
+    vp.name+' top skill message overlaps the resources');
+  }
+  assert(await page.locator('#selectionPanel').evaluate(el=>getComputedStyle(el).visibility==='hidden'),
+   vp.name+' selected-character panel must clear the field during a special');
   await page.screenshot({path:path.join('artifacts',vp.name+'-skill-lead.png')});
   await page.waitForTimeout(580);
   assert(await page.locator('#skillCutin').evaluate(el=>el.classList.contains('impact')),
