@@ -6,7 +6,7 @@ import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
-import {TitleIntro} from './TitleIntro.js?v=1.19.0';
+import {TitleIntro} from './TitleIntro.js?v=1.20.0';
 import {persistSave} from '../core/Save.js';
 import {BattleExperience} from './BattleExperience.js?v=1.19.0';
 const el=(id)=>document.getElementById(id);
@@ -27,7 +27,7 @@ export class Interface {
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.clearHeartCutin();this.experience?.reset();this.lastHeartNotificationTime=null;this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.clearHeartCutin();this.experience?.reset();this.lastHeartNotificationTime=null;game.language=this.save.language;this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -49,6 +49,7 @@ export class Interface {
  overlayVisible(id){return !!el(id)?.classList.contains('visible');}
  renderLanguages(){
   document.documentElement.lang=this.save.language;
+  if(this.game)this.game.language=this.save.language;
   // Keep the title artwork synchronized with the selected UI language.
   const titleLogo=el('titleLanguageLogo');
   if(titleLogo){
