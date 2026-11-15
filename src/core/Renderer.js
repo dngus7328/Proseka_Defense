@@ -2,7 +2,7 @@ import {CHARACTER_BY_ID,CHARACTERS,SIGNATURES,STAR_SCALE} from '../data/characte
 import {ENEMIES} from '../data/enemies.js';
 import {tileKey} from '../data/maps.js';
 import {drawSekaiWorld} from './SekaiMapArt.js?v=1.14.1';
-import {drawEnemyArt} from './EnemyArt.js?v=1.14.1';
+import {drawEnemyArt} from './EnemyArt.js?v=1.17.0';
 const TILE=32;
 const DIRECTIONS=['front','front-left','back-left','back'];
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
