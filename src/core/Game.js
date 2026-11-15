@@ -18,7 +18,7 @@ export class Game {
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
-  this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};
+  this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};this.counterTime=0;
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
  }
@@ -219,7 +219,7 @@ export class Game {
   const candidates=this.enemies.filter(e=>e.hp>0&&dist(this.enemyPos(e),p)<=range);
   if(!candidates.length)return false;
   const targets=nearest(candidates,p),target=targets[0],tp=this.enemyPos(target);
-  const c=CHARACTER_BY_ID[unit.id],atk=attackValue(unit,this.upgrades),style=c.attack,signature=SIGNATURES[unit.id];
+  const c=CHARACTER_BY_ID[unit.id],atk=attackValue(unit,this.upgrades)*(this.counterTime>0?1.7:1),style=c.attack,signature=SIGNATURES[unit.id];
   unit.shots=(unit.shots||0)+1;
   unit.motion=.23;unit.pose=tp.x>p.x?1:-1;
   const dirX=tp.x-p.x,dirY=tp.y-p.y;
@@ -396,6 +396,7 @@ export class Game {
   const target=this.units.find(u=>u.uid===threat.uid);
   if(!target||target.x!==threat.x||target.y!==threat.y){
    this.threatStats.avoided++;
+   this.counterTime=Math.max(this.counterTime,7); // 7 real seconds of counterattack after a successful dodge.
    this.crystals+=12;this.fragments+=8;
    this.addEffect('threatAvoid',threat.x,threat.y,{life:.6,color:'#cce6cd'});
    this.interference=null;this.threatCooldown=this.threatInterval;
@@ -470,6 +471,7 @@ export class Game {
   }
   // Keep an honest five-second warning even at double battle speed.
   this.updateThreat(Math.max(0,realDt));
+  this.counterTime=Math.max(0,this.counterTime-realDt);
   for(const hero of this.units){
    hero.jamTime=Math.max(0,(hero.jamTime||0)-dt);
    if(hero.jamTime>0)continue;
