@@ -401,3 +401,7 @@
  .resource-row{top:calc(41px + env(safe-area-inset-top));height:42px}
  .selection-panel{bottom:calc(110px + 7px + env(safe-area-inset-bottom))}
 }
+
+/* 20th wave: clear remaining enemies before the red timer empties. */
+.wave-panel.final-countdown .wave-track > span{background:#bb7161!important;transition:width .12s linear}
+.wave-panel.final-countdown #waveText{color:#9f4a41}

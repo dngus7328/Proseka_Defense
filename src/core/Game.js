@@ -2,10 +2,12 @@ import {CHARACTERS,CHARACTER_BY_ID,GROUPS,SIGNATURES,attackValue,attackInterval,
 import {MAP_BY_ID,tileKey} from '../data/maps.js';
 import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
+import {interferenceForMap,INTERFERENCE_WARNING_SECONDS} from '../data/interference.js';
 const rnd=(max)=>Math.floor(Math.random()*max);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const nearest=(array,target)=>array.slice().sort((a,b)=>dist(a,target)-dist(b,target));
+export const FINAL_WAVE_CLEANUP_SECONDS=30;
 export class Game {
  constructor(config,callbacks={}){
   this.callbacks=callbacks;this.map=MAP_BY_ID[config.mapId]||MAP_BY_ID.roof;
@@ -16,6 +18,7 @@ export class Game {
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
+  this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};this.counterTime=0;
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
  }
@@ -23,8 +26,14 @@ export class Game {
  get selected(){return this.units.find(u=>u.uid===this.selectedId)||null;}
  get cost(){return 28+this.summons;} // +1 crystal for every successful summon; resets each run
  get capacity(){return 60;}
+ get threatStartWave(){return this.difficulty==='normal'?5:this.difficulty==='advanced'?4:3;}
+ get threatInterval(){return this.difficulty==='normal'?35:this.difficulty==='advanced'?30:this.difficulty==='expert'?26:22;}
  get isEndless(){return this.difficulty==='endless';}
  get maxWave(){return this.isEndless?Infinity:20;}
+ get finalCleanupSecondsLeft(){
+  return !this.isEndless&&this.wave===20&&this.waveTime>=30
+   ? Math.max(0,FINAL_WAVE_CLEANUP_SECONDS-(this.waveTime-30)):null;
+ }
  get power(){return Math.round(this.units.reduce((n,u)=>n+attackValue(u,this.upgrades)/attackInterval(u,this.upgrades),0));}
  get discoveredActive(){return HEARTS.filter(h=>!!getHeartParticipants(this,h));}
  emit(type,payload){this.callbacks[type]?.(payload);}
@@ -53,7 +62,12 @@ export class Game {
   if(this.phase!=='playing')return;
   const target=this.atTile(x,y);
   if(this.moveMode){
-   if(this.canPlace(x,y)&&this.selected){this.selected.x=x;this.selected.y=y;this.moveMode=false;this.addEffect('pop',x,y,{color:'#acecde'});this.emit('onToast','moved');this.emit('onChange');}
+   if(this.canPlace(x,y)&&this.selected){
+    this.selected.x=x;this.selected.y=y;this.moveMode=false;
+    this.addEffect('pop',x,y,{color:'#acecde'});
+    if(this.interference)this.updateThreat(0);
+    this.emit('onToast','moved');this.emit('onChange');
+   }
    else{this.moveMode=false;this.emit('onToast','cancel');}
    return;
   }
@@ -78,7 +92,7 @@ export class Game {
  }
  summon(){
   if(this.phase!=='playing')return false;
-  if(this.crystals<this.cost){this.emit('onToast','needCrystals');return false;}
+  if(this.fragments<this.cost){this.emit('onToast','needFragments');return false;}
   const occupied=new Set(this.units.map(u=>tileKey(u.x,u.y)));
   const open=this.map.available.filter(p=>!occupied.has(tileKey(p.x,p.y)));
   if(!open.length){this.emit('onToast','boardFull');return false;}
@@ -87,7 +101,7 @@ export class Game {
   const center={x:this.map.w/2,y:this.map.h/2};
   const near=nearest(open,center).slice(0,Math.min(open.length,23));
   const cell=near[rnd(near.length)];
-  this.crystals-=price;
+  this.fragments-=price;
   const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false,shots:0,entrance:.55,promotion:0};
   this.units.push(unit);this.summons++;this.addEffect('spawn',cell.x,cell.y,{color:character.hair,life:.48,star:1});
   this.emit('onSummon',{unit,character,source:this.lastSummonSource,affinity:this.map.affinityGroup,price,nextPrice:this.cost});
@@ -126,8 +140,8 @@ export class Game {
   const level=this.upgrades[id];if(level==null)return;
   const cost=upgradeCost(id,level);
   if(cost===Infinity)return;
-  if(cost>this.fragments){this.emit('onToast','needFragments');return;}
-  this.fragments-=cost;this.upgrades[id]++;this.emit('onSound','upgrade');this.emit('onChange');
+  if(cost>this.crystals){this.emit('onToast','needCrystals');return;}
+  this.crystals-=cost;this.upgrades[id]++;this.emit('onSound','upgrade');this.emit('onChange');
  }
  addEffect(type,x,y,props={}){this.effects.push({type,x,y,life:props.life??.35,initial:props.life??.35,...props});if(this.effects.length>150)this.effects.splice(0,this.effects.length-150);}
  dealDamage(enemy,amount,sourceId){
@@ -205,7 +219,7 @@ export class Game {
   const candidates=this.enemies.filter(e=>e.hp>0&&dist(this.enemyPos(e),p)<=range);
   if(!candidates.length)return false;
   const targets=nearest(candidates,p),target=targets[0],tp=this.enemyPos(target);
-  const c=CHARACTER_BY_ID[unit.id],atk=attackValue(unit,this.upgrades),style=c.attack,signature=SIGNATURES[unit.id];
+  const c=CHARACTER_BY_ID[unit.id],atk=attackValue(unit,this.upgrades)*(this.counterTime>0?1.7:1),style=c.attack,signature=SIGNATURES[unit.id];
   unit.shots=(unit.shots||0)+1;
   unit.motion=.23;unit.pose=tp.x>p.x?1:-1;
   const dirX=tp.x-p.x,dirY=tp.y-p.y;
@@ -353,6 +367,61 @@ export class Game {
    this.emit('onHeartStart',{...pending,actorId,actorUid,strength:heartStrength(pending.participants)});
   }
  }
+ // A visible, avoidable hazard makes relocation a meaningful decision.
+ beginThreat(){
+  if(this.interference||this.wave<this.threatStartWave||!this.units.length)return false;
+  // Telegraphed relocation is only fair while an empty destination exists.
+  if(!this.map.available.some(p=>this.canPlace(p.x,p.y)))return false;
+  const candidates=this.units.filter(u=>(u.jamTime||0)<=0)
+   .sort((a,b)=>b.star-a.star||a.uid-b.uid);
+  if(!candidates.length)return false;
+  const target=candidates[Math.floor(this.virtualTime*7)%Math.min(3,candidates.length)];
+  const rules=interferenceForMap(this.map.id);
+  this.interference={
+   uid:target.uid,id:target.id,x:target.x,y:target.y,type:rules.type,
+   color:rules.color,names:rules.names,duration:rules.duration,
+   remaining:INTERFERENCE_WARNING_SECONDS,total:INTERFERENCE_WARNING_SECONDS
+  };
+  this.emit('onThreatStart',{...this.interference});
+  return true;
+ }
+ updateThreat(dt){
+  const threat=this.interference;
+  if(!threat){
+   if(this.wave<this.threatStartWave)return;
+   this.threatCooldown=Math.max(0,this.threatCooldown-dt);
+   if(this.threatCooldown<=0&&!this.beginThreat())this.threatCooldown=5;
+   return;
+  }
+  const target=this.units.find(u=>u.uid===threat.uid);
+  if(!target||target.x!==threat.x||target.y!==threat.y){
+   this.threatStats.avoided++;
+   this.counterTime=Math.max(this.counterTime,7); // 7 real seconds of counterattack after a successful dodge.
+   this.crystals+=12;this.fragments+=8;
+   this.addEffect('threatAvoid',threat.x,threat.y,{life:.6,color:'#cce6cd'});
+   this.interference=null;this.threatCooldown=this.threatInterval;
+   this.emit('onThreatAvoid',{...threat,rewardCrystals:12,rewardFragments:8});
+   this.emit('onSound','merge');this.emit('onChange');
+   return;
+  }
+  threat.remaining=Math.max(0,threat.remaining-dt);
+  if(threat.remaining>0)return;
+  if(threat.type==='rush'){
+   for(const enemy of this.enemies)enemy.surge=Math.max(enemy.surge||0,threat.duration);
+  }else{
+   // The warning identifies the central source. Relocating it protects nearby members.
+   for(const hero of this.units){
+    if(dist(hero,{x:threat.x,y:threat.y})<=1.65)
+     hero.jamTime=Math.max(hero.jamTime||0,threat.duration);
+   }
+   if(threat.type==='drain')this.crystals=Math.max(0,this.crystals-(20+this.wave*3));
+  }
+  this.addEffect('threatImpact',threat.x,threat.y,{life:.7,color:threat.color});
+  this.threatStats.hit++;
+  this.interference=null;this.threatCooldown=this.threatInterval;
+  this.emit('onThreatHit',{...threat});
+  this.emit('onSound','heavy');this.emit('onChange');
+ }
  update(realDt){
   if(this.phase==='ending'){
    this.endReal+=realDt;let t=clamp(this.endReal/1.5,0,1);
@@ -372,6 +441,7 @@ export class Game {
    enemy.slow=Math.max(0,enemy.slow-dt);
    enemy.emerge=Math.max(0,(enemy.emerge||0)-dt);
    enemy.tempo=Math.max(0,(enemy.tempo||0)-dt);
+   enemy.surge=Math.max(0,(enemy.surge||0)-dt);
    enemy.flash=Math.max(0,enemy.flash-dt);enemy.hitPulse=Math.max(0,(enemy.hitPulse||0)-dt);
    // Dash types surge between small recovery beats; heavy enemies stomp.
    // Each enemy has its own phase so a crowd never moves in lockstep.
@@ -380,7 +450,7 @@ export class Game {
     enemy.kind==='split'?(1+.055*Math.sin(enemy.age*5+enemy.visualSeed)):
     enemy.kind==='boss'?(0.96+.04*Math.cos(enemy.age*2)) :1;
    enemy.age=(enemy.age||0)+dt;
-   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1)*(enemy.tempo>0?1.22:1);
+   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1)*(enemy.tempo>0?1.22:1)*(enemy.surge>0?1.65:1);
   }
   // The Conductor boss leads nearby interference into a short faster beat.
   // This is a readable enemy mechanic, not a random whole-screen speed-up.
@@ -399,7 +469,12 @@ export class Game {
    this.addEffect('ring',center.x,center.y,{color:'#e4ba9f',radius:2.7,life:.44});
    this.emit('onSound','special');
   }
+  // Keep an honest five-second warning even at double battle speed.
+  this.updateThreat(Math.max(0,realDt));
+  this.counterTime=Math.max(0,this.counterTime-realDt);
   for(const hero of this.units){
+   hero.jamTime=Math.max(0,(hero.jamTime||0)-dt);
+   if(hero.jamTime>0)continue;
    hero.cooldown-=dt;
    if(hero.cooldown<=0){
     const fired=this.attack(hero);
@@ -408,10 +483,14 @@ export class Game {
   }
   this.heartUpdate(dt,realDt);
   this.enemies=this.enemies.filter(e=>e.hp>0);
-  if(this.enemies.length>=this.capacity){this.end('lose');return;}
+  if(this.enemies.length>=this.capacity){this.end('lose','enemy_overflow');return;}
   if(this.waveTime>=30){
    if(this.wave===20&&!this.isEndless){
-    if(this.enemies.length===0&&this.spawnCursor>=this.waveRoster.length)this.end('win');
+    // A short clean-up window lets players finish surviving enemies, but cannot softlock.
+    if(this.spawnCursor>=this.waveRoster.length){
+     if(this.enemies.length===0)this.end('win');
+     else if(this.finalCleanupSecondsLeft<=0)this.end('lose','final_timeout');
+    }
    }else{this.startWave(this.wave+1);this.crystals+=26+this.wave*7;this.fragments+=12+this.wave*4;this.emit('onChange');}
   }
  }
@@ -422,11 +501,12 @@ export class Game {
   this.effects=this.effects.filter(e=>e.life>0);
   this.units.forEach(u=>{u.motion=Math.max(0,u.motion-dt);u.entrance=Math.max(0,(u.entrance||0)-dt);u.promotion=Math.max(0,(u.promotion||0)-dt);});
  }
- end(status){
+ end(status,reason=null){
   if(this.phase!=='playing')return;
   this.phase='ending';
-  this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.emit('onHeartEnd',{});
-  this.result={status,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,damageByMember:{...this.damageByMember}};
+  this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.interference=null;
+  this.emit('onHeartEnd',{});this.emit('onThreatEnd',{});
+  this.result={status,reason,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,threatStats:{...this.threatStats},summons:this.summons,fourStars:this.units.filter(u=>u.star===4).length,activeHearts:this.discoveredActive.length,team:this.units.map(u=>({id:u.id,star:u.star})),damageByMember:{...this.damageByMember}};
   this.endReal=0;this.endFromSpeed=this.speed;this.endAnimSpeed=this.speed;
   this.emit('onEndStart',this.result);
  }

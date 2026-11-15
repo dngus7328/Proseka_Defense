@@ -106,12 +106,35 @@ export function drawEnemyArt(c,game,e,time,rotated=false,reduceMotion=false){
  if(img)c.drawImage(img,-46,-46);
  else DRAW[e.kind]?.(c,age);
  if(e.slow>0){c.strokeStyle='#c2e4ed';c.lineWidth=2;c.strokeRect(-20,-24,40,48)}
+ // Communicate enemy roles with simple flat symbols rather than generic glow.
+ if(e.kind==='resist'){
+  c.strokeStyle='#fff0ca';c.lineWidth=3;
+  c.beginPath();c.moveTo(0,-33);c.lineTo(8,-26);c.lineTo(0,-19);c.lineTo(-8,-26);c.closePath();c.stroke();
+ }
+ if(e.kind==='dash'||e.surge>0){
+  c.strokeStyle=e.surge>0?'#ffda9a':'#f3e2c3';c.lineWidth=2.2;
+  c.beginPath();c.moveTo(-32,-7);c.lineTo(-25,-7);c.moveTo(-37,1);c.lineTo(-27,1);c.moveTo(-31,9);c.lineTo(-23,9);c.stroke();
+ }
+ if(e.kind==='split'){
+  c.strokeStyle='#f4ddf1';c.lineWidth=2;
+  c.beginPath();c.moveTo(-13,-26);c.lineTo(-4,-20);c.moveTo(13,-26);c.lineTo(4,-20);c.stroke();
+ }
  c.restore();
  if(e.kind==='boss'||e.kind==='tank'||e.hp/e.maxHp<.66){
   const bw=e.kind==='boss'?46:28,yy=y-(e.kind==='boss'?30:23);
   c.save();c.translate(x,yy);if(rotated)c.rotate(screenAngle);
   rounded(c,-bw/2,-2,bw,5,2,'#253f4e',null);
   rounded(c,-bw/2+1,-1,Math.max(0,(bw-2)*e.hp/e.maxHp),3,1,e.kind==='boss'?'#eac1a4':'#a5d1c0',null);
+  c.restore();
+ }
+ if(e.kind==='boss'&&e.beatCooldown>0&&e.beatCooldown<=1.5){
+  // The baton strike has a readable lead-in even at small zoom.
+  const w=42,r=Math.max(0,Math.min(1,e.beatCooldown/1.5));
+  c.save();c.translate(x,y-41);
+  c.fillStyle='#31465d';c.fillRect(-w/2,-3,w,7);
+  c.fillStyle='#f3c88b';c.fillRect(-w/2+1,-2,(w-2)*(1-r),5);
+  c.textAlign='center';c.textBaseline='bottom';c.font='bold 11px Arial';
+  c.fillStyle='#fff5dc';c.fillText('!',0,-7);
   c.restore();
  }
 }

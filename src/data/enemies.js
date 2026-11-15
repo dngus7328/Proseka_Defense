@@ -9,10 +9,10 @@ export const ENEMIES={
 };
 export const DIFFICULTIES=[
  {id:'normal',hp:0.85,speed:.98,count:.88,boss:1,reward:1.12},
- {id:'advanced',hp:1.15,speed:1.06,count:1,boss:1.15,reward:1.07},
- {id:'expert',hp:1.45,speed:1.16,count:1.1,boss:1.32,reward:1.1},
- {id:'extreme',hp:1.9,speed:1.23,count:1.18,boss:1.54,reward:1.12},
- {id:'endless',hp:2.0,speed:1.23,count:1.2,boss:1.60,reward:1.12}
+ {id:'advanced',hp:1.28,speed:1.06,count:1.08,boss:1.24,reward:1.07},
+ {id:'expert',hp:1.85,speed:1.16,count:1.23,boss:1.51,reward:1.1},
+ {id:'extreme',hp:2.4,speed:1.26,count:1.33,boss:1.75,reward:1.12},
+ {id:'endless',hp:2.85,speed:1.27,count:1.42,boss:2.02,reward:1.12}
 ];
 export const UPGRADE_DATA=[
  {id:'attack',icon:'✦',max:6,baseCost:42,costMult:1.65},
@@ -24,8 +24,16 @@ export function upgradeCost(id,level){const p=UPGRADE_DATA.find(x=>x.id===id);re
 export function waveEnemies(wave,difficulty){
  const d=DIFFICULTIES.find(x=>x.id===difficulty)||DIFFICULTIES[0];
  let count=Math.ceil((6+wave*1.1)*d.count);
- const types=['pulse']; if(wave>=4)types.push('dash');if(wave>=7)types.push('tank');if(wave>=10)types.push('split');if(wave>=14)types.push('resist');
+ const upper=difficulty==='expert'||difficulty==='extreme'||difficulty==='endless';
+ const intense=difficulty==='extreme'||difficulty==='endless';
+ const types=['pulse'];
+ if(wave>=4)types.push('dash');
+ if(wave>=(intense?5:7))types.push('tank');
+ if(wave>=(intense?6:upper?7:difficulty==='advanced'?9:10))types.push('split');
+ if(wave>=(intense?7:upper?9:difficulty==='advanced'?12:14))types.push('resist');
  const result=Array.from({length:count},(_,i)=>types[(i*7+Math.floor(i/3)+wave*3)%types.length]);
  if(wave%5===0)result.push('boss');
+ // Upper difficulties add a second clear boss threat at milestone waves, not just more HP.
+ if(upper&&wave%10===0)result.push('boss');
  return result;
 }

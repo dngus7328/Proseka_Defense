@@ -1,0 +1,350 @@
+/* Play-experience pass: concise warning, interaction chatter, readable results.
+   Scoped to gameplay; no edits to original character sprites or title illustration. */
+.board-frame{position:relative;isolation:isolate}
+.danger-banner[hidden],.battle-dialogue[hidden]{display:none!important}
+.danger-banner{
+ --danger:#be6c66;
+ position:absolute;z-index:31;left:7px;right:7px;top:7px;
+ min-height:49px;display:flex;align-items:center;gap:8px;
+ padding:6px 7px;border-left:5px solid var(--danger);
+ border-radius:7px;background:#fff9edf5;color:#263f51;
+ box-shadow:0 4px 0 #23384765;
+}
+.danger-symbol{
+ flex:0 0 25px;width:25px;height:25px;
+ display:grid;place-items:center;border:2px solid var(--danger);
+ border-radius:5px;color:var(--danger);font-weight:950;font-size:18px;
+}
+.danger-copy{display:flex;flex-direction:column;min-width:0;flex:1;gap:2px;line-height:1.2}
+.danger-copy strong{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.danger-copy small{font-size:10px;font-weight:700;color:#536977;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.danger-clock{font-size:19px;font-variant-numeric:tabular-nums;color:#a44c45;min-width:24px;text-align:center}
+.danger-evade{
+ flex:0 0 auto;border:1px solid #8b8276;border-bottom:3px solid #9c7961;
+ border-radius:6px;background:#f5d99c;color:#384755;font-weight:900;
+ font-size:12px;min-height:38px;min-width:50px;padding:4px 8px;
+}
+.danger-evade:active{transform:translateY(2px);border-bottom-width:1px}
+.danger-banner.near-expiry{background:#fff0e4;--danger:#b84e4e}
+.danger-banner.near-expiry .danger-clock{color:#a73434}
+.battle-dialogue{
+ position:absolute;z-index:29;pointer-events:none;
+ left:50%;bottom:50px;transform:translateX(-50%);
+ display:flex;align-items:center;gap:9px;
+ width:min(95%,440px);min-height:53px;max-height:76px;
+ border-left:4px solid #91abb8;border-bottom:2px solid #718997;
+ border-radius:7px;padding:6px 10px 6px 6px;
+ background:#faf7eae9;color:#334b5d;box-shadow:0 3px 8px #1f344952;
+}
+.battle-dialogue>img{
+ width:39px;height:39px;min-width:39px;object-fit:contain;
+ background:#e5e8df;border-radius:5px;image-rendering:auto;
+}
+.battle-dialogue-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.battle-dialogue-copy strong{
+ color:#5b637c;font-size:10px;line-height:1.1;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis;
+}
+.battle-dialogue-copy span{
+ font-size:12px;font-weight:800;line-height:1.35;
+ overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+ word-break:keep-all;
+}
+.result-insight{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;
+ margin:0 0 10px;min-height:68px;
+}
+ .result-advice{
+ margin:-3px 0 8px;padding:3px 5px;color:#edddca;
+ font-size:11px;line-height:1.3;font-weight:750;word-break:keep-all;
+ }
+.result-insight>div{
+ display:flex;flex-direction:column;gap:3px;
+ background:#29435b99;border:1px solid #5d7685;border-radius:5px;
+ padding:7px 10px;min-width:0;
+}
+.result-insight small{font-size:10px;color:#bcd4d4}
+.result-insight strong{font-size:14px;line-height:1.2;color:#f9f0dc}
+.result-reason{font-weight:800;color:#f2bfaa!important}
+.map-rule-brief{
+ margin:2px 0 0;padding:7px 9px;line-height:1.4;font-size:11px;
+ font-weight:750;word-break:keep-all;color:#f3e9d6;
+ background:#2e4d5b;border-left:3px solid #efcb86;
+}
+@media (orientation:landscape){
+ .battle-dialogue{
+  width:min(92%,370px);bottom:23px;
+  max-height:56px;padding:4px 8px;min-height:43px;
+ }
+ .battle-dialogue>img{height:34px;width:34px;min-width:34px}
+ .battle-dialogue-copy span{font-size:10px}
+ .danger-banner{top:3px;right:3px;left:3px;min-height:40px;padding:3px 5px;gap:5px}
+ .danger-symbol{width:20px;height:20px;flex-basis:20px;font-size:13px}
+ .danger-copy strong{font-size:10px}
+ .danger-copy small{font-size:9px}
+ .danger-clock{font-size:16px}
+ .danger-evade{min-height:31px;min-width:42px;font-size:10px;padding:3px 5px}
+ #resultOverlay .result-dialog{
+  grid-template-rows:34px 47px 50px 28px minmax(0,1fr) 50px;
+ }
+ #resultOverlay .result-insight{
+  grid-column:1/3;grid-row:3;margin:0;align-self:stretch;
+  grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+ }
+ #resultOverlay .result-advice{grid-column:1/3;grid-row:4;margin:0;font-size:10px;align-self:center}
+ #resultOverlay .result-summary{grid-column:1/3;grid-row:5}
+ #resultOverlay .result-actions{grid-column:1/3;grid-row:6}
+ #resultOverlay .result-insight>div{padding:6px 9px}
+}
+@media (orientation:portrait) and (max-width:360px){
+ .danger-banner{gap:4px;padding:4px;left:3px;right:3px;min-height:43px}
+ .danger-copy strong{font-size:11px}
+ .danger-copy small{font-size:9px}
+ .danger-clock{font-size:16px}
+ .danger-evade{padding:4px 6px;min-width:42px;font-size:11px;min-height:33px}
+ .battle-dialogue{bottom:28px}
+}
+@media (prefers-reduced-motion:reduce){
+ .danger-banner,.battle-dialogue{animation:none!important;transition:none!important}
+}
+
+/* Results are a short game recap, not an empty admin table. */
+#resultOverlay .result-dialog{
+ background:linear-gradient(155deg,#2a475d,#172d45 57%,#142b41 100%);
+}
+#resultOverlay .result-dialog.victory{
+ background:linear-gradient(155deg,#47636c,#264f60 55%,#193e54 100%);
+}
+#resultOverlay .result-art{
+ height:130px;min-height:130px;overflow:visible;
+}
+#resultOverlay .result-bars{opacity:.36}
+#resultOverlay .result-hero-art{
+ display:block;position:absolute;left:50%;top:0;
+ transform:translateX(-50%);
+ height:125px;width:125px;object-fit:contain;
+ image-rendering:auto;filter:drop-shadow(0 5px 2px #1124377d);
+}
+#resultOverlay .result-hero-art[hidden]{display:none!important}
+#resultOverlay #resultSymbol{
+ position:absolute;z-index:3;left:calc(50% + 35px);top:2px;
+ font-size:34px;transform:rotate(12deg);
+ color:#ffdf9b;text-shadow:0 2px 0 #2f4661;
+}
+#resultOverlay .result-dialog h2{
+ color:#fff1cc;text-shadow:0 2px 0 #20394c;
+}
+#resultOverlay .result-summary{
+ background:#0f2c4038;border-top:2px solid #a2b6b64d;
+ border-radius:6px;overflow:hidden;padding:0 8px;
+}
+#resultOverlay .damage-list{padding-right:3px}
+#resultOverlay .damage-row{
+ display:grid;grid-template-columns:26px 36px minmax(0,1fr) auto;
+ gap:5px 8px;padding:8px 0;
+ align-items:center;border-bottom:1px solid #bad0cf26;
+}
+#resultOverlay .damage-avatar{
+ grid-column:2;grid-row:1;width:36px;height:36px;
+ object-fit:contain;border:1px solid #6c8b95;
+ border-radius:6px;background:#e1e8d9;
+}
+#resultOverlay .damage-name{grid-column:3;grid-row:1}
+#resultOverlay .damage-number{grid-column:4;grid-row:1}
+#resultOverlay .damage-bar{
+ grid-column:3/5;grid-row:2;height:6px;background:#60798978;border-radius:4px;
+}
+#resultOverlay .damage-bar span{
+ height:100%;background:#edc477;border-radius:4px;
+}
+#resultOverlay .result-actions button{border-radius:7px}
+@media (orientation:landscape){
+ #resultOverlay .result-art{height:100%;min-height:0}
+ #resultOverlay .result-hero-art{height:min(95px,26dvh);width:min(95px,26dvh);top:0}
+ #resultOverlay #resultSymbol{font-size:24px;left:calc(50% + 27px)}
+ #resultOverlay .result-summary{padding:0 7px}
+ #resultOverlay .damage-row{padding:5px 0}
+}
+@media (prefers-reduced-motion: no-preference){
+ #resultOverlay.visible .result-hero-art{animation:resultMemberEnter .5s cubic-bezier(.2,.82,.25,1) both}
+ @keyframes resultMemberEnter{
+  from{opacity:0;translate:0 15px}to{opacity:1;translate:0 0}
+ }
+}
+
+
+/* Use the whole screen for stage selection; the previous centered panel
+   shrank to a miniature web form on landscape devices. */
+#lobbyOverlay .lobby-dialog{
+ position:relative;width:100vw!important;max-width:none!important;
+ height:100dvh!important;min-height:100dvh;max-height:none!important;
+ margin:0!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;overflow:hidden;
+}
+@media (orientation:landscape){
+ #lobbyOverlay .lobby-dialog{
+  display:grid!important;
+  grid-template-columns:minmax(0,46fr) minmax(0,54fr);
+  grid-template-rows:46px minmax(0,1fr) 60px;
+  gap:0;
+ }
+ #lobbyOverlay .lobby-top{
+  position:relative;grid-column:1/3;grid-row:1;
+  width:100%;height:46px;min-height:46px;
+ }
+ #lobbyOverlay .lobby-art{
+  position:relative;grid-column:1;grid-row:2/4;
+  width:100%;height:100%;min-height:0;
+ }
+ #lobbyOverlay .lobby-content{
+  position:relative;grid-column:2;grid-row:2;
+  left:auto;right:auto;bottom:auto;
+  width:100%;height:100%;min-height:0;max-height:none;
+  overflow-y:auto;overflow-x:hidden;
+  padding:11px 13px;gap:11px;
+ }
+ #lobbyOverlay .lobby-bottom{
+  position:relative;grid-column:2;grid-row:3;
+  left:auto;right:auto;bottom:auto;
+  width:100%;height:60px;padding:7px 13px;
+ }
+ #lobbyOverlay .lobby-bottom button{min-height:45px}
+ #lobbyOverlay .map-choices{gap:7px;scrollbar-width:thin}
+ #lobbyOverlay .map-choice{flex-basis:110px}
+ #lobbyOverlay .choice-grid{gap:6px}
+ #lobbyOverlay .choice-button{min-height:38px}
+}
+@media (orientation:landscape) and (max-height:390px){
+ #lobbyOverlay .lobby-dialog{grid-template-rows:42px minmax(0,1fr) 53px}
+ #lobbyOverlay .lobby-top{height:42px;min-height:42px;padding:5px 10px}
+ #lobbyOverlay .lobby-content{padding:8px 10px;gap:8px}
+ #lobbyOverlay .lobby-bottom{height:53px;padding:5px 10px}
+ #lobbyOverlay .lobby-bottom button{min-height:40px}
+ #lobbyOverlay .map-choice{flex-basis:94px}
+ #lobbyOverlay .map-thumb{height:49px}
+ #lobbyOverlay .choice-button{min-height:32px}
+}
+
+
+/* The roster is actionable information, not a giant empty beige rectangle. */
+.team-tactics{display:none}
+@media (orientation:landscape){
+ .team-strip{
+  position:relative;gap:6px!important;background:#f1eddf!important;
+  border:1px solid #acc0c0!important;border-bottom:3px solid #8ca7b1!important;
+  border-radius:8px!important;padding:9px 8px!important;
+ }
+ .team-strip-caption{flex:0 0 auto;color:#527081!important;letter-spacing:.06em}
+ .team-strip-slots{
+  flex:0 1 auto!important;min-height:42px!important;
+  max-height:35%!important;align-content:flex-start;
+ }
+ .team-tactics{
+  margin-top:auto;display:flex;flex:0 0 auto;flex-direction:column;gap:7px;
+  padding:9px 10px;background:#fffdf4;
+  border:1px solid #c0cfc9;border-radius:7px;
+  box-shadow:0 3px 0 #a3bcb53d;
+ }
+ .team-tactics-head{display:flex;gap:7px;align-items:center;color:#385669}
+ .team-tactics-head img{width:31px;height:31px;object-fit:contain;flex:0 0 31px}
+ .team-tactics-head strong{font-size:13px;font-weight:900;letter-spacing:-.04em}
+ .team-tactics p{
+  margin:0;font-size:11px;line-height:1.5;font-weight:750;
+  color:#344e5d;word-break:keep-all;
+ }
+ .team-tactics small{font-size:10px;line-height:1.4;color:#75848b;font-weight:700;word-break:keep-all}
+}
+@media (orientation:landscape) and (max-height:370px){
+ .team-strip{padding:5px 6px!important;gap:3px!important}
+ .team-tactics{gap:3px;padding:5px 7px}
+ .team-tactics-head img{width:22px;height:22px;flex-basis:22px}
+ .team-tactics-head strong{font-size:11px}
+ .team-tactics p{font-size:9px;line-height:1.3}
+ .team-tactics small{font-size:9px;line-height:1.2}
+}
+
+@media (orientation:portrait) and (max-height:640px){
+ #resultOverlay .result-art{height:77px;min-height:77px}
+ #resultOverlay .result-hero-art{height:80px;width:80px}
+ #resultOverlay #resultSymbol{font-size:26px}
+ #resultOverlay .result-time{margin:7px 0 9px}
+ #resultOverlay .result-insight{gap:4px;margin-bottom:5px}
+ #resultOverlay .result-insight>div{padding:5px 7px;gap:1px}
+ #resultOverlay .result-insight strong{font-size:12px}
+ #resultOverlay .result-insight small{font-size:9px}
+ #resultOverlay .result-actions button{height:42px}
+}
+
+
+/* Stage selection introduces the matching characters, using their exact PNGs. */
+#lobbyOverlay .lobby-team-preview{
+ position:absolute;z-index:2;left:0;right:0;bottom:42%;
+ display:flex;align-items:flex-end;justify-content:center;
+ padding:0 6px;pointer-events:none;overflow:hidden;height:140px;
+}
+#lobbyOverlay .lobby-team-preview img{
+ display:block;flex:0 0 auto;position:relative;
+ width:clamp(70px,19vw,114px);height:clamp(83px,23vw,135px);
+ object-fit:contain;image-rendering:auto;
+ margin-left:-7px;filter:drop-shadow(0 3px 2px #263e5475);
+}
+#lobbyOverlay .lobby-team-preview img:first-child{margin-left:0}
+#lobbyOverlay .lobby-team-preview img:nth-child(1){translate:0 1px}
+#lobbyOverlay .lobby-team-preview img:nth-child(2){translate:0 7px}
+#lobbyOverlay .lobby-team-preview img:nth-child(3){translate:0 -2px}
+#lobbyOverlay .lobby-team-preview img:nth-child(4){translate:0 6px}
+@media (orientation:landscape){
+ #lobbyOverlay .lobby-team-preview{
+  bottom:11px;height:min(42%,136px);padding:0 5px;
+ }
+ #lobbyOverlay .lobby-team-preview img{
+  width:min(21%,92px);height:min(100%,114px);margin-left:-3px;
+ }
+}
+@media (orientation:landscape) and (max-height:390px){
+ #lobbyOverlay .lobby-team-preview{height:95px;bottom:5px}
+ #lobbyOverlay .lobby-team-preview img{height:93px;width:min(22%,75px)}
+}
+@media (prefers-reduced-motion:no-preference){
+ #lobbyOverlay.visible .lobby-team-preview img{
+  animation:memberOnStage .44s ease-out both;
+  animation-delay:calc(var(--member-index)*65ms);
+ }
+ @keyframes memberOnStage{
+  from{opacity:0;translate:0 11px}
+  to{opacity:1;translate:0 0}
+ }
+}
+
+
+/* The four/six member targets make the combination goal visible in battle. */
+.team-heart-progress{display:none}
+@media (orientation:landscape){
+ .team-heart-progress{
+  display:flex;flex-direction:column;gap:5px;flex:0 0 auto;
+  margin-top:3px;padding:7px;
+  background:#e4e9df;border:1px solid #bbc8bc;border-radius:6px;
+ }
+ .team-heart-caption{font-size:10px;color:#476877;letter-spacing:-.02em}
+ .team-heart-members{display:flex;gap:4px;align-items:center;justify-content:space-between}
+ .team-heart-member{
+  position:relative;flex:0 1 auto;
+  width:clamp(29px,4.8vw,44px);height:clamp(29px,4.8vw,44px);
+  display:grid;place-items:center;overflow:hidden;
+  background:#cdd5d1;border:1px solid #b4bdb6;
+  border-radius:5px;filter:grayscale(.8);opacity:.57;
+ }
+ .team-heart-member img{
+  display:block;width:100%;height:100%;object-fit:contain;
+  image-rendering:auto;
+ }
+ .team-heart-member.owned{
+  background:#fff3dc;border:2px solid #cea667;
+  box-shadow:0 2px 0 #e0c79a6b;opacity:1;filter:none;
+ }
+}
+@media (orientation:landscape) and (max-height:370px){
+ .team-heart-progress{gap:2px;padding:4px}
+ .team-heart-caption{font-size:9px}
+ .team-heart-member{width:clamp(27px,4.5vw,38px);height:clamp(27px,4.5vw,38px)}
+}

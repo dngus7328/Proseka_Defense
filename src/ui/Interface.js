@@ -7,6 +7,7 @@ import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
 import {TitleIntro} from './TitleIntro.js?v=1.15.1';
 import {persistSave} from '../core/Save.js';
+import {BattleExperience} from './BattleExperience.js?v=1.17.0';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
 const timeText=(sec)=>`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
@@ -20,11 +21,12 @@ export class Interface {
   this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';this.lastTeamSignature='';this.lastSkillSignature='';
   this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
   this.titleIntro=new TitleIntro();
+  this.experience=new BattleExperience(this);
   this.skillCutin=document.createElement('section');this.skillCutin.id='skillCutin';this.skillCutin.className='skill-cutin';this.skillCutin.setAttribute('aria-live','polite');this.skillCutin.setAttribute('aria-atomic','true');document.body.append(this.skillCutin);
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.clearHeartCutin();this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.clearHeartCutin();this.experience?.reset();this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -33,7 +35,7 @@ export class Interface {
   this.noticeTimer=window.setTimeout(()=>{this.noticeTimer=null;this.showTitle();},4600);
  }
  showTitle(){
-  this.clearHeartCutin();
+  this.clearHeartCutin();this.experience?.reset();
   el('app').dataset.theme=(MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]).theme;
   if(this.noticeTimer!==null){window.clearTimeout(this.noticeTimer);this.noticeTimer=null;}
   this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
@@ -128,6 +130,17 @@ export class Interface {
   });
   maps.scrollLeft=mapScrollLeft;
   const selected=MAPS.find(m=>m.id===this.config.mapId);
+  const teamPreview=el('lobbyTeamPreview');
+  if(teamPreview){
+   const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===selected?.affinityGroup).slice(0,4);
+   teamPreview.replaceChildren();
+   for(const [i,c] of members.entries()){
+    const img=document.createElement('img');
+    img.src=`./Assets/characters/${c.id}/front.png`;
+    img.alt='';img.loading='eager';img.style.setProperty('--member-index',i);
+    teamPreview.append(img);
+   }
+  }
   if(selected){
    el('app').dataset.theme=selected.theme;this.syncMapArtwork(selected);
    const host=document.querySelector('.lobby-art-copy');
@@ -142,6 +155,7 @@ export class Interface {
    }
   }
   if(selected&&el('lobbyPreview'))this.renderer.drawThumbnail(el('lobbyPreview'),selected);
+  this.experience?.updateMap(selected);
  }
  syncMapArtwork(map){
   if(!map)return;
@@ -216,19 +230,22 @@ export class Interface {
   // The next price must be visible immediately after a tap, not on the
   // next scheduled HUD refresh.
   if(Number.isFinite(nextPrice))el('summonCost').textContent=String(nextPrice);
-  if(this.game)el('summonButton').disabled=this.game.crystals<this.game.cost;
+  if(this.game)el('summonButton').disabled=this.game.fragments<this.game.cost;
   const name=character.names[this.save.language];
   const bonus=source==='affinity'?(this.save.language==='ja'?'セカイボーナス':this.save.language==='en'?'SEKAI BONUS':'세카이 보정'):'';
   this.setStatus(`${name}${bonus?' · '+bonus:''}`);
+  this.experience?.onSummon(unit,character);
  }
  onPromotion({unit}){
   const name=CHARACTER_BY_ID[unit.id]?.names[this.save.language]||unit.id;
   this.setStatus(`${name}  ${'★'.repeat(unit.star)}`);
+  this.experience?.onPromotion(unit);
  }
   onHeartSeen(id){
   if(this.save.discovered.includes(id))return;
   this.save.discovered.push(id);persistSave(this.save);this.renderHearts();
   this.toast(this.t('discovered'),true);
+  this.experience?.onPairDiscovered(id);
  }
  onHeartStart({heart,participants,strength,actorId}){
   const id=actorId||participants[0]?.id;
@@ -295,9 +312,15 @@ export class Interface {
   el('modeTitle').textContent=this.t(g.difficulty).toUpperCase();
   el('timerText').textContent=timeText(g.realTime);
   el('speedText').textContent=`${g.speed}×`;
-  el('waveText').innerHTML=`${String(g.wave).padStart(2,'0')} <span class="tiny-fraction">/ ${g.isEndless?'∞':20}</span>`;
+  const finalSeconds=g.finalCleanupSecondsLeft;
+  const finalCountdown=finalSeconds!==null;
+  // Make the final deadline visible rather than surprising the player with a loss.
+  el('waveText').innerHTML=finalCountdown
+   ? `FINAL <span class="tiny-fraction">${Math.ceil(finalSeconds)}s</span>`
+   : `${String(g.wave).padStart(2,'0')} <span class="tiny-fraction">/ ${g.isEndless?'∞':20}</span>`;
   el('enemyCount').innerHTML=`${g.enemies.length} <span class="tiny-fraction">/ ${g.capacity}</span>`;
-  el('waveFill').style.width=`${Math.min(100,g.waveTime/30*100)}%`;
+  el('waveFill').style.width=`${Math.max(0,Math.min(100,(finalCountdown?finalSeconds/30:g.waveTime/30)*100))}%`;
+  el('waveText').closest('.wave-panel')?.classList.toggle('final-countdown',finalCountdown);
   const enemyPressure=g.enemies.length/g.capacity;
   el('enemyCount').closest('.enemy-count')?.classList.toggle('danger',enemyPressure>=.72);
   el('enemyCount').closest('.enemy-count')?.classList.toggle('critical',enemyPressure>=.9);
@@ -305,9 +328,10 @@ export class Interface {
   el('crystalText').textContent=format(g.crystals);el('fragmentText').textContent=format(g.fragments);
   el('unitCount').textContent=String(g.units.length);el('unitCapacity').textContent=`/ ${g.map.available.length}`;el('maxStarCount').textContent=String(g.units.filter(u=>u.star===4).length);
   el('summonCost').textContent=String(g.cost);
-  el('summonButton').disabled=g.crystals<g.cost||g.phase!=='playing';
+  el('summonButton').disabled=g.fragments<g.cost||g.phase!=='playing';
   el('autoMergeButton').disabled=g.phase!=='playing'||!g.units.some(u=>u.star<4&&g.units.some(v=>u.uid!==v.uid&&v.id===u.id&&v.star===u.star));
 
+  this.experience?.update();
   this.updateSelection(force);
   this.updateTeamStrip(force);
   this.updateSkillCondition(force);
@@ -395,32 +419,39 @@ export class Interface {
   const parent=el('upgradeGrid');parent.innerHTML='';
   for(const d of UPGRADE_DATA){
    const level=g.upgrades[d.id],price=upgradeCost(d.id,level);
-   const button=document.createElement('button');button.className='upgrade-card';button.disabled=price>g.fragments||g.phase!=='playing';
+   const button=document.createElement('button');button.className='upgrade-card';button.disabled=price>g.crystals||g.phase!=='playing';
    const top=document.createElement('div');top.className='upgrade-card-top';
    const icon=document.createElement('span');icon.textContent=d.icon;
    const lv=document.createElement('small');lv.textContent=`Lv ${level}/${d.max}`;top.append(icon,lv);
    const name=document.createElement('strong');name.className='upgrade-card-name';name.textContent=this.t(d.id);
    const bottom=document.createElement('div');bottom.className='upgrade-card-footer';
    const pips=document.createElement('span');pips.className='level-pips';for(let i=0;i<d.max;i++){const p=document.createElement('i');if(i<level)p.className='filled';pips.append(p);}
-   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./Assets/currency/wish-piece.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
+   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./Assets/currency/crystal.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
    bottom.append(pips,cost);button.append(top,name,bottom);
    button.addEventListener('click',()=>g.upgrade(d.id));parent.append(button);
   }
  }
  showResult(result){
-  this.clearHeartCutin();
+  this.clearHeartCutin();this.experience?.showResult(result);
   el('resultTitle').textContent=result.status==='win'?this.t('win'):this.t('lose');
   el('resultTime').textContent=timeText(result.elapsed);
   el('resultSymbol').textContent=result.status==='win'?'✦':'×';
   const next=el('resultNext');next.disabled=result.status!=='win'||result.difficulty==='endless';
   const list=el('damageList');list.innerHTML='';
-  const entries=Object.entries(result.damageByMember).sort((a,b)=>b[1]-a[1]);
+  // Include deployed members even if the run ended before their first attack.
+  const allIds=[...new Set([...Object.keys(result.damageByMember),...(result.team||[]).map(u=>u.id)])];
+  const entries=allIds.map(id=>[id,result.damageByMember[id]||0]).sort((a,b)=>b[1]-a[1]);
+  const heroId=entries[0]?.[0];
+  const heroArtwork=el('resultHeroArt');
+  heroArtwork.hidden=!heroId;
+  if(heroId)heroArtwork.src=`./Assets/characters/${encodeURIComponent(heroId)}/front.png`;
+  document.querySelector('.result-dialog')?.classList.toggle('victory',result.status==='win');
   const max=entries[0]?.[1]||1;
   if(!entries.length){const empty=document.createElement('div');empty.className='empty-damage';empty.textContent=this.t('noDamage');list.append(empty);}
   for(const [i,[id,damage]] of entries.entries()){
    const def=CHARACTER_BY_ID[id];if(!def)continue;
    const row=document.createElement('div');row.className='damage-row';
-   row.innerHTML=`<span class="damage-rank">${String(i+1).padStart(2,'0')}</span><span class="damage-name">${escapeHTML(def.names[this.save.language])}<small>${escapeHTML(GROUPS.find(g=>g.id===def.group)?.short||'')}</small></span><strong class="damage-number">${format(damage)}</strong><div class="damage-bar"><span style="width:${Math.max(1,damage/max*100)}%"></span></div>`;
+   row.innerHTML=`<span class="damage-rank">${String(i+1).padStart(2,'0')}</span><img class="damage-avatar" src="./Assets/characters/${encodeURIComponent(id)}/front.png" alt=""/><span class="damage-name">${escapeHTML(def.names[this.save.language])}<small>${escapeHTML(GROUPS.find(g=>g.id===def.group)?.short||'')}</small></span><strong class="damage-number">${format(damage)}</strong><div class="damage-bar"><span style="width:${damage>0?Math.max(2,damage/max*100):0}%"></span></div>`;
    list.append(row);
   }
   el('toastStack').replaceChildren();el('boardFloat').textContent='';this.sound.beep(result.status==='win'?'win':'lose');this.showOverlay('resultOverlay');
