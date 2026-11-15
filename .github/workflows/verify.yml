@@ -25,3 +25,28 @@ jobs:
           node --check src/ui/BattleExperience.js
           node --check src/data/interference.js
           node --check src/data/battleChatter.js
+  visual:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium test runner
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Serve game locally and walk through five screen sizes
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 &
+          sleep 2
+          node tests/visual.mjs
+      - name: Save screenshots and geometry report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sekai-visual-check
+          path: artifacts/
+          if-no-files-found: ignore
