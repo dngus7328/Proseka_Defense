@@ -66,13 +66,37 @@ export class BattleExperience {
   const lang=this.ui.save.language;
   const map=game.map;
   const danger=game.interference;
-  const hintKey=[lang,map.id,game.wave,game.units.length,game.threatStats.avoided,!!danger,game.moveMode,Math.ceil(game.counterTime||0)].join(':');
+  const ownedIds=new Set(game.units.map(unit=>unit.id));
+  const hintKey=[lang,map.id,game.wave,[...ownedIds].sort().join(','),game.threatStats.avoided,!!danger,game.moveMode,Math.ceil(game.counterTime||0)].join(':');
   if(this.lastTacticsKey===hintKey)return;
   this.lastTacticsKey=hintKey;
   const icon=el('teamTacticsIcon'),name=el('teamTacticsTitle');
   const text=el('teamTacticsDescription'),hint=el('teamTacticsHint');
   if(!icon||!name||!text||!hint)return;
   icon.src=`./Assets/ui/${map.id}.png`;
+  const heartHost=el('teamHeartProgress');
+  if(heartHost){
+   heartHost.replaceChildren();
+   const candidates=Object.values(CHARACTER_BY_ID).filter(c=>c.group===map.affinityGroup);
+   const caption=document.createElement('strong');
+   caption.className='team-heart-caption';
+   const selected=candidates.filter(c=>ownedIds.has(c.id)).length;
+   caption.textContent=({
+    ko:'세카이의 마음',ja:'セカイの想い',en:'SEKAI HEART'
+   })[lang]+`  ${selected}/${candidates.length}`;
+   heartHost.append(caption);
+   const list=document.createElement('div');list.className='team-heart-members';
+   for(const candidate of candidates){
+    const tile=document.createElement('span');
+    tile.className='team-heart-member'+(ownedIds.has(candidate.id)?' owned':'');
+    tile.title=candidate.names[lang]||candidate.names.ko;
+    const sprite=document.createElement('img');
+    sprite.src=`./Assets/characters/${candidate.id}/front.png`;
+    sprite.alt='';sprite.loading='lazy';
+    tile.append(sprite);list.append(tile);
+   }
+   heartHost.append(list);
+  }
   name.textContent=map.shortNames?.[lang]||map.names[lang]||map.names.ko;
   if(danger){
    text.textContent={
