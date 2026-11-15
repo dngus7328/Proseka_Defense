@@ -1,5 +1,5 @@
 import {CHARACTER_BY_ID} from '../data/characters.js';
-import {HEARTS} from '../data/hearts.js';
+import {HEARTS} from '../data/hearts.js?v=1.19.0';
 import {interferenceForMap} from '../data/interference.js';
 import {situationalLine,pairDiscoveryLine} from '../data/battleChatter.js';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';

@@ -1,13 +1,13 @@
 import {GROUPS,CHARACTER_BY_ID,SIGNATURES,attackValue,attackRange} from '../data/characters.js';
 import {MAPS} from '../data/maps.js';
-import {HEARTS} from '../data/hearts.js';
+import {HEARTS} from '../data/hearts.js?v=1.19.0';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
-import {TitleIntro} from './TitleIntro.js?v=1.15.1';
+import {TitleIntro} from './TitleIntro.js?v=1.19.0';
 import {persistSave} from '../core/Save.js';
-import {BattleExperience} from './BattleExperience.js?v=1.17.0';
+import {BattleExperience} from './BattleExperience.js?v=1.19.0';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
 const timeText=(sec)=>`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
@@ -26,7 +26,7 @@ export class Interface {
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.clearHeartCutin();this.experience?.reset();this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.clearHeartCutin();this.experience?.reset();this.lastHeartNotificationTime=null;this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -93,6 +93,7 @@ export class Interface {
   el('touchToggle').addEventListener('change',e=>{this.save.touch=e.target.checked;persistSave(this.save);});
   el('gameCanvas').addEventListener('pointerdown',e=>{
     if(!this.game||this.game.phase!=='playing')return;
+    e.preventDefault(); // Prevent mobile canvas focus/tap blue overlay.
     const p=this.renderer.mapClick(e);this.game.clickTile(p.x,p.y);
     if(this.save.touch&&p.x>=0&&p.y>=0&&p.x<this.game.map.w&&p.y<this.game.map.h)this.game.addEffect('ring',p.x,p.y,{radius:.45,color:'#e4f8ec',life:.2});
     this.update(true);
@@ -121,15 +122,25 @@ export class Interface {
    button.addEventListener('click',()=>{this.config.difficulty=d.id;this.renderLobby();});diff.append(button);
   });
   const maps=el('mapChoices');const mapScrollLeft=maps.scrollLeft;maps.innerHTML='';MAPS.forEach(map=>{
-   const button=document.createElement('button');button.className=`map-choice${this.config.mapId===map.id?' active':''}`;
+   const button=document.createElement('button');button.type='button';button.dataset.mapId=map.id;button.className=`map-choice${this.config.mapId===map.id?' active':''}`;
    const canvas=document.createElement('canvas');canvas.className='map-thumb';
    const icon=document.createElement('img');icon.className='map-icon';icon.src=`./Assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;icon.alt='';
    const name=document.createElement('strong');name.textContent=`${map.order} · ${map.shortNames?.[this.save.language]||map.names[this.save.language]}`;
    button.append(canvas,icon,name);this.renderer.drawThumbnail(canvas,map);
-   button.addEventListener('click',()=>{this.config.mapId=map.id;this.renderLobby();});maps.append(button);
+   button.addEventListener('click',()=>{
+    if(this.config.mapId===map.id)return;
+    this.config.mapId=map.id;
+    // Keep the existing map cards mounted. Rebuilding seven canvases on
+    // every tap could briefly expose the blue canvas background on phones.
+    for(const item of maps.children)item.classList.toggle('active',item.dataset.mapId===map.id);
+    this.updateSelectedMap(map);
+   });maps.append(button);
   });
   maps.scrollLeft=mapScrollLeft;
-  const selected=MAPS.find(m=>m.id===this.config.mapId);
+  this.updateSelectedMap(MAPS.find(m=>m.id===this.config.mapId));
+ }
+ updateSelectedMap(selected){
+  // Only the preview and map-specific description need to change on tap.
   const teamPreview=el('lobbyTeamPreview');
   if(teamPreview){
    const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===selected?.affinityGroup).slice(0,4);
@@ -142,7 +153,9 @@ export class Interface {
    }
   }
   if(selected){
-   el('app').dataset.theme=selected.theme;this.syncMapArtwork(selected);
+   // Map selection changes only the preview. Global battlefield tints switch
+   // when the match begins; otherwise the entire lobby appears to turn blue.
+   this.syncMapArtwork(selected);
    const host=document.querySelector('.lobby-art-copy');
    if(host){
     let badge=el('mapAffinity');if(!badge){badge=document.createElement('div');badge.id='mapAffinity';badge.className='map-affinity';host.append(badge);}
@@ -209,7 +222,10 @@ export class Interface {
  renderHearts(){
   const list=el('heartList');if(!list)return;
   el('collectionCount').textContent=`${this.save.discovered.length} / ${HEARTS.length}`;
-  list.innerHTML='';HEARTS.forEach(h=>{
+  // Curated combos are always browseable; the 315 procedurally named duos
+  // appear as they are discovered, instead of filling the UI with 315 ???s.
+  const shown=HEARTS.filter(h=>!h.isGenerated||this.save.discovered.includes(h.id));
+  list.innerHTML='';shown.forEach(h=>{
    const known=this.save.discovered.includes(h.id);
    const row=document.createElement('div');row.className='heart-item'+(known?'':' locked');
    const icon=document.createElement('div');icon.className='heart-mark';icon.textContent=known?'♡':'?';
@@ -217,6 +233,14 @@ export class Interface {
    const info=document.createElement('small');info.textContent=known?h.required.map(id=>CHARACTER_BY_ID[id].names[this.save.language]).join(' + '):'· · ·';
    title.append(name,info);row.append(icon,title);list.append(row);
   });
+  const unknown=HEARTS.length-shown.length;
+  if(unknown){
+   const caption=document.createElement('p');caption.className='heart-undiscovered';
+   caption.textContent=this.save.language==='ja'?`未発見のペア ${unknown}組`:
+    this.save.language==='en'?`${unknown} more duo combinations to discover`:
+    `아직 발견하지 못한 2인 조합 ${unknown}개`;
+   list.append(caption);
+  }
   el('heartCount').textContent=String(this.save.discovered.length);
  }
  toast(message,raw=false){
@@ -243,9 +267,17 @@ export class Interface {
  }
   onHeartSeen(id){
   if(this.save.discovered.includes(id))return;
-  this.save.discovered.push(id);persistSave(this.save);this.renderHearts();
-  this.toast(this.t('discovered'),true);
-  this.experience?.onPairDiscovered(id);
+  this.save.discovered.push(id);
+  persistSave(this.save);
+  el('heartCount').textContent=String(this.save.discovered.length);
+  if(this.overlayVisible('heartsOverlay'))this.renderHearts();
+  // Hundreds of valid duo discoveries should feel rewarding, not spam the HUD.
+  const now=this.game?.realTime||0;
+  if(this.lastHeartNotificationTime==null||now-this.lastHeartNotificationTime>7){
+   this.lastHeartNotificationTime=now;
+   this.toast(this.t('discovered'),true);
+   this.experience?.onPairDiscovered(id);
+  }
  }
  onHeartStart({heart,participants,strength,actorId}){
   const id=actorId||participants[0]?.id;

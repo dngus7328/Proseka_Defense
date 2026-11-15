@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="./styles/battle-experience-v1.css?v=1.17.0"/>
   <link rel="stylesheet" href="./styles/gameplay-v118.css?v=1.18.0"/>
   <link rel="stylesheet" href="./styles/skill-cinema-v118.css?v=1.18.0"/>
+  <link rel="stylesheet" href="./styles/skill-topbar-v119.css?v=1.19.0"/>
+  <link rel="stylesheet" href="./styles/title-crowd-v119.css?v=1.19.0"/>
+  <link rel="stylesheet" href="./styles/map-tap-v119.css?v=1.19.0"/>
 </head>
 <body>
   <div class="app" id="app">
@@ -96,6 +99,7 @@
           <img class="title-layer title-bg" src="./Assets/title/title-background.webp?rev=20261115-uploaded" alt="" decoding="async" fetchpriority="high" draggable="false"/>
           <img class="title-layer title-enemies" src="./Assets/title/title-enemies.webp?rev=20261115-uploaded" alt="" decoding="async" draggable="false"/>
           <img class="title-layer title-characters" src="./Assets/title/title-characters.webp?rev=20261115-uploaded" alt="" decoding="async" draggable="false"/>
+          <canvas class="title-portrait-crowd" id="titlePortraitCrowd" aria-hidden="true"></canvas>
           <img class="title-layer title-final" src="./Assets/title/title-final.webp?rev=20261115-uploaded" alt="" decoding="async" fetchpriority="high" draggable="false"/>
           <div class="title-backdrop-filter"></div><div class="title-ellipse"></div>
          </div>
@@ -120,6 +124,6 @@
   <div class="overlay" id="resultOverlay"><div class="dialog result-dialog"><div class="result-art"><span class="result-bars"></span><img id="resultHeroArt" class="result-hero-art" alt="" hidden/><span id="resultSymbol">✦</span></div><p class="dialog-overline">RUN COMPLETE</p><h2 id="resultTitle">CLEAR</h2><div class="result-time"><span data-i18n="time">시간</span><strong id="resultTime">00:00</strong></div>
       <div class="result-insight" id="resultInsight" aria-live="polite"></div>
       <div class="result-summary"><div class="result-table-head"><strong data-i18n="damageByMember">멤버별 대미지</strong><span>DMG</span></div><div class="damage-list" id="damageList"></div></div><div class="result-actions"><button id="resultExit" class="quiet-button" data-i18n="exit">나가기</button><button id="resultRetry" class="quiet-button" data-i18n="retry">다시하기</button><button id="resultNext" class="primary-button" data-i18n="next">다음으로</button></div></div></div>
-  <script type="module" src="./src/main.js?v=1.18.0"></script>
+  <script type="module" src="./src/main.js?v=1.19.0"></script>
 </body>
 </html>

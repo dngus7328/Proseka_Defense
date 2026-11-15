@@ -1,6 +1,6 @@
 import {CHARACTERS,CHARACTER_BY_ID,GROUPS,SIGNATURES,attackValue,attackInterval,attackRange} from '../data/characters.js';
 import {MAP_BY_ID,tileKey} from '../data/maps.js';
-import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js';
+import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js?v=1.19.0';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
 import {interferenceForMap,INTERFERENCE_WARNING_SECONDS} from '../data/interference.js';
 const rnd=(max)=>Math.floor(Math.random()*max);
@@ -18,6 +18,7 @@ export class Game {
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
+  this.lastPairSkillTime=-Infinity;
   this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};this.counterTime=0;
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
@@ -362,6 +363,12 @@ export class Game {
    if(!participants)continue;
    this.heartTimers[heart.id]=(this.heartTimers[heart.id]??3)-delta;
    if(this.heartTimers[heart.id]<=0){
+    // Wide pairing discovery must not create an endless cinematic queue.
+    // A group heart is independent; pair hearts share one 11-second slot.
+    if(heart.type==='pair'&&(this.realTime<5||this.realTime-this.lastPairSkillTime<11)){
+     this.heartTimers[heart.id]=Math.max(.8,11-(this.realTime-this.lastPairSkillTime));
+     continue;
+    }
     // Never fire a hidden skill while its speaker is absent. Each activation
     // must get a clear character line and an identifiable attack effect.
     const alreadyWaiting=this.heartQueue.some(item=>item.heart.id===heart.id)
@@ -370,6 +377,7 @@ export class Game {
      this.heartTimers[heart.id]=1;
     }else if(this.heartQueue.length<8){
      this.heartQueue.push({heart,participants:[...participants]});
+     if(heart.type==='pair')this.lastPairSkillTime=this.realTime;
      this.heartTimers[heart.id]=Math.max(7,heart.cooldown/(1+this.upgrades.ability*.14));
     }else{
      // Recheck later rather than silently firing without showing dialogue.

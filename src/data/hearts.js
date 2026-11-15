@@ -1,6 +1,6 @@
 // A heart is discovered when its roster condition is met; after discovery it can fire periodically.
 // It is not just a percentage buff: each heart launches a rendered area attack.
-export const HEARTS=[
+export const FEATURED_HEARTS=[
  {id:'leo-chorus',type:'group',group:'leo',required:['ichika','saki','honami','shiho'],names:{ko:'별을 잇는 선율',ja:'星をつなぐ旋律',en:'Starline Chorus'},style:'star',cooldown:19},
  {id:'mmj-stage',type:'group',group:'mmj',required:['minori','haruka','airi','shizuku'],names:{ko:'희망의 무대',ja:'希望のステージ',en:'Stage of Hope'},style:'rain',cooldown:20},
  {id:'vbs-beat',type:'group',group:'vbs',required:['kohane','an','akito','toya'],names:{ko:'비트 오버드라이브',ja:'ビート・オーバードライブ',en:'Beat Overdrive'},style:'slash',cooldown:17},
@@ -18,6 +18,36 @@ export const HEARTS=[
  {id:'emu-nene',type:'pair',required:['emu','nene'],names:{ko:'깜짝 공연',ja:'びっくり公演',en:'Surprise Show'},style:'burst',cooldown:17},
  {id:'mafuyu-kanade',type:'pair',required:['mafuyu','kanade'],names:{ko:'침묵의 악보',ja:'沈黙の楽譜',en:'Silent Score'},style:'wave',cooldown:16},
 ];
+
+// All combinations among the game's 26 roster members can be discovered.
+// These are fan-game cooperative pair skills; the pairing does NOT imply an
+// official romantic relationship or an endorsed fandom ship.
+import {CHARACTERS} from './characters.js';
+const PAIR_STYLES=['star','rain','slash','burst','wave','orbit'];
+const featuredPairs=new Set(FEATURED_HEARTS.filter(h=>h.type==='pair')
+ .map(h=>[...h.required].sort().join('+')));
+const AUTO_PAIRS=[];
+for(let i=0;i<CHARACTERS.length;i++){
+ for(let j=i+1;j<CHARACTERS.length;j++){
+  const first=CHARACTERS[i],second=CHARACTERS[j];
+  const key=[first.id,second.id].sort().join('+');
+  if(featuredPairs.has(key))continue;
+  const sameGroup=first.group===second.group;
+  const style=PAIR_STYLES[(i*7+j*11+(sameGroup?2:0))%PAIR_STYLES.length];
+  AUTO_PAIRS.push({
+   id:`duo-${first.id}-${second.id}`,
+   type:'pair',isGenerated:true,
+   required:[first.id,second.id],
+   names:{
+    ko:`${first.names.ko} × ${second.names.ko} · 공명`,
+    ja:`${first.names.ja} × ${second.names.ja} · 共鳴`,
+    en:`${first.names.en} × ${second.names.en} · Resonance`
+   },
+   style,cooldown:sameGroup?24:28
+  });
+ }
+}
+export const HEARTS=[...FEATURED_HEARTS,...AUTO_PAIRS];
 export const HEART_BY_ID=Object.fromEntries(HEARTS.map(h=>[h.id,h]));
 export function getHeartParticipants(game,heart){
  const found=[];

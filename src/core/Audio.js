@@ -1,4 +1,4 @@
-import {MusicDirector} from './MusicDirector.js?v=1.18.0';
+import {MusicDirector} from './MusicDirector.js?v=1.19.0';
 // Self-generated short SFX: no external music/voice/sound samples.
 // Distinct attack hits are rate-limited so dense defenses remain comfortable.
 export class SoundEngine {

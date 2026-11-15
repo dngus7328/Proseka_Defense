@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {Game} from '../src/core/Game.js';
 import {HEARTS} from '../src/data/hearts.js';
 import {MusicDirector} from '../src/core/MusicDirector.js';
+import {bgmForMap,BGM_TRACKS} from '../src/data/musicTracks.js';
 import {MAPS} from '../src/data/maps.js';
 import {CHARACTER_BY_ID} from '../src/data/characters.js';
 import {INTERFERENCE_BY_MAP,INTERFERENCE_WARNING_SECONDS,interferenceForMap} from '../src/data/interference.js';
@@ -104,6 +105,30 @@ for(const group of ['leo','mmj','vbs','wxs','n25','vs']){
  }
 }
 assert(pairDiscoveryLine('emu-nene','ko').includes('에무'));
+// With 26 in-game characters, every unordered two-member pairing is discoverable.
+// This is deliberately fan-game combat cooperation, not a canon relationship list.
+{
+ const pairs=HEARTS.filter(h=>h.type==='pair');
+ const groups=HEARTS.filter(h=>h.type==='group');
+ assert.equal(pairs.length,325,'the 26 characters must form 325 two-person partnerships');
+ assert.equal(groups.length,6,'six group ultimate abilities must remain');
+ assert.equal(HEARTS.length,331);
+ assert.equal(new Set(pairs.map(h=>[...h.required].sort().join('+'))).size,325);
+ assert(HEARTS.some(h=>h.id==='emu-nene'&&!h.isGenerated),'retain featured duo names');
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.units=[
+  {uid:1,id:'ichika',star:1,x:1,y:1},
+  {uid:2,id:'saki',star:1,x:2,y:1},
+  {uid:3,id:'honami',star:1,x:3,y:1}
+ ];
+ assert(g.discoveredActive.some(h=>h.required.length===2&&h.isGenerated),
+  'ordinary character pairs must discover new cooperation hearts');
+ g.realTime=12;g.spawnEnemy('boss',1);
+ g.heartUpdate(.2,.2);
+ const queued=g.heartQueue.filter(q=>q.heart.type==='pair').length+
+   (g.heartScene?.heart.type==='pair'?1:0);
+ assert(queued<=1,'duo queue may not overflow with multiple simultaneous CPs');
+}
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(root,'styles/battle-experience-v1.css'),'utf8');
 const ui=fs.readFileSync(path.join(root,'src/ui/BattleExperience.js'),'utf8');
@@ -149,7 +174,11 @@ for(const style of ['star','rain','slash','burst','wave','orbit']){
 // the cinematic skill cue must both be reachable from SoundEngine.
 {
  const director=new MusicDirector(()=>null,()=>.35);
+ assert(Object.values(BGM_TRACKS).every(track=>track===null),
+  'do not ship synthesized or unapproved BGM before Suno masters exist');
+ assert.equal(bgmForMap('roof'),null);
  director.start('roof');
+ assert.equal(director.audio,null,'empty Suno slot must stay silent');
  assert.equal(director.mapId,'roof');
  director.heartAnticipation('star');
  director.heartCue('burst');
@@ -169,4 +198,4 @@ for(const style of ['star','rain','slash','burst','wave','orbit']){
  assert(main.includes('sound.startMusic(')&&main.includes('sound.endMusic('));
  assert(audio.includes('heartCue('),'audio heart cue missing');
 }
-console.log('OK — distinct six-style heart mechanics, original music and responsive controls');
+console.log('OK — distinct six-style heart mechanics, Suno-only BGM slots and responsive controls');
