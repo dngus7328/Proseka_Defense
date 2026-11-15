@@ -316,6 +316,7 @@ export class Game {
    this.dealDamage(chosen[0],damage*2.1*impactScale,participants[0].id);
   }
   for(const [index,e] of chosen.slice(0,maxTargets).entries()){
+   if(e.hp<=0)continue; // Slash may already have defeated this enemy.
    const ep=this.enemyPos(e);
    // Shared damage is credited exactly once, in fair equal shares across participants.
    const dealt=Math.min(e.hp,damage*(index>5?.82:1));
