@@ -370,6 +370,8 @@ export class Game {
  // A visible, avoidable hazard makes relocation a meaningful decision.
  beginThreat(){
   if(this.interference||this.wave<this.threatStartWave||!this.units.length)return false;
+  // Telegraphed relocation is only fair while an empty destination exists.
+  if(!this.map.available.some(p=>this.canPlace(p.x,p.y)))return false;
   const candidates=this.units.filter(u=>(u.jamTime||0)<=0)
    .sort((a,b)=>b.star-a.star||a.uid-b.uid);
   if(!candidates.length)return false;
