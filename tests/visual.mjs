@@ -306,6 +306,23 @@ try{
   assert(await page.locator('#resultInsight').locator('div').count()>=4,vp.name+' four result metrics missing');
   await page.waitForTimeout(650);
   await page.screenshot({path:path.join('artifacts',vp.name+'-result.png')});
+  // Also inspect the victory/debrief version without simulating a 4-minute
+  // playthrough. The result data is the real completed fixture with a QA
+  // status override; do not mutate combat performance or player records.
+  await page.evaluate(()=>{
+   const ui=window.__sekaiTest.getUI();
+   const g=window.__sekaiTest.getGame();
+   ui.showResult({...g.result,status:'win',reason:null});
+  });
+  assert((await page.locator('#resultTitle').textContent()).length>=2,
+   vp.name+' victory text missing');
+  assert((await page.locator('#resultStoryLine').textContent()).length>=12,
+   vp.name+' successful SEKAI epilogue missing');
+  assert(await page.locator('.result-dialog').evaluate(e=>e.classList.contains('victory')),
+   vp.name+' victory result still uses defeat status');
+  assert(await page.locator('#resultNext').isEnabled(),
+   vp.name+' normal clear should enable the next difficulty');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-victory-debrief.png')});
   assert.deepEqual(errors,[],vp.name+' script errors: '+errors.join(' | '));
   summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:9});
   await context.close();
