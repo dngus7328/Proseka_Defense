@@ -86,7 +86,7 @@ export class TitleIntro {
   // Two intact half-composites fill the tall title. Unlike horizontal
   // slices, no character is cut through the head or torso at a row seam.
   const groups=[
-   {x:0,width:.57,top:.22},
+   {x:0,width:.57,top:.245},
    {x:.43,width:.57,top:.52}
   ];
   for(const part of groups){
