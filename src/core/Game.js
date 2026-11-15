@@ -26,6 +26,8 @@ export class Game {
  get selected(){return this.units.find(u=>u.uid===this.selectedId)||null;}
  get cost(){return 28+this.summons;} // +1 crystal for every successful summon; resets each run
  get capacity(){return 60;}
+ get threatStartWave(){return this.difficulty==='normal'?5:this.difficulty==='advanced'?4:3;}
+ get threatInterval(){return this.difficulty==='normal'?35:this.difficulty==='advanced'?30:this.difficulty==='expert'?26:22;}
  get isEndless(){return this.difficulty==='endless';}
  get maxWave(){return this.isEndless?Infinity:20;}
  get finalCleanupSecondsLeft(){
@@ -367,7 +369,7 @@ export class Game {
  }
  // A visible, avoidable hazard makes relocation a meaningful decision.
  beginThreat(){
-  if(this.interference||this.wave<5||!this.units.length)return false;
+  if(this.interference||this.wave<this.threatStartWave||!this.units.length)return false;
   const candidates=this.units.filter(u=>(u.jamTime||0)<=0)
    .sort((a,b)=>b.star-a.star||a.uid-b.uid);
   if(!candidates.length)return false;
@@ -384,7 +386,7 @@ export class Game {
  updateThreat(dt){
   const threat=this.interference;
   if(!threat){
-   if(this.wave<5)return;
+   if(this.wave<this.threatStartWave)return;
    this.threatCooldown=Math.max(0,this.threatCooldown-dt);
    if(this.threatCooldown<=0&&!this.beginThreat())this.threatCooldown=5;
    return;
@@ -394,7 +396,7 @@ export class Game {
    this.threatStats.avoided++;
    this.crystals+=12;this.fragments+=8;
    this.addEffect('threatAvoid',threat.x,threat.y,{life:.6,color:'#cce6cd'});
-   this.interference=null;this.threatCooldown=35;
+   this.interference=null;this.threatCooldown=this.threatInterval;
    this.emit('onThreatAvoid',{...threat,rewardCrystals:12,rewardFragments:8});
    this.emit('onSound','merge');this.emit('onChange');
    return;
@@ -402,14 +404,18 @@ export class Game {
   threat.remaining=Math.max(0,threat.remaining-dt);
   if(threat.remaining>0)return;
   if(threat.type==='rush'){
-   for(const enemy of this.enemies)enemy.tempo=Math.max(enemy.tempo||0,threat.duration);
+   for(const enemy of this.enemies)enemy.surge=Math.max(enemy.surge||0,threat.duration);
   }else{
-   target.jamTime=Math.max(target.jamTime||0,threat.duration);
-   if(threat.type==='drain')this.crystals=Math.max(0,this.crystals-22);
+   // The warning identifies the central source. Relocating it protects nearby members.
+   for(const hero of this.units){
+    if(dist(hero,{x:threat.x,y:threat.y})<=1.65)
+     hero.jamTime=Math.max(hero.jamTime||0,threat.duration);
+   }
+   if(threat.type==='drain')this.crystals=Math.max(0,this.crystals-(20+this.wave*3));
   }
   this.addEffect('threatImpact',threat.x,threat.y,{life:.7,color:threat.color});
   this.threatStats.hit++;
-  this.interference=null;this.threatCooldown=35;
+  this.interference=null;this.threatCooldown=this.threatInterval;
   this.emit('onThreatHit',{...threat});
   this.emit('onSound','heavy');this.emit('onChange');
  }
@@ -432,6 +438,7 @@ export class Game {
    enemy.slow=Math.max(0,enemy.slow-dt);
    enemy.emerge=Math.max(0,(enemy.emerge||0)-dt);
    enemy.tempo=Math.max(0,(enemy.tempo||0)-dt);
+   enemy.surge=Math.max(0,(enemy.surge||0)-dt);
    enemy.flash=Math.max(0,enemy.flash-dt);enemy.hitPulse=Math.max(0,(enemy.hitPulse||0)-dt);
    // Dash types surge between small recovery beats; heavy enemies stomp.
    // Each enemy has its own phase so a crowd never moves in lockstep.
@@ -440,7 +447,7 @@ export class Game {
     enemy.kind==='split'?(1+.055*Math.sin(enemy.age*5+enemy.visualSeed)):
     enemy.kind==='boss'?(0.96+.04*Math.cos(enemy.age*2)) :1;
    enemy.age=(enemy.age||0)+dt;
-   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1)*(enemy.tempo>0?1.22:1);
+   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1)*(enemy.tempo>0?1.22:1)*(enemy.surge>0?1.65:1);
   }
   // The Conductor boss leads nearby interference into a short faster beat.
   // This is a readable enemy mechanic, not a random whole-screen speed-up.
