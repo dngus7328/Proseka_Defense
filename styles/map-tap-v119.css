@@ -1,0 +1,14 @@
+/* No full-screen blue tap/focus flash on mobile canvas interactions. */
+#gameCanvas,.map-thumb,.map-choice,.lobby-art canvas{
+ -webkit-tap-highlight-color:transparent!important;
+ -webkit-touch-callout:none!important;
+ user-select:none!important;-webkit-user-select:none!important;
+}
+#gameCanvas{outline:0!important;touch-action:none!important}
+#gameCanvas:focus-visible{outline:2px solid #f3cf86!important;outline-offset:-2px!important}
+.map-choice:focus:not(:focus-visible){outline:0!important}
+#lobbyOverlay .lobby-art canvas{image-rendering:auto!important}
+#lobbyOverlay .lobby-art{background:#e6e7de!important}
+#lobbyOverlay .lobby-art-mask{
+ background:linear-gradient(0deg,#263d5138,transparent 47%,#1d43521c 100%)!important;
+}
