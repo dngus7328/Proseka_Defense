@@ -1,3 +1,6 @@
+// The full 331-entry Heart collection is retained. Availability and visual
+// density are independently controlled per SEKAI. Generated pairings are
+// noncanonical fan-game cooperative combinations, not official romances.
 // A heart is discovered when its roster condition is met; after discovery it can fire periodically.
 // It is not just a percentage buff: each heart launches a rendered area attack.
 export const FEATURED_HEARTS=[
@@ -47,7 +50,42 @@ for(let i=0;i<CHARACTERS.length;i++){
   });
  }
 }
+// Keep all 325 pair combinations plus six unit finales in the game.
 export const HEARTS=[...FEATURED_HEARTS,...AUTO_PAIRS];
+export const MAX_HEART_CHOICES_PER_SEKAI=10;
+export const MAX_HEART_CASTS_PER_MATCH=10;
+export const MIN_HEART_INTERVAL_SECONDS=16;
+// A heart belongs to a SEKAI if its group is that SEKAI or if at least one
+// of its cooperating members is from that SEKAI. This lets cross-unit bonds
+// exist in either member's world without claiming a canonical romantic pair.
+export function heartMatchesSekai(heart,map){
+ const group=typeof map==='string'?map:map?.affinityGroup;
+ if(!group)return false;
+ if(heart.type==='group')return heart.group===group;
+ return heart.required.some(id=>CHARACTERS.some(ch=>ch.id===id&&ch.group===group));
+}
+export function heartsAvailableInSekai(map){
+ return HEARTS.filter(h=>heartMatchesSekai(h,map));
+}
+// At most ten plausible, actually-deployed combinations are candidates for
+// casting on this map. The pool adjusts when the team composition changes,
+// so the other 321 collection entries are never deleted or made impossible.
+export function activeHeartsForGame(game,max=MAX_HEART_CHOICES_PER_SEKAI){
+ const group=game.map?.affinityGroup;
+ const candidates=[];
+ for(const heart of heartsAvailableInSekai(game.map)){
+  const actors=getHeartParticipants(game,heart);
+  if(!actors)continue;
+  const sameSekai=heart.required.every(id=>
+   CHARACTERS.some(c=>c.id===id&&c.group===group));
+  const score=(heart.type==='group'?100000:!heart.isGenerated?10000:100)
+   +(sameSekai?120:0)
+   +heartStrength(actors).average*5;
+  candidates.push({heart,actors,score});
+ }
+ candidates.sort((a,b)=>b.score-a.score||a.heart.id.localeCompare(b.heart.id));
+ return candidates.slice(0,max);
+}
 export const HEART_BY_ID=Object.fromEntries(HEARTS.map(h=>[h.id,h]));
 export function getHeartParticipants(game,heart){
  const found=[];

@@ -1,5 +1,5 @@
 import {CHARACTER_BY_ID} from '../data/characters.js';
-import {HEARTS,HEART_BY_ID} from '../data/hearts.js?v=1.21.0';
+import {HEARTS,HEART_BY_ID} from '../data/hearts.js?v=1.22.0';
 import {heartAbilityDescription} from '../core/HeartAbilities.js?v=1.21.0';
 import {interferenceForMap} from '../data/interference.js';
 import {situationalLine,pairDiscoveryLine} from '../data/battleChatter.js';
@@ -79,7 +79,7 @@ export class BattleExperience {
   const heartHost=el('teamHeartProgress');
   if(heartHost){
    heartHost.replaceChildren();
-   const candidates=Object.values(CHARACTER_BY_ID).filter(c=>c.group===map.affinityGroup);
+   const candidates=(map.sekaiMembers||[]).map(id=>CHARACTER_BY_ID[id]).filter(Boolean);
    const caption=document.createElement('strong');
    caption.className='team-heart-caption';
    const selected=candidates.filter(c=>ownedIds.has(c.id)).length;
@@ -88,6 +88,7 @@ export class BattleExperience {
    })[lang]+`  ${selected}/${candidates.length}`;
    heartHost.append(caption);
    const list=document.createElement('div');list.className='team-heart-members';
+   list.dataset.memberCount=String(candidates.length);
    for(const candidate of candidates){
     const tile=document.createElement('span');
     tile.className='team-heart-member'+(ownedIds.has(candidate.id)?' owned':'');

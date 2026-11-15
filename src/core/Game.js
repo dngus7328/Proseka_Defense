@@ -1,6 +1,7 @@
 import {CHARACTERS,CHARACTER_BY_ID,GROUPS,SIGNATURES,attackValue,attackInterval,attackRange} from '../data/characters.js';
-import {MAP_BY_ID,tileKey} from '../data/maps.js';
-import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js?v=1.19.0';
+import {MAP_BY_ID,tileKey} from '../data/maps.js?v=1.22.0';
+import {HEARTS,heartsAvailableInSekai,activeHeartsForGame,MAX_HEART_CASTS_PER_MATCH,
+ MIN_HEART_INTERVAL_SECONDS,getHeartParticipants,heartStrength} from '../data/hearts.js?v=1.22.0';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
 import {interferenceForMap,INTERFERENCE_WARNING_SECONDS} from '../data/interference.js';
 import {activateHeartAbility,advanceHeartAbilities,heartMoveFactor,heartAfterMovement,
@@ -21,6 +22,7 @@ export class Game {
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
   this.lastPairSkillTime=-Infinity;this.lastHeartActivationTime=-Infinity;this.lastHeartEffect=null;
+  this.heartCastsTotal=0;this.castHeartIds=[];
   this.heartStates=[];this.heartStateStats={blocked:0,rewound:0,boosted:0};
   this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};this.counterTime=0;
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
@@ -39,7 +41,7 @@ export class Game {
    ? Math.max(0,FINAL_WAVE_CLEANUP_SECONDS-(this.waveTime-30)):null;
  }
  get power(){return Math.round(this.units.reduce((n,u)=>n+attackValue(u,this.upgrades)/attackInterval(u,this.upgrades),0));}
- get discoveredActive(){return HEARTS.filter(h=>!!getHeartParticipants(this,h));}
+ get discoveredActive(){return activeHeartsForGame(this).map(entry=>entry.heart);}
  emit(type,payload){this.callbacks[type]?.(payload);}
  startWave(number){
   this.wave=number;this.waveTime=0;this.spawnCursor=0;
@@ -83,7 +85,9 @@ export class Game {
   // All 26 are always in the pool. The selected SEKAI has an explicit 55%
   // priority roll, owned characters have a separate 25% merge-assistance
   // roll, and the remaining roll uses the entire roster uniformly.
-  const affinity=CHARACTERS.filter(c=>c.group===this.map.affinityGroup);
+  // The window SEKAIs explicitly offer ALL six Virtual Singers, not a
+  // shortened three- or four-member subset shown in older UI previews.
+  const affinity=(this.map.sekaiMembers||[]).map(id=>CHARACTER_BY_ID[id]).filter(Boolean);
   const ownedIds=[...new Set(this.units.map(u=>u.id))];
   const owned=ownedIds.map(id=>CHARACTER_BY_ID[id]).filter(Boolean);
   const roll=Math.random();
@@ -286,7 +290,9 @@ export class Game {
   return true;
  }
  detectHearts(){
-  for(const heart of HEARTS){
+  // Discoveries are tied to the currently visited world. All 331 still exist
+  // in the collection and become obtainable across the seven SEKAI maps.
+  for(const heart of heartsAvailableInSekai(this.map)){
    const participants=getHeartParticipants(this,heart);
    if(!participants)continue;
    if(this.heartTimers[heart.id]==null)this.heartTimers[heart.id]=Math.max(.25,4-Math.random()*2);
@@ -329,62 +335,53 @@ export class Game {
   this.emit('onChange');
  }
  heartUpdate(dt,realDt){
-  // Cinematic skill activation: introduce the caster, then apply the actual attack.
-  // Scene timing is based on real time so 2x battle speed never makes the dialogue unreadable.
+  // Only one cast animation, and one persistent battlefield effect, can be
+  // active at a time. No simultaneous overlays or overlapping audio cues.
   if(this.heartScene){
    const scene=this.heartScene;
    scene.elapsed+=realDt;
    if(!scene.fired&&scene.elapsed>=.62){
     scene.fired=true;
-    this.fireHeart(scene.heart,scene.participants);
+    const stillHere=getHeartParticipants(this,scene.heart);
+    if(stillHere)this.fireHeart(scene.heart,stillHere);
    }
    if(scene.elapsed>=1.62){
     this.emit('onHeartEnd',{heart:scene.heart});
     this.heartScene=null;
    }
   }
+  if(this.heartCastsTotal>=MAX_HEART_CASTS_PER_MATCH){
+   this.heartQueue.length=0;
+   return;
+  }
   if(!this.enemies.some(e=>e.hp>0))return;
   this.heartPulse+=dt;
   if(this.heartPulse<.18)return;
   const delta=this.heartPulse;this.heartPulse=0;
-  for(const heart of HEARTS){
-   const participants=getHeartParticipants(this,heart);
-   if(!participants)continue;
+  // At most ten matching Heart definitions can be equipped on this SEKAI.
+  // The full collection is unchanged and new duos are picked up as units
+  // enter or leave the deployed team.
+  const candidates=activeHeartsForGame(this);
+  for(const {heart} of candidates){
    this.heartTimers[heart.id]=(this.heartTimers[heart.id]??3)-delta;
-   if(this.heartTimers[heart.id]<=0){
-    // Wide pairing discovery must not create an endless cinematic queue.
-    // A group heart is independent; pair hearts share one 11-second slot.
-    if(heart.type==='pair'&&(this.realTime<5||this.realTime-this.lastPairSkillTime<11)){
-     this.heartTimers[heart.id]=Math.max(.8,11-(this.realTime-this.lastPairSkillTime));
-     continue;
-    }
-    // Never fire a hidden skill while its speaker is absent. Each activation
-    // must get a clear character line and an identifiable attack effect.
-    const alreadyWaiting=this.heartQueue.some(item=>item.heart.id===heart.id)
-      ||this.heartScene?.heart.id===heart.id;
-    if(alreadyWaiting){
-     this.heartTimers[heart.id]=1;
-    }else if(this.heartQueue.length<3){
-     this.heartQueue.push({heart,participants:[...participants]});
-     if(heart.type==='pair')this.lastPairSkillTime=this.realTime;
-     this.heartTimers[heart.id]=Math.max(7,heart.cooldown/(1+this.upgrades.ability*.14));
-    }else{
-     // Recheck later rather than silently firing without showing dialogue.
-     this.heartTimers[heart.id]=.8;
-    }
-   }
   }
-  if(!this.heartScene&&this.heartQueue.length&&this.realTime-this.lastHeartActivationTime>=4.1){
-   const pending=this.heartQueue.shift();
-   const turn=this.heartCastCount[pending.heart.id]||0;
-   const actor=pending.participants[turn%pending.participants.length];
-   const actorId=actor?.id;
-   const actorUid=actor?.uid;
-   this.heartCastCount[pending.heart.id]=turn+1;
-   this.heartScene={...pending,actorId,actorUid,elapsed:0,fired:false};
-   this.lastHeartActivationTime=this.realTime;
-   this.emit('onHeartStart',{...pending,actorId,actorUid,strength:heartStrength(pending.participants)});
-  }
+  if(this.heartScene||this.heartStates.some(state=>state.remaining>0))return;
+  if(this.realTime-this.lastHeartActivationTime<MIN_HEART_INTERVAL_SECONDS)return;
+  const ready=candidates.find(({heart})=>this.heartTimers[heart.id]<=0);
+  if(!ready)return;
+  const {heart}=ready;
+  const participants=getHeartParticipants(this,heart);
+  if(!participants)return;
+  const turn=this.heartCastCount[heart.id]||0;
+  const actor=participants[turn%participants.length];
+  this.heartCastCount[heart.id]=turn+1;
+  this.heartScene={heart,participants,actorId:actor.id,actorUid:actor.uid,elapsed:0,fired:false};
+  this.heartCastsTotal++;
+  this.castHeartIds.push(heart.id);
+  this.lastHeartActivationTime=this.realTime;
+  this.heartTimers[heart.id]=Math.max(24,heart.cooldown*1.7/(1+this.upgrades.ability*.12));
+  this.emit('onHeartStart',{heart,participants,actorId:actor.id,actorUid:actor.uid,
+   strength:heartStrength(participants)});
  }
  // A visible, avoidable hazard makes relocation a meaningful decision.
  beginThreat(){

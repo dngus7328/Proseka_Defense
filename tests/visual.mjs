@@ -67,7 +67,7 @@ try{
   },null,{timeout:12000});
   await page.waitForTimeout(520);
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby.png')});
-  for(const area of ['stage','wonderland','city','roof']){
+  for(const area of ['closedwindow','openwindow','stage','wonderland','city','roof']){
    await page.locator(`#mapChoices .map-choice[data-map-id="${area}"]`).click({timeout:9000});
    const preview=await page.evaluate(()=>{
     const el=document.getElementById('lobbyPreview');
@@ -78,8 +78,21 @@ try{
      theme:document.getElementById('app').dataset.theme,
      overlay:document.getElementById('lobbyOverlay').classList.contains('visible')};
    });
-   assert(preview.overlay&&preview.width>100&&preview.height>100&&preview.colors>15,
+   const paletteMinimum=(area==='closedwindow'||area==='openwindow')?11:16;
+   assert(preview.overlay&&preview.width>100&&preview.height>100&&preview.colors>=paletteMinimum,
     vp.name+' map '+area+' blank / solid-blue lobby preview: '+JSON.stringify(preview));
+   if(area==='closedwindow'||area==='openwindow'){
+    await page.waitForFunction(()=>{
+     const faces=[...document.querySelectorAll('#lobbyTeamPreview img')];
+     return faces.length===6&&faces.every(img=>img.complete&&img.naturalWidth>0);
+    },null,{timeout:12000});
+    const roster=await page.locator('#lobbyTeamPreview img').evaluateAll(els=>els.map(e=>({
+     x:e.getBoundingClientRect().x,w:e.getBoundingClientRect().width,alt:e.alt
+    })));
+    assert(roster.length===6&&roster.every(r=>r.w>18&&r.x>=-2&&r.x+r.w<=vp.width+2),
+     vp.name+' '+area+' has cropped/missing singers: '+JSON.stringify(roster));
+    await page.screenshot({path:path.join('artifacts',vp.name+'-'+area+'-six-singers.png')});
+   }
   }
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby-switched.png')});
   await page.locator('#startButton').click({timeout:12000});
