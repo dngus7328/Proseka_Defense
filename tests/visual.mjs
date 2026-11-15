@@ -89,6 +89,13 @@ try{
   // Use the actual game-end event to exercise populated result data and layout.
   await page.evaluate(()=>{
    const g=window.__sekaiTest.getGame();
+   // A deterministic QA fixture: enough heroes and damage rows to verify
+   // actual result-screen layout, rather than a meaningless zero-second loss.
+   g.fragments=1000;
+   for(let i=0;i<7;i++)g.summon();
+   g.realTime=239.4;
+   for(const [i,unit] of g.units.entries())
+    g.damageByMember[unit.id]=(g.damageByMember[unit.id]||0)+(i+1)*740;
    g.end('lose','final_timeout');
    g.update(1.6);
   });
