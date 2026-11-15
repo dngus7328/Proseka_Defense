@@ -60,6 +60,44 @@ try{
    assert(r.w>30&&r.h>20&&r.x>=-2&&r.y>=-2&&r.x+r.w<=vp.width+2&&r.y+r.h<=vp.height+2,
     vp.name+' title has clipped '+id+': '+JSON.stringify(r));
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
+
+  // Opening settings from the title MUST retain the title artwork behind
+  // the settings scrim; the hidden battle app must not become its background.
+  await page.locator('#titleSettings').click({timeout:12000});
+  const titleSettings=await page.evaluate(()=>{
+   const title=document.getElementById('titleOverlay'),
+    settings=document.getElementById('settingsOverlay'),
+    slider=document.getElementById('musicVolumeRange'),
+    value=document.getElementById('musicVolumeValue'),
+    label=document.querySelector('label[for="musicVolumeRange"]'),
+    r=slider.getBoundingClientRect();
+   return {titleVisible:title.classList.contains('visible'),
+    settingsVisible:settings.classList.contains('visible'),
+    label:label.textContent.trim(),value:value.textContent.trim(),
+    rect:{x:r.x,y:r.y,w:r.width,h:r.height},
+    settingsZ:getComputedStyle(settings).zIndex,titleZ:getComputedStyle(title).zIndex};
+  });
+  assert(titleSettings.titleVisible&&titleSettings.settingsVisible,
+   vp.name+' settings expose the gameplay backdrop instead of title: '+JSON.stringify(titleSettings));
+  assert(titleSettings.label==='BGM 음량'&&titleSettings.value==='55%',
+   vp.name+' localized BGM setting not displayed: '+JSON.stringify(titleSettings));
+  const sr=titleSettings.rect;
+  assert(sr.w>=55&&sr.h>=15&&sr.x>=0&&sr.y>=0&&sr.x+sr.w<=vp.width+1&&sr.y+sr.h<=vp.height+1,
+   vp.name+' BGM slider is outside the settings window: '+JSON.stringify(titleSettings));
+  await page.locator('#musicVolumeRange').evaluate(e=>{
+   e.value='73';e.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  assert.equal((await page.locator('#musicVolumeValue').textContent()).trim(),'73%',
+   vp.name+' music slider output failed to update');
+  assert.equal(await page.evaluate(()=>window.__sekaiTest.getUI().save.musicVolume),73,
+   vp.name+' BGM volume was not saved');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-title-settings.png')});
+  await page.locator('#settingsOverlay .close-dialog').click({timeout:12000});
+  assert(await page.locator('#titleOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' did not return to title after settings');
+  assert(!await page.locator('#settingsOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' settings did not close');
+
   await page.locator('#titleEnter').click({timeout:12000});
   assert(await page.locator('#storyOverlay').evaluate(e=>e.classList.contains('visible')),
    vp.name+' first-time Miku story never opened');
@@ -78,6 +116,16 @@ try{
   },null,{timeout:12000});
   await page.waitForTimeout(520);
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby.png')});
+
+  await page.locator('#lobbySettings').click({timeout:12000});
+  assert(await page.locator('#lobbyOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' lobby settings lost the lobby background');
+  assert((await page.locator('#musicVolumeValue').textContent()).trim()==='73%',
+   vp.name+' saved BGM volume not restored in lobby settings');
+  await page.locator('#settingsOverlay .close-dialog').click({timeout:12000});
+  assert(await page.locator('#lobbyOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' closing lobby settings did not restore the lobby');
+
   for(const area of ['closedwindow','openwindow','stage','wonderland','city','roof']){
    await page.locator(`#mapChoices .map-choice[data-map-id="${area}"]`).click({timeout:9000});
    const preview=await page.evaluate(()=>{
@@ -362,7 +410,7 @@ try{
    vp.name+' normal clear should enable the next difficulty');
   await page.screenshot({path:path.join('artifacts',vp.name+'-victory-debrief.png')});
   assert.deepEqual(errors,[],vp.name+' script errors: '+errors.join(' | '));
-  summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:9});
+  summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:10});
   await context.close();
  }
 }finally{await browser.close();}
