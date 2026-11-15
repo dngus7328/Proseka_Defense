@@ -4,7 +4,7 @@
   "version": "1.22.0",
   "type": "module",
   "scripts": {
-    "test": "node tests/smoke.mjs && node tests/experience.mjs"
+    "test": "node tests/smoke.mjs && node tests/experience.mjs && node tests/sekai-hearts.mjs"
   },
   "description": "HTML5 fan defense prototype with game-first responsive UI"
 }
