@@ -501,7 +501,7 @@ export class Game {
   this.phase='ending';
   this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.interference=null;
   this.emit('onHeartEnd',{});this.emit('onThreatEnd',{});
-  this.result={status,reason,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,threatStats:{...this.threatStats},damageByMember:{...this.damageByMember}};
+  this.result={status,reason,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,threatStats:{...this.threatStats},summons:this.summons,fourStars:this.units.filter(u=>u.star===4).length,activeHearts:this.discoveredActive.length,team:this.units.map(u=>({id:u.id,star:u.star})),damageByMember:{...this.damageByMember}};
   this.endReal=0;this.endFromSpeed=this.speed;this.endAnimSpeed=this.speed;
   this.emit('onEndStart',this.result);
  }
