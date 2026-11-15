@@ -4,6 +4,7 @@ import {tileKey} from '../data/maps.js';
 import {drawSekaiWorld} from './SekaiMapArtV2.js?v=1.23.0';
 import {drawEnemyArt} from './EnemyArt.js?v=1.17.0';
 import {drawHeartStates,drawHeartCinematic} from './HeartVFXV2.js?v=1.23.0';
+import {drawHeartSpectacle} from './HeartVFXSpectacle.js?v=1.24.0';
 const TILE=32;
 const DIRECTIONS=['front','front-left','back-left','back'];
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
@@ -266,6 +267,7 @@ export class Renderer {
   for(const item of bodies){if(item.enemy)this.drawEnemy(c,game,item.enemy,time);else this.drawHero(c,game,item.hero,time);}
   drawHeartStates(c,game,time,TILE,true,this.reduceMotion||this.effectsLite);
   this.drawEffects(c,game,time);
+  drawHeartSpectacle(c,game,time,TILE,this.reduceMotion||this.effectsLite);
   this.drawHeartScene(c,game,time);
   if(game.phase==='ending'){
    const k=Math.min(1,game.endReal/1.5);

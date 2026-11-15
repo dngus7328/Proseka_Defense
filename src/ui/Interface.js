@@ -225,15 +225,14 @@ export class Interface {
  renderHearts(){
   const list=el('heartList');if(!list)return;
   el('collectionCount').textContent=`${this.save.discovered.length} / ${HEARTS.length}`;
-  // Curated combos are always browseable; the 315 procedurally named duos
-  // appear as they are discovered, instead of filling the UI with 315 ???s.
-  const shown=HEARTS.filter(h=>!h.isGenerated||this.save.discovered.includes(h.id));
-  list.replaceChildren();
-  shown.forEach(h=>{
+  // All 331 combinations are always browseable; discovery changes the row state.
+  const shown=HEARTS; // All 331 remain browseable, including undiscovered duos.
+  const fragment=document.createDocumentFragment();
+  shown.forEach((h,index)=>{
    const known=this.save.discovered.includes(h.id);
    const actorNames=h.required.map(id=>CHARACTER_BY_ID[id]?.names[this.save.language]||id);
    const row=document.createElement('article');row.className='heart-item'+(known?'':' locked');
-   row.dataset.heartId=h.id;row.dataset.style=h.style;
+   row.dataset.heartId=h.id;row.dataset.style=h.style;row.dataset.index=String(index+1);
    const actors=document.createElement('div');actors.className='heart-roster';
    for(const id of h.required){
     const portrait=document.createElement('img');
@@ -257,9 +256,19 @@ export class Interface {
     this.save.language==='en'?
     (h.type==='group'?'Automatically activates with all group members':'Automatically activates when both members are deployed'):
     (h.type==='group'?'필요한 그룹 멤버를 모두 배치하면 자동 발동':'두 멤버를 함께 배치하면 자동 발동');
-   body.append(name,names,effect,explanation,trigger);
-   row.append(actors,body);list.append(row);
+   const serial=document.createElement('small');serial.className='heart-number';
+   serial.textContent='NO. '+String(index+1).padStart(3,'0')+' · '+(known?
+    (this.save.language==='ja'?'発見':this.save.language==='en'?'DISCOVERED':'발견'):
+    (this.save.language==='ja'?'未発見':this.save.language==='en'?'LOCKED':'미발견'));
+   if(known)body.append(serial,name,names,effect,explanation,trigger);
+   else body.append(serial,name,names);
+   row.append(actors,body);fragment.append(row);
   });
+  list.replaceChildren(fragment);
+  const summary=el('heartListSummary');
+  if(summary)summary.textContent=this.save.language==='ja'?`全${shown.length}件表示 · 発見 ${this.save.discovered.length}件`:
+   this.save.language==='en'?`All ${shown.length} combinations · ${this.save.discovered.length} discovered`:
+   `전체 ${shown.length}개 표시 · 발견 ${this.save.discovered.length}개`;
   const unknown=HEARTS.length-shown.length;
   if(unknown){
    const caption=document.createElement('p');caption.className='heart-undiscovered';

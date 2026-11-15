@@ -222,17 +222,34 @@ try{
   // Keep a brief, nonblocking result banner long enough to understand it.
   assert(await page.locator('#skillCutin').evaluate(el=>el.classList.contains('visible')),
    vp.name+' skill effect explanation vanished before the player could read it');
-  await page.evaluate(()=>window.__sekaiTest.getUI().renderHearts());
+  await page.evaluate(()=>{
+   window.__sekaiTest.getUI().renderHearts();
+   document.getElementById('heartsOverlay').classList.add('visible');
+  });
   const encyclopedia=await page.evaluate(()=>{
    const list=document.getElementById('heartList');
    return {items:list.querySelectorAll('.heart-item').length,
     described:list.querySelectorAll('.heart-ability').length,
     portraits:list.querySelectorAll('.heart-roster img').length,
-    effects:list.textContent.includes('장벽')&&list.textContent.includes('감속')};
+    locked:list.querySelectorAll('.heart-item.locked').length,
+    first:list.firstElementChild?.dataset?.index,
+    last:list.lastElementChild?.dataset?.index};
   });
-  assert(encyclopedia.items>=16&&encyclopedia.described===encyclopedia.items
-    &&encyclopedia.portraits>=32&&encyclopedia.effects,
-   vp.name+' heart collection does not explain skills: '+JSON.stringify(encyclopedia));
+  assert.equal(encyclopedia.items,331,vp.name+' show all 331 Hearts');
+  assert.equal(encyclopedia.described+encyclopedia.locked,331,
+   vp.name+' discovery must unlock descriptions without hiding entries');
+  assert(encyclopedia.portraits>=662&&encyclopedia.first==='1'&&encyclopedia.last==='331',
+   vp.name+' missing numbered Heart combinations: '+JSON.stringify(encyclopedia));
+  const catalogScroll=await page.evaluate(()=>{
+   const list=document.getElementById('heartList');
+   list.scrollTop=list.scrollHeight;
+   return {scrollTop:list.scrollTop,scrollHeight:list.scrollHeight,
+    clientHeight:list.clientHeight,last:list.lastElementChild?.dataset?.index};
+  });
+  assert(catalogScroll.scrollTop>0&&catalogScroll.last==='331',
+   vp.name+' cannot scroll to final Heart: '+JSON.stringify(catalogScroll));
+  await page.screenshot({path:path.join('artifacts',vp.name+'-all-331-hearts-bottom.png')});
+  await page.evaluate(()=>document.getElementById('heartsOverlay').classList.remove('visible'));
 
   // Use the actual game-end event to exercise populated result data and layout.
   await page.evaluate(()=>{
