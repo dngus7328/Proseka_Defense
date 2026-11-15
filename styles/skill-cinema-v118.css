@@ -151,7 +151,7 @@ body.heart-active::before{
 @media (orientation:landscape){
  .skill-cutin{
   top:50%!important;left:calc((100vw - var(--rail-w))/2)!important;
-  width:min(620px,calc(100vw - var(--rail-w) - 15px))!important;
+  width:min(770px,calc(100vw - var(--rail-w) - 15px))!important;
   height:clamp(146px,56dvh,220px)!important;
   transform:translate(-50%,-47%) scale(.97)!important;
  }
@@ -166,4 +166,11 @@ body.heart-active::before{
 @media (prefers-reduced-motion:reduce){
  body.heart-active::before,.skill-cutin-panel,.skill-cutin-lead,
  .skill-cutin-art::before,.skill-cutin-progress{animation:none!important;transition:none!important}
+}
+
+/* Cinematic focus: contextual popups and routine toasts do not cover the actor. */
+body.heart-active .selection-panel,
+body.heart-active .battle-dialogue,
+body.heart-active .toast-stack{
+ opacity:0!important;visibility:hidden!important;pointer-events:none!important;
 }
