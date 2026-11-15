@@ -68,6 +68,10 @@ export class StoryFlow {
   el('storyPortrait').src='./Assets/characters/'+encodeURIComponent(item.speaker)+'/front.png';
   el('storyPortrait').alt=el('storySpeaker').textContent;
   el('storyLine').textContent=item.text;
+  // The setting is the actual procedural SEKAI map, not invented scenic art.
+  const sceneMap=this.currentMission?.map||MAP_BY_ID[['roof','stage','night'][this.cursor%3]];
+  const sceneCanvas=el('storyWorldBackdrop');
+  if(sceneCanvas&&sceneMap)this.ui.renderer.drawThumbnail(sceneCanvas,sceneMap);
   el('storyIndex').textContent=String(this.cursor+1).padStart(2,'0')+' / '+String(this.queue.length).padStart(2,'0');
   el('storyProgress').style.width=(100*(this.cursor+1)/this.queue.length).toFixed(2)+'%';
   el('storyContinue').textContent=this.cursor===this.queue.length-1?l.next:l.next;
@@ -148,6 +152,8 @@ export class StoryFlow {
   el('resultStoryLabel').textContent=won?(firstClear?l.first:l.repeat):l.unsaved;
   el('resultStorySpeaker').textContent=speaker?.names[lang]||speaker?.names.ko||'';
   el('resultStoryLine').textContent=ending.text;
+  const backdrop=el('resultWorldBackdrop');
+  if(backdrop)this.ui.renderer.drawThumbnail(backdrop,map);
   const portrait=el('resultStoryPortrait');
   portrait.src='./Assets/characters/'+encodeURIComponent(ending.speaker)+'/front.png';
   portrait.alt=el('resultStorySpeaker').textContent;
