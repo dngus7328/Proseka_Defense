@@ -65,6 +65,15 @@ try{
    const g=window.__sekaiTest.getGame();
    return {board:box('#gameCanvas'),controls:box('.main-actions'),resources:box('.resource-row'),map:[g.map.w,g.map.h],overflowX:document.documentElement.scrollWidth>innerWidth+2};
   });
+  // The first-summon dialogue cannot cover the wave counter / progress bar.
+  const overlap=await page.evaluate(()=>{
+   const dialogue=document.getElementById('battleDialogue');
+   const wave=document.querySelector('.wave-panel');
+   if(dialogue?.hidden||!wave)return false;
+   const a=dialogue.getBoundingClientRect(),b=wave.getBoundingClientRect();
+   return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+  });
+  assert(!overlap,vp.name+' character dialogue obscures the wave bar');
   assert(layout.board&&layout.board.w>110&&layout.board.h>110,vp.name+' canvas not visible');
   assert(Math.abs(layout.board.w/layout.board.h-layout.map[0]/layout.map[1])<.04,vp.name+' map aspect wrong');
   assert(layout.board.x>=-2&&layout.board.y>=-2&&layout.board.x+layout.board.w<=vp.width+2&&layout.board.y+layout.board.h<=vp.height+2,vp.name+' board clips viewport');
