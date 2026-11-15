@@ -54,6 +54,10 @@
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
  margin:0 0 12px;min-height:50px;
 }
+ .result-advice{
+ margin:-3px 0 8px;padding:3px 5px;color:#edddca;
+ font-size:11px;line-height:1.3;font-weight:750;word-break:keep-all;
+ }
 .result-insight>div{
  display:flex;flex-direction:column;gap:3px;
  background:#29435b99;border:1px solid #5d7685;border-radius:5px;
@@ -81,13 +85,14 @@
  .danger-clock{font-size:16px}
  .danger-evade{min-height:31px;min-width:42px;font-size:10px;padding:3px 5px}
  #resultOverlay .result-dialog{
-  grid-template-rows:36px 52px 55px minmax(0,1fr) 54px;
+  grid-template-rows:34px 47px 50px 28px minmax(0,1fr) 50px;
  }
  #resultOverlay .result-insight{
   grid-column:1/3;grid-row:3;margin:0;align-self:stretch;
  }
- #resultOverlay .result-summary{grid-column:1/3;grid-row:4}
- #resultOverlay .result-actions{grid-column:1/3;grid-row:5}
+ #resultOverlay .result-advice{grid-column:1/3;grid-row:4;margin:0;font-size:10px;align-self:center}
+ #resultOverlay .result-summary{grid-column:1/3;grid-row:5}
+ #resultOverlay .result-actions{grid-column:1/3;grid-row:6}
  #resultOverlay .result-insight>div{padding:6px 9px}
 }
 @media (orientation:portrait) and (max-width:360px){
