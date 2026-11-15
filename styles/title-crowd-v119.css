@@ -25,10 +25,10 @@
   background:linear-gradient(180deg,#e9f5f84c 0%,#e3effd3b 22%,transparent 47%,transparent 77%,#213b596b 100%)!important;
  }
  #titleOverlay .title-logo-wrap{
-  z-index:11!important;top:clamp(66px,12dvh,120px)!important;
+  z-index:11!important;top:clamp(42px,6dvh,65px)!important;
  }
  #titleOverlay .title-logo-image{
-  max-height:clamp(95px,17dvh,156px)!important;
+  max-height:clamp(102px,14dvh,132px)!important;
  }
  #titleOverlay .title-bottom{z-index:13!important}
 }
@@ -36,4 +36,16 @@
  #titleOverlay .title-backdrop.art-ready .title-characters{
   width:max(100vw,calc(100dvh * 1.777))!important;
  }
+}
+
+/* Subtle title arrival; all artwork stays pixel-identical. */
+#titleOverlay.title-play-intro .title-backdrop.art-ready .title-portrait-crowd{
+ animation:portraitCrowdArrival 1.2s cubic-bezier(.16,.78,.3,1) .65s both!important;
+}
+@keyframes portraitCrowdArrival{
+ from{opacity:0!important;transform:translateY(20px)}
+ to{opacity:1!important;transform:translateY(0)}
+}
+@media (prefers-reduced-motion:reduce){
+ #titleOverlay .title-backdrop.art-ready .title-portrait-crowd{animation:none!important;transform:none!important}
 }
