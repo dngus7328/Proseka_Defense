@@ -6,7 +6,7 @@ import {MAPS} from '../src/data/maps.js';
 import {CHARACTERS,SIGNATURES} from '../src/data/characters.js';
 import {HEARTS} from '../src/data/hearts.js';
 import {SKILL_DIALOGUE} from '../src/data/skillDialogue.js';
-import {Game} from '../src/core/Game.js';
+import {Game,FINAL_WAVE_CLEANUP_SECONDS} from '../src/core/Game.js';
 import {Renderer} from '../src/core/Renderer.js';
 import {ENEMIES} from '../src/data/enemies.js';
 import {drawEnemyArt} from '../src/core/EnemyArt.js';
@@ -306,20 +306,7 @@ console.log('OK — upright landscape board, responsive aspect ratio and stable 
 console.log('OK — layered title intro, cache revision and failed-image retry');
 
 
-// Title images are 1672×941 landscape illustrations.
-// The responsive title layout must display them fully instead of stretching/cropping.
-{
- const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
- const layout=fs.readFileSync(path.join(root,'styles','title-layout-v2.css'),'utf8');
- assert.ok(html.includes('title-layout-v2.css?v=1.15.2'),'responsive title stylesheet must load');
- assert.ok(html.indexOf('title-layout-v2.css')>html.indexOf('title-intro.css'),'title layout override must load after intro');
- assert.ok(layout.includes('aspect-ratio:1672 / 941'),'title artwork aspect ratio must be preserved');
- assert.ok(layout.includes('object-fit:contain!important'),'title layers must not be cropped');
- assert.ok(layout.includes('title-art-caption{display:none'),'redundant overlay text must not cover the art');
- assert.ok(layout.includes('@media (orientation:portrait)'),'portrait layout is required');
- assert.ok(layout.includes('@media (orientation:landscape)'),'landscape short-height handling is required');
-}
-console.log('OK — uncropped title art and dedicated portrait/landscape title controls');
+// Obsolete title-layout-v2 tests removed; only the active v3 CSS is evaluated.
 
 {
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
@@ -336,3 +323,53 @@ console.log('OK — uncropped title art and dedicated portrait/landscape title c
  assert.ok(layout.includes('@media (orientation:landscape)'),'short landscape title layout missing');
 }
 console.log('OK — immersive title stage and portrait/landscape artwork alignment');
+
+// Last wave must have a visible, finite clean-up phase; all endings must resolve.
+{
+ assert.equal(FINAL_WAVE_CLEANUP_SECONDS,30);
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.startWave(20);
+ g.spawnCursor=g.waveRoster.length;
+ g.waveTime=30;
+ g.spawnEnemy('tank',0);
+ g.update(.05);
+ assert.equal(g.phase,'playing','final clean-up must not immediately fail');
+ assert(g.finalCleanupSecondsLeft>29&&g.finalCleanupSecondsLeft<30);
+ g.waveTime=30+FINAL_WAVE_CLEANUP_SECONDS-.06;
+ g.update(.02);
+ assert.equal(g.phase,'playing','premature final timeout');
+ g.update(.05);
+ assert.equal(g.phase,'ending','surviving enemies must eventually cause defeat');
+ assert.equal(g.result?.status,'lose');
+ assert.equal(g.result?.reason,'final_timeout');
+ for(let i=0;i<36;i++)g.update(.05);
+ assert.equal(g.phase,'ended','ending animation must complete');
+}
+{
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.startWave(20);
+ g.spawnCursor=g.waveRoster.length;
+ g.waveTime=30;
+ g.enemies=[];
+ g.update(.05);
+ assert.equal(g.result?.status,'win','clearing final enemies must win');
+ assert.equal(g.result?.reason,null);
+}
+{
+ const g=new Game({mapId:'roof',difficulty:'endless'});
+ g.startWave(20);
+ g.spawnCursor=g.waveRoster.length;
+ g.waveTime=30;
+ g.spawnEnemy('tank',0);
+ g.update(.05);
+ assert.equal(g.phase,'playing','endless wave 20 must keep playing');
+ assert.equal(g.wave,21,'endless wave 20 must advance to wave 21');
+ assert.equal(g.finalCleanupSecondsLeft,null);
+}
+{
+ const css=fs.readFileSync(path.join(root,'styles/gameplay-v21.css'),'utf8');
+ const ui=fs.readFileSync(path.join(root,'src/ui/Interface.js'),'utf8');
+ assert(ui.includes('g.finalCleanupSecondsLeft'),'final time limit must be in the HUD');
+ assert(css.includes('.wave-panel.final-countdown'),'deadline must be visually distinct');
+}
+console.log('OK — final-wave cleanup timer, victory, defeat, endless progression, and warning HUD');
