@@ -7,6 +7,10 @@ export class TitleIntro {
   this.overlay=document.getElementById('titleOverlay');
   this.backdrop=document.getElementById('titleBackdrop');
   this.layers=[...document.querySelectorAll('#titleBackdrop .title-layer')];
+  this.portraitCanvas=document.getElementById('titlePortraitCrowd');
+  this.sourceCrowd=this.backdrop?.querySelector('.title-characters');
+  this.onResize=()=>{if(this.ready)this.paintPortraitCrowd();};
+  window.addEventListener('resize',this.onResize);
   this.shownOnce=false;
   this.ready=false;
   this.loading=null;
@@ -24,6 +28,7 @@ export class TitleIntro {
     const ok=this.layers.length===4&&status.every(Boolean);
     if(ok){
      this.ready=true;
+     this.paintPortraitCrowd();
      this.backdrop?.classList.add('art-ready');
      if(this.overlay?.classList.contains('visible'))this.play();
     }else{
@@ -65,6 +70,42 @@ export class TitleIntro {
     img.src=`${base}?rev=${TITLE_ASSET_REV}-retry${this.retryCount}`;
    }
   });
+ }
+ // Original source composite is cut into five distinct character crowds,
+ // preserving every outline, costume and face. Tall screens receive a real
+ // portrait composition rather than shrinking a 16:9 crowd into one thin row.
+ paintPortraitCrowd(){
+  const canvas=this.portraitCanvas,src=this.sourceCrowd;
+  if(!canvas||!src||!src.naturalWidth||!src.naturalHeight)return;
+  const w=Math.max(240,window.innerWidth),h=Math.max(300,window.innerHeight);
+  if(w>=h)return;
+  const dpr=Math.min(window.devicePixelRatio||1,1.6);
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  const c=canvas.getContext('2d');if(!c)return;
+  c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
+  c.imageSmoothingEnabled=true;
+  const parts=[
+   // Musicians, idols, center stage, night ensemble, virtual singers.
+   {x:0,y:0,w:.52,h:.34,top:.17,size:.18,shift:-.04},
+   {x:0,y:.22,w:.56,h:.32,top:.32,size:.18,shift:.03},
+   {x:.34,y:.31,w:.65,h:.38,top:.47,size:.19,shift:-.015},
+   {x:0,y:.57,w:.54,h:.43,top:.64,size:.19,shift:-.04},
+   {x:.43,y:.57,w:.57,h:.43,top:.79,size:.19,shift:.04}
+  ];
+  for(const part of parts){
+   const sx=Math.floor(part.x*src.naturalWidth);
+   const sy=Math.floor(part.y*src.naturalHeight);
+   const sw=Math.min(src.naturalWidth-sx,Math.floor(part.w*src.naturalWidth));
+   const sh=Math.min(src.naturalHeight-sy,Math.floor(part.h*src.naturalHeight));
+   if(sw<=0||sh<=0)continue;
+   const dy=Math.round(h*part.top),bandHeight=Math.round(h*part.size);
+   const drawHeight=bandHeight*1.1;
+   const drawWidth=drawHeight*sw/sh;
+   const dx=(w-drawWidth)/2+w*part.shift;
+   c.save();c.beginPath();c.rect(0,dy,w,bandHeight);c.clip();
+   c.drawImage(src,sx,sy,sw,sh,dx,dy-1,drawWidth,drawHeight);
+   c.restore();
+  }
  }
  show(){
   this.clearTimer();
