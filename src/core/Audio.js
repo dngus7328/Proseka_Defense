@@ -1,4 +1,4 @@
-import {MusicDirector} from './MusicDirector.js?v=1.28.0';
+import {MusicDirector} from './MusicDirector.js?v=1.29.0';
 
 // No music is synthesized here. All SFX are short, unpitched physical-style
 // noises: soft taps, brushes, hits and low impact thumps, not ascending bleeps.
