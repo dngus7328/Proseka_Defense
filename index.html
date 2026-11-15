@@ -36,7 +36,15 @@
         </div><div class="board-float" id="boardFloat" aria-live="polite"></div><div class="board-corner left" aria-hidden="true"></div><div class="board-corner right" aria-hidden="true"></div></div>
         <div class="wave-panel"><div class="wave-head"><div><span class="mini-label" data-i18n="wave">WAVE</span><strong id="waveText">01 <span class="tiny-fraction">/ 20</span></strong></div><div class="wave-track"><span id="waveFill"></span></div><div class="enemy-count"><span class="mini-label" data-i18n="enemies">적</span><strong id="enemyCount">0 <span class="tiny-fraction">/ 60</span></strong></div></div></div>
         <div class="skill-condition" id="skillCondition" aria-label="세카이의 마음 조합 진행"><span class="skill-condition-name" id="skillConditionName">세카이의 마음</span><div class="skill-condition-avatars" id="skillConditionAvatars"></div><strong id="skillConditionCount">0 / 4</strong></div>
-        <nav class="team-strip" id="teamStrip" aria-label="배치한 캐릭터 빠른 선택"><span class="team-strip-caption">MEMBERS</span><div class="team-strip-slots" id="teamStripSlots"></div></nav>
+        <nav class="team-strip" id="teamStrip" aria-label="배치한 캐릭터 빠른 선택">
+          <span class="team-strip-caption">MEMBERS</span>
+          <div class="team-strip-slots" id="teamStripSlots"></div>
+          <div class="team-tactics" id="teamTactics">
+            <div class="team-tactics-head"><img id="teamTacticsIcon" src="./Assets/ui/roof.png" alt=""/><strong id="teamTacticsTitle">전장 정보</strong></div>
+            <p id="teamTacticsDescription">멤버를 소환해서 방어를 시작해.</p>
+            <small id="teamTacticsHint">같은 멤버 2명을 모으면 합성할 수 있어.</small>
+          </div>
+        </nav>
         <div class="battle-dialogue" id="battleDialogue" hidden aria-live="polite" aria-atomic="true">
           <img id="battleDialoguePortrait" src="./Assets/characters/miku/front.png" alt=""/>
           <div class="battle-dialogue-copy"><strong id="battleDialogueSpeaker"></strong><span id="battleDialogueText"></span></div>
