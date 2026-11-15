@@ -71,6 +71,10 @@ function next(){
  startGame({...currentConfig,difficulty:DIFFICULTIES[i+1].id});
 }
 ui.bindGameHandlers({onStart:startGame,onExit:exitGame,onRetry:retry,onNext:next});
+ // Opt-in browser verification hook. Not exposed during ordinary gameplay.
+ if(typeof location!=='undefined'&&new URLSearchParams(location.search).has('ci')){
+  window.__sekaiTest={getGame:()=>game,getUI:()=>ui,startGame,finishRun};
+ }
 ui.notice();
 function frame(now){
  const rawDt=Math.max(0,(now-previous)/1000);
