@@ -129,6 +129,28 @@ try{
   await page.locator('#summonButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
+  // The upgrade sheet must explain the mechanics, not just show labels and prices.
+  await page.locator('#upgradeToggle').click({timeout:12000});
+  await page.waitForFunction(()=>document.getElementById('app').classList.contains('upgrade-open'));
+  const upgradedCopy=await page.locator('#upgradeGrid .upgrade-card').evaluateAll(cards=>cards.map(card=>({
+   name:card.querySelector('.upgrade-card-name')?.textContent,
+   details:card.querySelector('.upgrade-card-description')?.textContent,
+   progress:card.querySelector('.upgrade-card-progress')?.textContent
+  })));
+  assert.equal(upgradedCopy.length,4,vp.name+' four upgrade options must be visible');
+  assert(upgradedCopy.every(item=>item.details?.length>28&&item.progress?.includes('→')),
+   vp.name+' upgrade details or next-level comparisons missing: '+JSON.stringify(upgradedCopy));
+  assert(upgradedCopy.some(item=>item.details.includes('공격 간격')),
+   vp.name+' speed enhancement does not explain the attack interval');
+  assert(upgradedCopy.some(item=>item.details.includes('세카이의 마음')),
+   vp.name+' ability enhancement does not explain what gets faster');
+  assert((await page.locator('#upgradeIntro').textContent()).includes('크리스탈'),
+   vp.name+' upgrade cost guidance is missing');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-upgrades.png')});
+  await page.evaluate(()=>window.__sekaiTest.getUI().closeUpgrades());
+  assert((await page.locator('.heart-guide').textContent()).includes('자동으로 발동합니다'),
+   vp.name+' Hearts catalog did not receive formal gameplay instructions');
+
   // A landscape roster must show actionable information rather than empty space.
   if(vp.width>vp.height){
    const tactics=await page.locator('#teamTactics').boundingBox();
