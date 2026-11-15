@@ -78,3 +78,6 @@
  #heartsOverlay .dialog-head{margin-bottom:3px}
  #heartsOverlay .heart-list-summary{margin-bottom:3px}
 }
+/* Toasts are higher than generic overlays (120 vs 100): keep them from
+   covering the catalog's title and discovered count while it is open. */
+body:has(#heartsOverlay.visible) .toast-stack{visibility:hidden!important}
