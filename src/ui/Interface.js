@@ -1,13 +1,13 @@
 import {GROUPS,CHARACTER_BY_ID,SIGNATURES,attackValue,attackRange} from '../data/characters.js';
 import {MAPS} from '../data/maps.js';
-import {HEARTS} from '../data/hearts.js';
+import {HEARTS} from '../data/hearts.js?v=1.19.0';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
-import {TitleIntro} from './TitleIntro.js?v=1.15.1';
+import {TitleIntro} from './TitleIntro.js?v=1.19.0';
 import {persistSave} from '../core/Save.js';
-import {BattleExperience} from './BattleExperience.js?v=1.17.0';
+import {BattleExperience} from './BattleExperience.js?v=1.19.0';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
 const timeText=(sec)=>`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
