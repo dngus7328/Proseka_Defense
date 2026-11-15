@@ -8,7 +8,7 @@ body.heart-active::before{display:none!important}
  left:8px!important;
  right:auto!important;bottom:auto!important;
  transform:none!important;
- width:min(455px,calc(100vw - 118px))!important;
+ width:min(455px,calc(100vw - 138px))!important;
  height:58px!important;max-height:58px!important;min-height:58px!important;
  filter:none!important;pointer-events:none!important;
 }
@@ -98,7 +98,7 @@ body.heart-active .selection-panel,
 body.heart-active .battle-dialogue{opacity:1!important;visibility:visible!important}
 @media (orientation:portrait) and (max-width:360px){
  .skill-cutin,.skill-cutin.visible{
-  left:6px!important;width:calc(100vw - 102px)!important;
+  left:6px!important;width:calc(100vw - 137px)!important;
   top:calc(2px + env(safe-area-inset-top))!important;
   height:48px!important;min-height:48px!important;max-height:48px!important;
  }
