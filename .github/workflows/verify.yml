@@ -27,6 +27,9 @@ jobs:
           node --check src/data/battleChatter.js
           node --check src/core/Audio.js
           node --check src/core/MusicDirector.js
+          node --check src/core/HeartAbilities.js
+          node --check src/core/HeartVFX.js
+          node --check src/data/heartEffects.js
   visual:
     runs-on: ubuntu-latest
     permissions:

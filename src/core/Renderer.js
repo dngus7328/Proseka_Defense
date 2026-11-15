@@ -3,6 +3,7 @@ import {ENEMIES} from '../data/enemies.js';
 import {tileKey} from '../data/maps.js';
 import {drawSekaiWorld} from './SekaiMapArt.js?v=1.14.1';
 import {drawEnemyArt} from './EnemyArt.js?v=1.17.0';
+import {drawHeartStates} from './HeartVFX.js?v=1.21.0';
 const TILE=32;
 const DIRECTIONS=['front','front-left','back-left','back'];
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
@@ -255,11 +256,15 @@ export class Renderer {
   c.save();
   if(game.cameraShake>0&&!this.reduceMotion&&!this.effectsLite){const q=game.cameraShake;const j=Math.sin(time*129)*q;c.translate(j,Math.cos(time*151)*q*.65);}
   drawSekaiWorld(c,m,time,this.reduceMotion||this.effectsLite);
+  // Field props and enemy slow/hold markers persist for exactly as long as
+  // the matching ability, rather than vanishing after a generic flash.
+  drawHeartStates(c,game,time,TILE);
   this.drawPlacement(c,m,game);
   this.drawThreat(c,game,time);
   if(game.selected)this.drawRange(c,game.selected,game);
   const bodies=[...game.enemies.map(e=>({y:game.enemyPos(e).y,enemy:e})),...game.units.map(u=>({y:u.y,hero:u}))].sort((a,b)=>a.y-b.y);
   for(const item of bodies){if(item.enemy)this.drawEnemy(c,game,item.enemy,time);else this.drawHero(c,game,item.hero,time);}
+  drawHeartStates(c,game,time,TILE,true);
   this.drawEffects(c,game,time);
   this.drawHeartScene(c,game,time);
   if(game.phase==='ending'){

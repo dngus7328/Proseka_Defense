@@ -1,5 +1,6 @@
 import {CHARACTER_BY_ID} from '../data/characters.js';
-import {HEARTS} from '../data/hearts.js?v=1.19.0';
+import {HEARTS,HEART_BY_ID} from '../data/hearts.js?v=1.21.0';
+import {heartAbilityDescription} from '../core/HeartAbilities.js?v=1.21.0';
 import {interferenceForMap} from '../data/interference.js';
 import {situationalLine,pairDiscoveryLine} from '../data/battleChatter.js';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
@@ -66,8 +67,9 @@ export class BattleExperience {
   const lang=this.ui.save.language;
   const map=game.map;
   const danger=game.interference;
+  const active=game.heartStates?.slice().sort((a,b)=>b.remaining-a.remaining)[0];
   const ownedIds=new Set(game.units.map(unit=>unit.id));
-  const hintKey=[lang,map.id,game.wave,[...ownedIds].sort().join(','),game.threatStats.avoided,!!danger,game.moveMode,Math.ceil(game.counterTime||0)].join(':');
+  const hintKey=[lang,map.id,game.wave,[...ownedIds].sort().join(','),game.threatStats.avoided,!!danger,game.moveMode,Math.ceil(game.counterTime||0),active?.id,Math.ceil(active?.remaining||0)].join(':');
   if(this.lastTacticsKey===hintKey)return;
   this.lastTacticsKey=hintKey;
   const icon=el('teamTacticsIcon'),name=el('teamTacticsTitle');
@@ -108,6 +110,15 @@ export class BattleExperience {
     ko:'대피하면 재화 보상과 7초 반격 강화',
     ja:'回避すると報酬と7秒の反撃強化',
     en:'Dodge bonus: resources and 7s counterattack'
+   }[lang];
+  }else if(active){
+   const spell=HEART_BY_ID[active.heartId];
+   const effect=spell?heartAbilityDescription(spell,{average:1},lang):null;
+   text.textContent=effect?.description||active.type;
+   hint.textContent={
+    ko:`효과 지속 ${Math.ceil(active.remaining)}초 · 전장 오브젝트를 확인해`,
+    ja:`残り${Math.ceil(active.remaining)}秒・戦場を確認`,
+    en:`${Math.ceil(active.remaining)}s left · Watch the battlefield`
    }[lang];
   }else if(game.counterTime>0){
    text.textContent={

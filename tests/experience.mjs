@@ -6,6 +6,9 @@ import {Game} from '../src/core/Game.js';
 import {HEARTS} from '../src/data/hearts.js';
 import {MusicDirector} from '../src/core/MusicDirector.js';
 import {heartEffectDetails,heartCasterDescription} from '../src/data/heartEffects.js';
+import {mechanicForHeart,advanceHeartAbilities,heartMoveFactor,
+ heartAfterMovement,heartHeroIntervalFactor,heartAbilityDescription}
+ from '../src/core/HeartAbilities.js';
 import {bgmForMap,BGM_TRACKS} from '../src/data/musicTracks.js';
 import {MAPS} from '../src/data/maps.js';
 import {CHARACTER_BY_ID} from '../src/data/characters.js';
@@ -145,41 +148,113 @@ assert(html.includes('<span id="summonCost">28</span> <img class="currency-inlin
  'summon must show fragment icon');
 console.log('OK — seven threats, manual counterplay, paused warning, economy, localized chatter, and responsive UI wiring');
 
-// Six heart styles must have real effects, not identical cosmetic area damage.
-for(const style of ['star','rain','slash','burst','wave','orbit']){
- const heart=HEARTS.find(h=>h.style===style);
- assert(heart,'missing heart '+style);
- const g=new Game({mapId:'roof',difficulty:'normal'});
- g.wave=12;
- g.spawnEnemy('boss',6);
- const enemy=g.enemies[0];
- const oldHp=enemy.hp,oldPos=enemy.progress;
- const beforeCrystals=g.crystals;
+// Group ultimates have six different strategic jobs rather than six colors
+// of the same full-board damage effect.
+const groupRoles={
+ leo:'ensemble',mmj:'spotlight',vbs:'beat',wxs:'barrier',n25:'quiet',vs:'portal'
+};
+for(const [group,role] of Object.entries(groupRoles)){
+ const heart=HEARTS.find(h=>h.group===group&&h.type==='group');
+ assert(heart,'missing group '+group);
+ assert.equal(mechanicForHeart(heart),role);
+ const game=new Game({mapId:'roof',difficulty:'normal'});
+ game.wave=12;
+ const enemies=Array.from({length:4},(_,i)=>game.spawnEnemy(i===0?'boss':'tank',5+i*3));
+ const hp=enemies.map(e=>e.hp);
  const participants=heart.required.map((id,i)=>({
-  uid:i+1000,id,star:3,x:i+1,y:6,cooldown:0,
-  jamTime:0
+  uid:i+1000,id,star:3,x:Math.min(i+1,9),y:6,
+  cooldown:2,jamTime:0
  }));
- g.units=participants;
- g.fireHeart(heart,participants);
- assert(g.effects.some(e=>e.type==='heart'&&e.style===style),
-  style+': no visible battlefield attack');
- if(style==='wave')assert(enemy.slow>=2,style+': missing slow field');
- if(style==='star')assert(enemy.slow>0,style+': missing gravity effect');
- if(style==='rain')assert(g.crystals>beforeCrystals,style+': missing stage resources');
- if(style==='burst')assert(enemy.progress<oldPos,style+': missing knockback');
- if(style==='slash')assert(oldHp-enemy.hp>230,style+': no focused double strike');
- if(style==='orbit')assert(g.counterTime>=4,style+': no team resonance buff');
- assert(g.cameraShake>0,style+': attack lacks impact');
- assert.equal(g.lastHeartEffect?.heartId,heart.id,style+': last caster event missing');
- assert(g.lastHeartEffect?.actorId,'caster identity is absent');
- for(const lang of ['ko','ja','en']){
-  const desc=heartEffectDetails(heart,{average:3},lang);
-  assert(desc.short.length>7&&desc.detail.length>15,
-   style+' has no readable effect explanation in '+lang);
+ game.units=participants;
+ const start=enemies[0].progress;
+ if(role==='quiet'){
+  game.interference={uid:participants[0].uid,id:participants[0].id,
+   x:participants[0].x,y:participants[0].y,type:'silence',remaining:3};
  }
- const summary=heartCasterDescription(heart,participants,CHARACTER_BY_ID,'ko');
- assert(summary.includes(CHARACTER_BY_ID[participants[0].id].names.ko),
-  'combination summary must list its actual participants');
+ game.fireHeart(heart,participants);
+ const state=game.heartStates.at(-1);
+ assert.equal(state?.type,role,group+' did not establish its actual skill');
+ assert(state.remaining>3,group+' effect cannot be seen long enough');
+ assert(game.effects.some(e=>e.type==='heart'),group+' activation flash missing');
+ // Other roles should not deal disguised, arbitrary full-map damage.
+ assert.deepEqual(enemies.map(e=>e.hp),hp,group+' uses a generic nuke');
+ if(role==='ensemble'){
+  assert(heartHeroIntervalFactor(game,participants[0])<.6,'linked member attack speed missing');
+  assert(state.unitIds.length>=4,'four-character ensemble missing');
+ }
+ if(role==='spotlight'){
+  assert.equal(state.zones.length,3,'stage should place three useful lights');
+  enemies[0].progress=state.zones[0].index;
+  assert(heartMoveFactor(game,enemies[0])<.8,'spotlight must slow enemy movement');
+ }
+ if(role==='beat'){
+  advanceHeartAbilities(game,.1);
+  assert(enemies.some(e=>e.stun>0&&e.exposed>0),'VBS beat must repeatedly stagger');
+ }
+ if(role==='barrier'){
+  assert.equal(state.gates.length,3,'show should install three world barriers');
+  const gate=state.gates[0],enemy=enemies[0];
+  enemy.progress=gate.index+.2;
+  heartAfterMovement(game,enemy,gate.index-.1);
+  assert(enemy.stun>.3&&enemy.progress<gate.index,'stage gate failed to block traversal');
+ }
+ if(role==='quiet'){
+  assert(enemies.some(e=>e.stun>=1),'silence must stop enemies');
+  assert.equal(game.interference,null,'silence must interrupt imminent hazards');
+ }
+ if(role==='portal'){
+  assert(enemies[0].progress<start,'portal should recall an enemy');
+  assert(state.portals.length>=2,'return gates should remain in battlefield');
+  const entry=state.portals.at(-1),newcomer=game.spawnEnemy('pulse',entry.index-.2);
+  newcomer.progress=entry.index+.1;
+  heartAfterMovement(game,newcomer,entry.index-.2);
+  assert(newcomer.progress<entry.index&&newcomer.heartPortalHits?.[state.id],
+   'a visible persistent portal must also recall new enemies that pass through');
+ }
+ for(const language of ['ko','ja','en']){
+  const details=heartEffectDetails(heart,{average:3},language);
+  assert(details.short.length>=6&&details.detail.length>=(language==='ja'?12:17),
+   role+' not explained in '+language);
+  assert(!/범위 피해|Area damage|範囲ダメージ/.test(details.detail),
+   role+' fallback text wrongly claims area damage');
+ }
+ assert.equal(game.lastHeartEffect?.mechanic,role);
+ assert(game.lastHeartEffect.actorId,'the actual caster is not identified');
+ const participated=heartCasterDescription(heart,participants,CHARACTER_BY_ID,'ko');
+ assert(participated.includes(CHARACTER_BY_ID[participants[0].id].names.ko));
+ game.togglePause();const time=state.remaining;
+ game.update(4);
+ assert.equal(state.remaining,time,'paused game must freeze ongoing skill');
+}
+
+// Pair synergies should depend on which two people meet, not just add coins.
+for(const role of ['tether','stage','armor','barrier','rescue','mirror']){
+ const heart=HEARTS.find(h=>h.type==='pair'&&mechanicForHeart(h)===role);
+ assert(heart,'missing pair role '+role);
+ const game=new Game({mapId:'roof',difficulty:'normal'});
+ const enemies=[game.spawnEnemy('tank',4),game.spawnEnemy('pulse',8)];
+ const members=heart.required.map((id,i)=>({
+  uid:500+i,id,star:2,x:i+3,y:6,cooldown:2,jamTime:0
+ }));
+ game.units=members;game.fireHeart(heart,members);
+ assert.equal(game.heartStates.at(-1)?.type,role,'pair skill role mismatch '+role);
+ if(role==='tether')assert(enemies.some(e=>e.stun>0),'pair must bind targets');
+ if(role==='armor')assert(enemies.some(e=>e.exposed>0),'pair must expose armor');
+ if(role==='stage')assert(game.heartStates.at(-1).zones?.length>=1,'pair needs a floor zone');
+ if(role==='barrier')assert(game.heartStates.at(-1).gates?.length>=1,'pair needs an obstacle');
+ if(role==='rescue'||role==='mirror')
+  assert(heartHeroIntervalFactor(game,members[0])<1,'pair should visibly empower its two participants');
+}
+{
+ const h=HEARTS.find(h=>h.type==='group'&&h.group==='wxs');
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.units=h.required.map((id,i)=>({uid:i+1,id,star:4,x:i+1,y:6,cooldown:0}));
+ const enemy=g.spawnEnemy('tank',7);
+ g.fireHeart(h,g.units);
+ const before=g.heartStates[0].remaining;
+ g.speed=2;g.update(.05);
+ assert(Math.abs(g.heartStates[0].remaining-(before-.05))<.01,
+  'real seconds of effect should not become half as long at 2x speed');
 }
 // A disabled audio device keeps combat working, but original map score and
 // the cinematic skill cue must both be reachable from SoundEngine.
@@ -215,7 +290,16 @@ for(const style of ['star','rain','slash','burst','wave','orbit']){
  const music=fs.readFileSync(path.join(root,'src/core/MusicDirector.js'),'utf8');
  assert(cardCSS.includes('.heart-ability')&&cardCSS.includes('.skill-cutin-speaker'),
   'skill explanations must be readable in both collection and combat');
- assert(heartEffects.includes("ko:{")&&heartEffects.includes("ja:{")&&heartEffects.includes("en:{"));
+ assert(heartEffects.includes('heartAbilityDescription'),
+  'collection text must come from real ability logic rather than old damage labels');
+ const world=fs.readFileSync(path.join(root,'src/core/HeartVFX.js'),'utf8');
+ const director=fs.readFileSync(path.join(root,'src/core/HeartAbilities.js'),'utf8');
+ assert(world.includes('drawHeartStates')&&world.includes('barrier(')&&world.includes('portal('),
+  'persistent on-board abilities are not rendered');
+ assert(director.includes('heartAfterMovement')&&director.includes('heartHeroIntervalFactor'),
+  'world-changing roles are not connected to movement and attacks');
+ assert(html.includes('title-game-v121.css')&&html.includes('heart-skills-v121.css'),
+  'new title and live skills status must load');
  assert(uiSource.includes('heartEffectDetails(heart,strength,lang)'),
   'skill banner must name the actual applied ability');
  assert(!titleJS.includes('paintPortraitCrowd')&&!html.includes('titlePortraitCrowd'),
@@ -225,4 +309,4 @@ for(const style of ['star','rain','slash','burst','wave','orbit']){
  assert(music.includes('this.whoosh('),'short soft noise hit is required');
 
 }
-console.log('OK — distinct six-style heart mechanics, Suno-only BGM slots and responsive controls');
+console.log('OK — six real group ultimates, distinctive duo roles, persistent world props, readable effects and Suno slots');

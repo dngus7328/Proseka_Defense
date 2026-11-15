@@ -3,6 +3,8 @@ import {MAP_BY_ID,tileKey} from '../data/maps.js';
 import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js?v=1.19.0';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
 import {interferenceForMap,INTERFERENCE_WARNING_SECONDS} from '../data/interference.js';
+import {activateHeartAbility,advanceHeartAbilities,heartMoveFactor,heartAfterMovement,
+ heartHeroIntervalFactor,heartDamageFactor} from './HeartAbilities.js?v=1.21.0';
 const rnd=(max)=>Math.floor(Math.random()*max);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -19,6 +21,7 @@ export class Game {
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
   this.lastPairSkillTime=-Infinity;this.lastHeartActivationTime=-Infinity;this.lastHeartEffect=null;
+  this.heartStates=[];this.heartStateStats={blocked:0,rewound:0,boosted:0};
   this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};this.counterTime=0;
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
@@ -147,7 +150,7 @@ export class Game {
  addEffect(type,x,y,props={}){this.effects.push({type,x,y,life:props.life??.35,initial:props.life??.35,...props});if(this.effects.length>150)this.effects.splice(0,this.effects.length-150);}
  dealDamage(enemy,amount,sourceId){
   if(enemy.hp<=0)return;
-  const dealt=Math.min(enemy.hp,Math.max(0,amount));enemy.hp-=dealt;enemy.flash=.13;
+  const dealt=Math.min(enemy.hp,Math.max(0,amount*heartDamageFactor(this,enemy)));enemy.hp-=dealt;enemy.flash=.13;
   if(sourceId)this.damageByMember[sourceId]=(this.damageByMember[sourceId]||0)+dealt;
   if(enemy.hp<=0)this.killEnemy(enemy);
  }
@@ -291,57 +294,39 @@ export class Game {
   }
  }
  fireHeart(heart,participants){
-  const strength=heartStrength(participants);const boost=(1+this.upgrades.ability*.2)*strength.scale;
-  const sourceNames=participants.map(p=>p.id);
-  const count=participants.length;
-  const damage=(42+this.wave*8.2)*boost*(heart.type==='group'?1.25:1.03);
-  const heartColor=GROUPS.find(g=>g.id===CHARACTER_BY_ID[participants[0]?.id]?.group)?.color||'#d0d4dc';
-  const chosen=nearest(this.enemies.filter(e=>e.hp>0),{x:this.map.w/2,y:this.map.h/2});
-  const maxTargets=heart.type==='group'?Math.min(chosen.length,10+Math.floor(strength.average*3)):Math.min(chosen.length,5+Math.floor(strength.average*2));
-  // Different skills change actual strategy, not only the color of a damage ring.
-  const impactScale=heart.type==='group'?1:.7;
-  if(heart.style==='wave'){
-   for(const enemy of this.enemies)enemy.slow=Math.max(enemy.slow,4.2*impactScale);
-  }else if(heart.style==='rain'){
-   this.crystals+=Math.round((13+strength.average*3)*impactScale);
-   this.fragments+=Math.round(8*impactScale);
-  }else if(heart.style==='orbit'){
-   this.counterTime=Math.max(this.counterTime,6*impactScale);
-  }else if(heart.style==='burst'){
-   for(const enemy of chosen.slice(0,maxTargets))
-    enemy.progress=Math.max(0,enemy.progress-1.65*impactScale);
-  }else if(heart.style==='star'){
-   for(const enemy of chosen.slice(0,maxTargets))
-    enemy.slow=Math.max(enemy.slow,1.6*impactScale);
-  }else if(heart.style==='slash'&&chosen[0]){
-   this.dealDamage(chosen[0],damage*2.1*impactScale,participants[0].id);
-  }
-  for(const [index,e] of chosen.slice(0,maxTargets).entries()){
-   if(e.hp<=0)continue; // Slash may already have defeated this enemy.
-   const ep=this.enemyPos(e);
-   // Shared damage is credited exactly once, in fair equal shares across participants.
-   const dealt=Math.min(e.hp,damage*(index>5?.82:1));
-   e.hp-=dealt;e.flash=.24;e.hitPulse=Math.max(e.hitPulse||0,.22);
-   for(const member of sourceNames)this.damageByMember[member]=(this.damageByMember[member]||0)+dealt/count;
-   if(e.hp<=0)this.killEnemy(e);
-   if(index<14)this.addEffect('heartHit',ep.x,ep.y,{
-    color:heartColor,style:heart.style,heartId:heart.id,impactIndex:index,life:.48,full:strength.full
-   });
-  }
-  this.addEffect('heart',this.map.w/2-.5,this.map.h/2-.5,{
-   life:1.35,color:heartColor,style:heart.style,heartId:heart.id,
-   full:strength.full,group:heart.type==='group'
-  });
-  if(strength.full)this.addEffect('heartCrest',this.map.w/2-.5,this.map.h/2-.5,{
-   life:.68,color:'#ecd7a9',style:heart.style
-  });
-  this.cameraShake=Math.max(this.cameraShake,heart.type==='group'?5.4:3.2);
+  const strength=heartStrength(participants);
+  const color=GROUPS.find(g=>g.id===CHARACTER_BY_ID[participants[0]?.id]?.group)?.color||'#d3cddf';
+  const effect=activateHeartAbility(this,heart,participants,strength);
   const actorId=this.heartScene?.actorId||participants[0]?.id;
-  this.lastHeartEffect={heartId:heart.id,actorId,style:heart.style,
-   affected:Math.min(chosen.length,maxTargets),at:this.realTime};
-  this.emit('onHeartFire',{heart,strength,ability:heart.style,actorId,
-   affected:this.lastHeartEffect.affected});
-  this.emit('onSound',`heart-${heart.style}`);this.emit('onChange');
+  const actor=this.units.find(u=>u.id===actorId);
+  // The attack is visually anchored to its actual caster and any world zones;
+  // we no longer apply an identical full-map damage blast to every skill.
+  const origin=actor?{x:actor.x,y:actor.y}:{x:this.map.w/2-.5,y:this.map.h/2-.5};
+  this.addEffect('heart',origin.x,origin.y,{
+   life:1.08,color,style:heart.style,heartId:heart.id,
+   kind:effect.mechanic,full:strength.full,group:heart.type==='group'
+  });
+  if(strength.full)this.addEffect('heartCrest',origin.x,origin.y,{
+   life:.58,color:'#e7d9ac',style:heart.style
+  });
+  // Every enemy shown as 'hit' must actually have been affected by this
+  // mechanic; status/pushback/trap spells aren't disguised damage explosions.
+  const impacted=this.enemies.filter(e=>e.hp>0&&
+   ((e.stun||0)>.1||(e.exposed||0)>.1)).slice(0,12);
+  impacted.forEach((e,index)=>{
+   const p=this.enemyPos(e);
+   this.addEffect('heartHit',p.x,p.y,{
+    color,style:heart.style,heartId:heart.id,impactIndex:index,life:.42,full:strength.full
+   });
+  });
+  this.cameraShake=Math.max(this.cameraShake,heart.type==='group'?2.8:1.4);
+  this.lastHeartEffect={
+   heartId:heart.id,actorId,mechanic:effect.mechanic,
+   affected:effect.affected,duration:effect.duration,at:this.realTime
+  };
+  this.emit('onHeartFire',{heart,strength,actorId,...effect});
+  this.emit('onSound',`heart-${heart.style}`);
+  this.emit('onChange');
  }
  heartUpdate(dt,realDt){
   // Cinematic skill activation: introduce the caster, then apply the actual attack.
@@ -467,12 +452,15 @@ export class Game {
   const dt=Math.min(.06,realDt)*this.speed;
   this.realTime+=Math.max(0,realDt);this.virtualTime+=dt;this.waveTime+=dt;
   this.updateVisuals(dt);
+  advanceHeartAbilities(this,Math.max(0,realDt));
   this.updateStrikes(dt);
   while(this.spawnCursor<this.waveRoster.length&&this.waveTime>=(.8+this.spawnCursor*this.spawnStep)){
    this.spawnEnemy(this.waveRoster[this.spawnCursor]);this.spawnCursor++;
   }
   for(const enemy of this.enemies){
    enemy.slow=Math.max(0,enemy.slow-dt);
+   enemy.stun=Math.max(0,(enemy.stun||0)-Math.max(0,realDt));
+   enemy.exposed=Math.max(0,(enemy.exposed||0)-Math.max(0,realDt));
    enemy.emerge=Math.max(0,(enemy.emerge||0)-dt);
    enemy.tempo=Math.max(0,(enemy.tempo||0)-dt);
    enemy.surge=Math.max(0,(enemy.surge||0)-dt);
@@ -484,12 +472,17 @@ export class Game {
     enemy.kind==='split'?(1+.055*Math.sin(enemy.age*5+enemy.visualSeed)):
     enemy.kind==='boss'?(0.96+.04*Math.cos(enemy.age*2)) :1;
    enemy.age=(enemy.age||0)+dt;
-   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1)*(enemy.tempo>0?1.22:1)*(enemy.surge>0?1.65:1);
+   const previous=enemy.progress;
+   const motion=(enemy.stun||0)>0?0:heartMoveFactor(this,enemy);
+   enemy.progress+=dt*enemy.speed*pace*(enemy.slow>0?.52:1)*(enemy.tempo>0?1.22:1)
+    *(enemy.surge>0?1.65:1)*motion;
+   heartAfterMovement(this,enemy,previous);
   }
   // The Conductor boss leads nearby interference into a short faster beat.
   // This is a readable enemy mechanic, not a random whole-screen speed-up.
   for(const boss of this.enemies){
    if(boss.kind!=='boss'||boss.hp<=0)continue;
+   if(this.heartStates.some(s=>s.type==='quiet')){boss.beatCooldown=Math.max(boss.beatCooldown,.28);continue;}
    boss.beatCooldown-=dt;
    if(boss.beatCooldown>0)continue;
    boss.beatCooldown+=4.8;
@@ -512,7 +505,7 @@ export class Game {
    hero.cooldown-=dt;
    if(hero.cooldown<=0){
     const fired=this.attack(hero);
-    hero.cooldown=fired?attackInterval(hero,this.upgrades):.15;
+    hero.cooldown=fired?attackInterval(hero,this.upgrades)*heartHeroIntervalFactor(this,hero):.15;
    }
   }
   this.heartUpdate(dt,realDt);
@@ -538,7 +531,7 @@ export class Game {
  end(status,reason=null){
   if(this.phase!=='playing')return;
   this.phase='ending';
-  this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.interference=null;
+  this.heartQueue=[];this.heartScene=null;this.heartStates=[];this.pendingHits=[];this.interference=null;
   this.emit('onHeartEnd',{});this.emit('onThreatEnd',{});
   this.result={status,reason,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,threatStats:{...this.threatStats},summons:this.summons,fourStars:this.units.filter(u=>u.star===4).length,activeHearts:this.discoveredActive.length,team:this.units.map(u=>({id:u.id,star:u.star})),damageByMember:{...this.damageByMember}};
   this.endReal=0;this.endFromSpeed=this.speed;this.endAnimSpeed=this.speed;

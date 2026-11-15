@@ -1,0 +1,48 @@
+/* v1.21: gameplay status feedback connected to real Heart state. */
+#skillCondition.heart-active-status{
+ position:relative;
+ background:#f8edda!important;color:#2a475e!important;
+ border:1px solid #8c9db5!important;border-bottom:3px solid #caa17e!important;
+ box-shadow:0 2px 0 #31435721!important;
+ border-radius:5px!important;
+ padding:4px 9px!important;
+}
+#skillCondition.heart-active-status .skill-condition-name{
+ font-size:clamp(10px,2.4vw,13px)!important;
+ font-weight:900!important;color:#314b62!important;
+ white-space:nowrap;text-overflow:ellipsis;overflow:hidden;
+ min-width:0;flex:1!important;
+}
+#skillCondition.heart-active-status .skill-condition-avatars{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;gap:2px!important;
+}
+#skillCondition.heart-active-status .skill-member{
+ height:26px!important;width:26px!important;min-width:26px!important;
+ background:#f4f0df!important;border-radius:4px!important;
+ border:1px solid #b7ac9e!important;
+}
+#skillCondition.heart-active-status .skill-member img{
+ width:100%!important;height:100%!important;object-fit:contain!important;
+}
+#skillCondition.heart-active-status #skillConditionCount{
+ flex:0 0 auto!important;
+ min-width:30px!important;text-align:right!important;
+ font-size:clamp(12px,2.7vw,15px)!important;
+ color:#895e6d!important;font-variant-numeric:tabular-nums;
+}
+.team-tactics:has(.team-tactics-head){
+ transition:background .18s ease;
+}
+.team-tactics p{word-break:keep-all}
+#titleOverlay .title-enter:focus-visible{
+ outline:3px solid #f8f8c5!important;outline-offset:4px!important;
+}
+@media (orientation:portrait) and (max-height:725px){
+ /* The caster banner remains in the top safe-area and the map stays full sized.
+    This uses existing v1.18 short-screen logic rather than shrinking the field. */
+ #titleOverlay .title-enter{min-width:0!important}
+}
+@media (prefers-reduced-motion:reduce){
+ #titleOverlay .title-enter{transition:none!important}
+}
