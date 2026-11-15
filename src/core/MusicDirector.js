@@ -21,7 +21,7 @@ function env(g,start,peak,attack,hold,release){
 export class MusicDirector {
  constructor(getContext,getVolume){
   this.getContext=getContext;this.getVolume=getVolume;
-  this.bus=null;this.master=null;this.timer=null;this.mapId=null;
+  this.bus=null;this.fxBus=null;this.master=null;this.timer=null;this.mapId=null;
   this.step=0;this.next=0;this.paused=false;this.duckUntil=0;
   this.noise=null;this.lastCtx=null;
  }
@@ -33,7 +33,8 @@ export class MusicDirector {
    compressor.threshold.value=-19;compressor.ratio.value=2.5;
    compressor.attack.value=.006;compressor.release.value=.21;
    this.bus=ctx.createGain();this.bus.gain.value=.12;
-   this.bus.connect(compressor);compressor.connect(ctx.destination);
+   this.fxBus=ctx.createGain();this.fxBus.gain.value=.18;
+   this.bus.connect(compressor);this.fxBus.connect(compressor);compressor.connect(ctx.destination);
    this.noise=null;
   }
   return ctx;
@@ -42,6 +43,7 @@ export class MusicDirector {
   const ctx=this.lastCtx;if(!ctx||!this.bus)return;
   const v=Math.max(0,Math.min(1,this.getVolume()));
   this.bus.gain.setTargetAtTime(v*.31,ctx.currentTime,.06);
+  this.fxBus?.gain.setTargetAtTime(v*.54,ctx.currentTime,.06);
  }
  start(mapId){
   if(this.mapId===mapId&&this.timer)return;
@@ -107,7 +109,7 @@ export class MusicDirector {
     a.gain.value=kind==='pluck'?[1,.41,.18,.06][i]:[1,.36,.15,.07][i];
     o.connect(a);a.connect(group);o.start(start);o.stop(start+length+.12);
    });
-   if(kind==='pluck')this.percussion('pluckNoise',start,velocity*.18);
+   if(kind==='pluck')this.percussion('pluckNoise',start,velocity*.18,bus);
   }
  }
  noiseBuffer(){
@@ -119,8 +121,8 @@ export class MusicDirector {
   for(let i=0;i<len;i++){seed=(seed*1664525+1013904223)>>>0;data[i]=(seed/2147483648-1);}
   this.noise=b;return b;
  }
- percussion(kind,start,power=.15){
-  const ctx=this.lastCtx;if(!ctx||!this.bus)return;
+ percussion(kind,start,power=.15,bus=this.bus){
+  const ctx=this.lastCtx;if(!ctx||!bus)return;
   const src=ctx.createBufferSource();src.buffer=this.noiseBuffer();
   const filter=ctx.createBiquadFilter(),gain=ctx.createGain();
   filter.type=kind==='kick'?'lowpass':kind==='snare'?'bandpass':'highpass';
@@ -128,14 +130,14 @@ export class MusicDirector {
   filter.Q.value=.58;
   const dur=kind==='kick'?.12:kind==='snare'?.16:kind==='pluckNoise'?.035:.055;
   env(gain,start,Math.max(.0002,power),.002,.001,dur);
-  src.connect(filter);filter.connect(gain);gain.connect(this.bus);
+  src.connect(filter);filter.connect(gain);gain.connect(bus);
   src.start(start);src.stop(start+dur+.02);
   if(kind==='kick'){
    const osc=ctx.createOscillator(),bass=ctx.createGain();
    osc.type='sine';osc.frequency.setValueAtTime(105,start);
    osc.frequency.exponentialRampToValueAtTime(48,start+.14);
    env(bass,start,power*.9,.002,.001,.16);
-   osc.connect(bass);bass.connect(this.bus);osc.start(start);osc.stop(start+.17);
+   osc.connect(bass);bass.connect(bus);osc.start(start);osc.stop(start+.17);
   }
  }
  stepMusic(ctx,cfg,bar,step,at,whole){
@@ -172,21 +174,22 @@ export class MusicDirector {
    wave:{notes:[69,72,76,81],kind:'pad',drum:'hat'},
    orbit:{notes:[72,79,76,84,88,91],kind:'piano',drum:'snare'}
   }[style]||{notes:[72,79,84],kind:'piano',drum:'snare'};
-  config.notes.forEach((m,i)=>this.tone(midi(m),now+i*.082,config.kind==='pad'?.67:.32,.25+(i===config.notes.length-1?.12:0),config.kind));
-  this.percussion(config.drum,now+.19,.21);
-  this.percussion('kick',now+.38,.25);
-  this.tone(midi(config.notes.at(-1)-12),now+.4,.67,.31,'pad');
+  config.notes.forEach((m,i)=>this.tone(midi(m),now+i*.082,config.kind==='pad'?.67:.32,.25+(i===config.notes.length-1?.12:0),config.kind,this.fxBus));
+  this.percussion(config.drum,now+.19,.21,this.fxBus);
+  this.percussion('kick',now+.38,.25,this.fxBus);
+  this.tone(midi(config.notes.at(-1)-12),now+.4,.67,.31,'pad',this.fxBus);
  }
  heartAnticipation(style='star'){
   const ctx=this.setup();if(!ctx)return;
   const n=style==='slash'?57:style==='wave'?64:60,t=ctx.currentTime+.01;
-  for(let i=0;i<3;i++)this.tone(midi(n+7*i),t+i*.13,.22,.13,'piano');
+  for(let i=0;i<3;i++)this.tone(midi(n+7*i),t+i*.13,.22,.13,'piano',this.fxBus);
  }
  finish(won){
   const ctx=this.setup();if(!ctx)return;
   const now=ctx.currentTime+.02;
   const notes=won?[72,76,79,84,88]:[72,70,67,64];
-  notes.forEach((n,i)=>this.tone(midi(n),now+i*.155,.45,.34,'piano'));
-  if(won){this.percussion('snare',now+.35,.13);this.tone(midi(60),now+.52,1,.22,'pad');}
+  this.fxBus?.gain.setTargetAtTime(this.getVolume()*.54,now,.03);
+  notes.forEach((n,i)=>this.tone(midi(n),now+i*.155,.45,.34,'piano',this.fxBus));
+  if(won){this.percussion('snare',now+.35,.13,this.fxBus);this.tone(midi(60),now+.52,1,.22,'pad',this.fxBus);}
  }
 }
