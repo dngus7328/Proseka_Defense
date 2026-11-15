@@ -68,10 +68,12 @@ export class StoryFlow {
   el('storyPortrait').src='./Assets/characters/'+encodeURIComponent(item.speaker)+'/front.png';
   el('storyPortrait').alt=el('storySpeaker').textContent;
   el('storyLine').textContent=item.text;
-  // The setting is the actual procedural SEKAI map, not invented scenic art.
-  const sceneMap=this.currentMission?.map||MAP_BY_ID[['roof','stage','night'][this.cursor%3]];
+  // Keep the opening in one consistent neutral scene. A selected mission uses
+  // its own exact world; changing backdrops every prologue line felt arbitrary.
+  const sceneMap=this.currentMission?.map||MAP_BY_ID.night;
   const sceneCanvas=el('storyWorldBackdrop');
   if(sceneCanvas&&sceneMap)this.ui.renderer.drawThumbnail(sceneCanvas,sceneMap);
+  el('storyOverlay').dataset.sekai=sceneMap?.id||'night';
   el('storyIndex').textContent=String(this.cursor+1).padStart(2,'0')+' / '+String(this.queue.length).padStart(2,'0');
   el('storyProgress').style.width=(100*(this.cursor+1)/this.queue.length).toFixed(2)+'%';
   el('storyContinue').textContent=this.cursor===this.queue.length-1?l.next:l.next;
