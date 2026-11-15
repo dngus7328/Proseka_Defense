@@ -177,3 +177,16 @@
  .team-tactics{display:none!important}
  .battle{grid-template-rows:25px minmax(0,1fr) 22px!important}
 }
+
+/* Character chatter is important, but must never obscure the wave strip. */
+@media (orientation:portrait){
+ .battle-dialogue{
+  bottom:calc(118px + 29px + 15px + env(safe-area-inset-bottom))!important;
+ }
+}
+@media (orientation:portrait) and (max-height:725px){
+ .battle-dialogue{
+  bottom:calc(105px + 25px + 16px + env(safe-area-inset-bottom))!important;
+  max-height:51px!important;
+ }
+}
