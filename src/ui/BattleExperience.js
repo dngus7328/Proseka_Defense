@@ -6,12 +6,12 @@ import {situationalLine,pairDiscoveryLine} from '../data/battleChatter.js';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 const el=id=>document.getElementById(id);
 const HINTS={
- silence:{ko:'표시된 곳 주변의 멤버가 공격을 못 해. 대피해서 보호하자.',ja:'印の周囲のメンバーが攻撃不能に。移動して回避しよう。',en:'Nearby members will stop attacking. Move the marked member to protect them.'},
- rush:{ko:'피격 시 적이 빠르게 움직여. 표시된 멤버를 옮기자.',ja:'被弾すると敵が加速。印のメンバーを移動して。',en:'A hit speeds up enemies. Move the marked member.'},
- drain:{ko:'피격 시 크리스탈과 공격 기회를 잃어. 이동하면 보상!',ja:'被弾でクリスタルを消費。移動で報酬！',en:'A hit drains crystals and attacks. Dodge to earn rewards.'}
+ silence:{ko:'표시된 칸 주변의 멤버가 공격할 수 없게 됩니다. 대상 멤버를 이동하여 보호해 주세요.',ja:'印の周囲のメンバーが攻撃不能に。移動して回避しよう。',en:'Nearby members will stop attacking. Move the marked member to protect them.'},
+ rush:{ko:'피격 시 적의 이동 속도가 증가합니다. 표시된 멤버를 이동해 주세요.',ja:'被弾すると敵が加速。印のメンバーを移動して。',en:'A hit speeds up enemies. Move the marked member.'},
+ drain:{ko:'피격 시 크리스탈을 잃고 공격이 방해받습니다. 이동하여 회피하면 보상을 획득합니다.',ja:'被弾でクリスタルを消費。移動で報酬！',en:'A hit drains crystals and attacks. Dodge to earn rewards.'}
 };
 const LANG={
- ko:{danger:'전장 위험',evade:'대피',move:'초록색 빈 칸을 눌러 이동!',instruction:'대피 누르기 → 초록색 빈 칸 선택',chosen:'선택 중',dodge:'회피 성공! 재화 획득 · 공격력 +70% (7초)',hit:'이상현상 발생! 일시적으로 전투가 방해받아.',first:'첫 멤버를 배치했어! 같은 멤버 2명을 모으면 합성할 수 있어.',wave:'도달 웨이브',avoided:'위험 회피',time:'마지막 적을 시간 내 처치하지 못했어.',overflow:'적이 60마리 쌓였어. 배치·합성·광역 공격을 점검해 봐.',win:'세카이를 지켜냈어! 다음 도전이 기다리고 있어.',times:'회'},
+ ko:{danger:'전장 위험',evade:'대피',move:'초록색 빈 칸을 선택해 주세요.',instruction:'대피 버튼을 누른 뒤 초록색 빈 칸을 선택해 주세요.',chosen:'선택 중',dodge:'회피에 성공했습니다. 재화를 획득하고 7초 동안 공격력이 70% 증가합니다.',hit:'이상현상이 발생했습니다. 전투가 일시적으로 방해받습니다.',first:'첫 멤버를 배치했어! 같은 멤버 2명을 모으면 합성할 수 있어.',wave:'도달 웨이브',avoided:'위험 회피',time:'제한 시간 내에 남은 적을 처치하지 못했습니다.',overflow:'적이 60마리까지 누적되었습니다. 배치·합성·범위 공격을 점검해 주세요.',win:'세카이 방어에 성공했습니다. 다음 난이도에 도전할 수 있습니다.',times:'회'},
  ja:{danger:'ステージの危険',evade:'退避',move:'緑の空きマスをタップして移動！',instruction:'退避 → 緑の空きマスを選択',chosen:'移動中',dodge:'回避成功！報酬獲得・攻撃力 +70%（7秒）',hit:'異変発生！一時的に戦闘が妨害された。',first:'最初の仲間を配置！同じ仲間を二人集めると合成できるよ。',wave:'到達ウェーブ',avoided:'危険回避',time:'最後の敵を時間内に倒せなかった。',overflow:'敵が60体に。配置・合成・範囲攻撃を試して。',win:'セカイを守った！次の挑戦が待っている。',times:'回'},
  en:{danger:'STAGE DANGER',evade:'EVADE',move:'Tap an empty green tile to relocate!',instruction:'Evade → choose an empty green tile',chosen:'MOVING',dodge:'Dodged! Resources earned · +70% attack for 7s',hit:'Interference hit! Your defense is disrupted.',first:'First member placed! Merge two copies of the same member.',wave:'WAVE REACHED',avoided:'DANGERS DODGED',time:'Final enemies were not cleared in time.',overflow:'60 enemies accumulated. Try positioning, merging and area attacks.',win:'You protected the SEKAI! Your next challenge awaits.',times:''}
 };
@@ -103,12 +103,12 @@ export class BattleExperience {
   name.textContent=map.shortNames?.[lang]||map.names[lang]||map.names.ko;
   if(danger){
    text.textContent={
-    ko:'표시된 멤버를 다른 배치칸으로 이동해 위험을 피하자.',
+    ko:'표시된 멤버를 다른 빈 배치칸으로 이동하여 위험을 피하세요.',
     ja:'印のあるメンバーを別の空きマスに移動して回避しよう。',
     en:'Move the marked member to another free tile to avoid interference.'
    }[lang];
    hint.textContent={
-    ko:'대피하면 재화 보상과 7초 반격 강화',
+    ko:'대피에 성공하면 재화와 7초 동안 공격력 강화 효과를 받습니다.',
     ja:'回避すると報酬と7秒の反撃強化',
     en:'Dodge bonus: resources and 7s counterattack'
    }[lang];
@@ -117,13 +117,13 @@ export class BattleExperience {
    const effect=spell?heartAbilityDescription(spell,{average:1},lang):null;
    text.textContent=effect?.description||active.type;
    hint.textContent={
-    ko:`효과 지속 ${Math.ceil(active.remaining)}초 · 전장 오브젝트를 확인해`,
+    ko:`효과가 ${Math.ceil(active.remaining)}초 남았습니다. 전장 오브젝트를 확인해 주세요.`,
     ja:`残り${Math.ceil(active.remaining)}秒・戦場を確認`,
     en:`${Math.ceil(active.remaining)}s left · Watch the battlefield`
    }[lang];
   }else if(game.counterTime>0){
    text.textContent={
-    ko:'회피 성공! 전원의 공격력이 잠시 강화됐어.',
+    ko:'회피에 성공했습니다. 모든 멤버의 공격력이 일시적으로 증가합니다.',
     ja:'回避成功！全員の攻撃力が一時的に強化。',
     en:'Great dodge! The whole team is temporarily stronger.'
    }[lang];
@@ -134,12 +134,12 @@ export class BattleExperience {
    }[lang];
   }else if(game.wave<5&&game.difficulty==='normal'){
    text.textContent={
-    ko:'처음에는 같은 멤버를 2명 모아 합성하는 게 중요해.',
+    ko:'같은 멤버 2명을 배치하면 합성하여 성급을 높일 수 있습니다.',
     ja:'まず同じメンバーを二人集めて合成しよう。',
     en:'Build pairs of matching members to merge them.'
    }[lang];
    hint.textContent={
-    ko:'5웨이브부터 전장 이상현상이 나타나. 배치 이동을 기억해.',
+    ko:'5웨이브부터 이상현상이 발생합니다. 멤버 이동으로 회피할 수 있습니다.',
     ja:'ウェーブ5から異変が始まる。移動を覚えておこう。',
     en:'Stage hazards start at wave 5. You can relocate members.'
    }[lang];
@@ -147,7 +147,7 @@ export class BattleExperience {
    const type=interferenceForMap(map.id);
    text.textContent=HINTS[type.type][lang];
    hint.textContent={
-    ko:'멤버를 누르면 공격 범위와 합성·이동 버튼이 보여.',
+    ko:'멤버를 선택하면 공격 범위와 합성·이동 버튼을 확인할 수 있습니다.',
     ja:'メンバーをタップすると攻撃範囲・合成・移動が表示される。',
     en:'Tap a member to view range, merge and move controls.'
    }[lang];

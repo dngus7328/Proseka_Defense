@@ -1,0 +1,44 @@
+/* v1.27 — readable informational copy in the upgrade panel.
+   Text is a functional gameplay explanation, not a decorative caption. */
+.upgrade-grid{
+ grid-template-columns:1fr!important;
+ gap:7px!important;
+}
+.upgrade-card{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ min-height:0!important;gap:5px!important;
+ padding:10px 11px!important;text-align:left!important;
+}
+.upgrade-card-top{margin:0!important}
+.upgrade-card .upgrade-card-name{
+ display:block!important;font-size:13px!important;line-height:1.25!important;
+}
+.upgrade-card-description{
+ margin:0!important;color:#425a62!important;
+ font-size:11px!important;line-height:1.48!important;
+ font-weight:550!important;word-break:keep-all!important;
+}
+.upgrade-card-progress{
+ display:block!important;padding:5px 7px!important;
+ color:#28585b!important;background:#e8efe9!important;
+ border:1px solid #ccdbd5!important;border-radius:2px!important;
+ font-size:11px!important;font-weight:800!important;
+ line-height:1.35!important;word-break:keep-all!important;
+ overflow-wrap:anywhere!important;
+}
+.upgrade-card-footer{margin-top:3px!important}
+.upgrade-card:disabled{opacity:.78!important}
+.upgrade-card:disabled .upgrade-card-description{color:#52646b!important}
+#upgradeIntro,.heart-guide{
+ margin:4px 0 11px!important;
+ font-size:12px!important;line-height:1.55!important;
+ word-break:keep-all!important;
+ color:#496673!important;
+}
+#heartsOverlay .heart-guide{flex:none!important;margin:0 0 9px!important;font-size:11px!important}
+@media (orientation:landscape) and (max-height:440px){
+ .upgrade-card{padding:7px 9px!important;gap:3px!important}
+ .upgrade-card-description{font-size:10px!important;line-height:1.35!important}
+ .upgrade-card-progress{font-size:10px!important;padding:3px 5px!important}
+ #upgradeIntro{font-size:10px!important;margin:2px 0 5px!important}
+}

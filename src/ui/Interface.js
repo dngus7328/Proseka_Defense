@@ -4,6 +4,7 @@ import {HEARTS,HEART_BY_ID,heartStrength} from '../data/hearts.js?v=1.22.0';
 import {heartEffectDetails,heartCasterDescription} from '../data/heartEffects.js?v=1.21.0';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
+import {upgradeExplanation} from '../data/upgradeDescriptions.js';
 import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
 import {TitleIntro} from './TitleIntro.js?v=1.20.0';
@@ -258,7 +259,7 @@ export class Interface {
     (h.type==='group'?'必要メンバー全員を配置すると自動発動':'2人を配置すると自動発動'):
     this.save.language==='en'?
     (h.type==='group'?'Automatically activates with all group members':'Automatically activates when both members are deployed'):
-    (h.type==='group'?'필요한 그룹 멤버를 모두 배치하면 자동 발동':'두 멤버를 함께 배치하면 자동 발동');
+    (h.type==='group'?'필요한 그룹 멤버를 모두 배치하면 자동으로 발동합니다.':'필요한 두 멤버를 함께 배치하면 자동으로 발동합니다.');
    const serial=document.createElement('small');serial.className='heart-number';
    serial.textContent='NO. '+String(index+1).padStart(3,'0')+' · '+(known?
     (this.save.language==='ja'?'発見':this.save.language==='en'?'DISCOVERED':'발견'):
@@ -277,7 +278,7 @@ export class Interface {
    const caption=document.createElement('p');caption.className='heart-undiscovered';
    caption.textContent=this.save.language==='ja'?`未発見のペア ${unknown}組`:
     this.save.language==='en'?`${unknown} more duo combinations to discover`:
-    `아직 발견하지 못한 2인 조합 ${unknown}개`;
+    `미발견 2인 조합이 ${unknown}개 남아 있습니다.`;
    list.append(caption);
   }
   el('heartCount').textContent=String(this.save.discovered.length);
@@ -463,7 +464,7 @@ export class Interface {
   }
   if(!shown.length){
    const hint=document.createElement('span');hint.className='team-strip-hint';
-   hint.textContent=this.save.language==='ja'?'召喚してメンバーを配置':this.save.language==='en'?'Summon your first member':'소환해서 첫 멤버를 배치해 봐';
+   hint.textContent=this.save.language==='ja'?'召喚してメンバーを配置':this.save.language==='en'?'Summon your first member':'멤버를 소환하여 첫 배치를 진행해 주세요.';
    host.append(hint);
   }
  }
@@ -540,7 +541,7 @@ export class Interface {
  }
  updateUpgrades(force){
   const g=this.game;if(!g)return;
-  const token=JSON.stringify([g.upgrades,Math.floor(g.fragments),this.save.language]);
+  const token=JSON.stringify([g.upgrades,Math.floor(g.crystals),g.phase,this.save.language]);
   if(!force&&this.lastUpgrades===token)return;
   this.lastUpgrades=token;
   const total=Object.values(g.upgrades).reduce((a,b)=>a+b,0);el('upgradeStatus').textContent=`${total} / 24`;
@@ -552,10 +553,15 @@ export class Interface {
    const icon=document.createElement('span');icon.textContent=d.icon;
    const lv=document.createElement('small');lv.textContent=`Lv ${level}/${d.max}`;top.append(icon,lv);
    const name=document.createElement('strong');name.className='upgrade-card-name';name.textContent=this.t(d.id);
+   const rule=upgradeExplanation(d.id,level,d.max,this.save.language);
+   const description=document.createElement('p');description.className='upgrade-card-description';description.textContent=rule.description;
+   const progression=document.createElement('small');progression.className='upgrade-card-progress';progression.textContent=rule.progress;
+   button.title=name.textContent+' — '+rule.description+' '+rule.progress;
+   button.setAttribute('aria-label',button.title);
    const bottom=document.createElement('div');bottom.className='upgrade-card-footer';
    const pips=document.createElement('span');pips.className='level-pips';for(let i=0;i<d.max;i++){const p=document.createElement('i');if(i<level)p.className='filled';pips.append(p);}
-   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./Assets/currency/crystal.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
-   bottom.append(pips,cost);button.append(top,name,bottom);
+   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./Assets/currency/crystal.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('crystals')}`);}
+   bottom.append(pips,cost);button.append(top,name,description,progression,bottom);
    button.addEventListener('click',()=>g.upgrade(d.id));parent.append(button);
   }
  }

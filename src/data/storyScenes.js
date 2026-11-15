@@ -137,9 +137,20 @@ export function getMissionStory(mapId,difficulty,firstWorld,firstDifficulty,lang
  }
  return out;
 }
+// Narration for the mission panel is deliberately separate from character
+// dialogue: objective text is formal, while spoken story lines remain casual.
+export const MISSION_OBJECTIVES={
+ roof:tr('왜곡된 악기 소리가 퍼지는 교실의 적 이동 경로를 방어합니다.','異変が広がる教室の敵の進路を防衛します。','Defend the enemy route through the distorted classroom.'),
+ stage:tr('이상현상이 발생한 스테이지의 적 이동 경로를 방어합니다.','異変が起きたステージの敵の進路を防衛します。','Defend the stage against the incoming anomaly.'),
+ city:tr('스트리트에 나타난 적의 순환 경로를 방어합니다.','ストリートの敵の巡回ルートを防衛します。','Defend the enemy circuit through the street.'),
+ wonderland:tr('원더랜드의 공연 시설과 적 이동 경로를 방어합니다.','ワンダーランドの施設と敵の進路を防衛します。','Defend the Wonderland attractions and enemy route.'),
+ night:tr('아무도 없는 세카이에 나타난 적의 순환 경로를 방어합니다.','誰もいないセカイの敵の巡回ルートを防衛します。','Defend the enemy route through the Empty SEKAI.'),
+ closedwindow:tr('닫힌 창 주변에 나타난 적의 이동 경로를 방어합니다.','閉ざされた窓の周囲の敵の進路を防衛します。','Defend the enemy route around the closed windows.'),
+ openwindow:tr('열린 창을 통해 접근하는 적의 이동 경로를 방어합니다.','開かれた窓から接近する敵の進路を防衛します。','Defend the route of enemies approaching through the open windows.')
+};
 export function getMissionObjective(mapId,lang='ko'){
- const world=WORLD[mapId];
- return world?.intro[0]?.[lang]||world?.intro[0]?.ko||'';
+ const objective=MISSION_OBJECTIVES[mapId];
+ return objective?.[lang]||objective?.ko||'';
 }
 export function getEndStory(mapId,won,firstClear,lang='ko'){
  const world=WORLD[mapId]||WORLD.roof;
