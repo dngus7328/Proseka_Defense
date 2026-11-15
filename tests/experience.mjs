@@ -205,6 +205,11 @@ for(const [group,role] of Object.entries(groupRoles)){
  if(role==='portal'){
   assert(enemies[0].progress<start,'portal should recall an enemy');
   assert(state.portals.length>=2,'return gates should remain in battlefield');
+  const entry=state.portals.at(-1),newcomer=game.spawnEnemy('pulse',entry.index-.2);
+  newcomer.progress=entry.index+.1;
+  heartAfterMovement(game,newcomer,entry.index-.2);
+  assert(newcomer.progress<entry.index&&newcomer.heartPortalHits?.[state.id],
+   'a visible persistent portal must also recall new enemies that pass through');
  }
  for(const language of ['ko','ja','en']){
   const details=heartEffectDetails(heart,{average:3},language);
