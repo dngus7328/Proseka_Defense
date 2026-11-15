@@ -2,7 +2,7 @@ import {Renderer} from './core/Renderer.js?v=1.21.0';
 import {Game} from './core/Game.js?v=1.22.0';
 import {loadSave,persistSave} from './core/Save.js';
 import {SoundEngine} from './core/Audio.js?v=1.20.0';
-import {Interface} from './ui/Interface.js?v=1.22.0';
+import {Interface} from './ui/Interface.js?v=1.25.0';
 import {DIFFICULTIES} from './data/enemies.js';
 
 const save=loadSave();
@@ -64,13 +64,21 @@ function retry(){if(!currentConfig)return;startGame(currentConfig);}
 function next(){
  if(!game||game.result?.status!=='win')return;
  if(game.difficulty==='extreme'){
-   currentConfig={...currentConfig,difficulty:'endless'};
-   game.continueEndless();sound.startMusic(game.map.id);ui.hideOverlays();ui.update(true);
-   return;
+  // Endless is an extension of this victory, not a fresh run.
+  const config={...currentConfig,difficulty:'endless'};
+  ui.storyFlow.startMission(config,()=>{
+   currentConfig=config;
+   game.continueEndless();
+   sound.startMusic(game.map.id);
+   ui.hideOverlays();ui.update(true);
+  });
+  return;
  }
- const i=DIFFICULTIES.findIndex(d=>d.id===game.difficulty);if(i<0||i>=DIFFICULTIES.length-2)return;
- startGame({...currentConfig,difficulty:DIFFICULTIES[i+1].id});
+ const i=DIFFICULTIES.findIndex(d=>d.id===game.difficulty);
+ if(i<0||i>=DIFFICULTIES.length-2)return;
+ ui.storyFlow.startMission({...currentConfig,difficulty:DIFFICULTIES[i+1].id});
 }
+
 ui.bindGameHandlers({onStart:startGame,onExit:exitGame,onRetry:retry,onNext:next});
  // Opt-in browser verification hook. Not exposed during ordinary gameplay.
  if(typeof location!=='undefined'&&new URLSearchParams(location.search).has('ci')){
