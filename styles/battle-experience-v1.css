@@ -274,3 +274,44 @@
  #resultOverlay .result-insight small{font-size:9px}
  #resultOverlay .result-actions button{height:42px}
 }
+
+
+/* Stage selection introduces the matching characters, using their exact PNGs. */
+#lobbyOverlay .lobby-team-preview{
+ position:absolute;z-index:2;left:0;right:0;bottom:42%;
+ display:flex;align-items:flex-end;justify-content:center;
+ padding:0 6px;pointer-events:none;overflow:hidden;height:140px;
+}
+#lobbyOverlay .lobby-team-preview img{
+ display:block;flex:0 0 auto;position:relative;
+ width:clamp(70px,19vw,114px);height:clamp(83px,23vw,135px);
+ object-fit:contain;image-rendering:auto;
+ margin-left:-7px;filter:drop-shadow(0 3px 2px #263e5475);
+}
+#lobbyOverlay .lobby-team-preview img:first-child{margin-left:0}
+#lobbyOverlay .lobby-team-preview img:nth-child(1){translate:0 1px}
+#lobbyOverlay .lobby-team-preview img:nth-child(2){translate:0 7px}
+#lobbyOverlay .lobby-team-preview img:nth-child(3){translate:0 -2px}
+#lobbyOverlay .lobby-team-preview img:nth-child(4){translate:0 6px}
+@media (orientation:landscape){
+ #lobbyOverlay .lobby-team-preview{
+  bottom:11px;height:min(42%,136px);padding:0 5px;
+ }
+ #lobbyOverlay .lobby-team-preview img{
+  width:min(21%,92px);height:min(100%,114px);margin-left:-3px;
+ }
+}
+@media (orientation:landscape) and (max-height:390px){
+ #lobbyOverlay .lobby-team-preview{height:95px;bottom:5px}
+ #lobbyOverlay .lobby-team-preview img{height:93px;width:min(22%,75px)}
+}
+@media (prefers-reduced-motion:no-preference){
+ #lobbyOverlay.visible .lobby-team-preview img{
+  animation:memberOnStage .44s ease-out both;
+  animation-delay:calc(var(--member-index)*65ms);
+ }
+ @keyframes memberOnStage{
+  from{opacity:0;translate:0 11px}
+  to{opacity:1;translate:0 0}
+ }
+}
