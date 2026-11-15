@@ -1,8 +1,8 @@
-import {Renderer} from './core/Renderer.js?v=1.14.1';
-import {Game} from './core/Game.js';
+import {Renderer} from './core/Renderer.js?v=1.17.0';
+import {Game} from './core/Game.js?v=1.17.0';
 import {loadSave,persistSave} from './core/Save.js';
 import {SoundEngine} from './core/Audio.js';
-import {Interface} from './ui/Interface.js?v=1.15.1';
+import {Interface} from './ui/Interface.js?v=1.17.0';
 import {DIFFICULTIES} from './data/enemies.js';
 
 const save=loadSave();
@@ -34,7 +34,11 @@ function startGame(config){
    onSelection:()=>ui.update(true),
    onToast:(key)=>ui.toast(key),
    onWave:({wave})=>{ui.status(`WAVE ${String(wave).padStart(2,'0')}`);},
-   onBossWave:()=>{ui.toast('checkpoint');},
+   onBossWave:({wave})=>{ui.experience?.onBossWave(wave);ui.toast('checkpoint');},
+    onThreatStart:entry=>ui.experience?.onThreatStart(entry),
+    onThreatAvoid:entry=>ui.experience?.onThreatAvoid(entry),
+    onThreatHit:entry=>ui.experience?.onThreatHit(entry),
+    onThreatEnd:()=>ui.experience?.update(),
    onHeartSeen:id=>ui.onHeartSeen(id),
    onHeartStart:entry=>ui.onHeartStart(entry),
    onHeartFire:entry=>ui.onHeartFire(entry),
