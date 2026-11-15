@@ -1,9 +1,11 @@
-import {MusicDirector} from './MusicDirector.js?v=1.19.0';
-// Self-generated short SFX: no external music/voice/sound samples.
-// Distinct attack hits are rate-limited so dense defenses remain comfortable.
+import {MusicDirector} from './MusicDirector.js?v=1.20.0';
+
+// No music is synthesized here. All SFX are short, unpitched physical-style
+// noises: soft taps, brushes, hits and low impact thumps, not ascending bleeps.
 export class SoundEngine {
  constructor(){
-  this.context=null;this.volume=.35;this.lastImpact=-Infinity;this.lastSpecial=-Infinity;
+  this.context=null;this.volume=.35;
+  this.lastImpact=-Infinity;this.lastSpecial=-Infinity;this.noise=null;
   this.music=new MusicDirector(()=>this.getContext(),()=>this.volume);
  }
  setVolume(value){
@@ -12,9 +14,9 @@ export class SoundEngine {
  }
  getContext(){
   try{
-   const A=window.AudioContext||window.webkitAudioContext;
-   if(!A)return null;
-   if(!this.context)this.context=new A();
+   const C=window.AudioContext||window.webkitAudioContext;
+   if(!C)return null;
+   if(!this.context)this.context=new C();
    if(this.context.state==='suspended')this.context.resume().catch(()=>{});
    return this.context;
   }catch{return null;}
@@ -22,61 +24,84 @@ export class SoundEngine {
  startMusic(mapId){this.music.start(mapId);}
  pauseMusic(value){this.music.pause(value);}
  stopMusic(){this.music.stop();}
- heartAnticipation(style){this.music.heartAnticipation(style);}
- endMusic(won){this.music.stop();this.music.finish(won);}
+ heartAnticipation(style){if(this.volume>0)this.music.heartAnticipation(style);}
+ endMusic(won){this.music.stop();if(this.volume>0)this.music.finish(won);}
+ noiseBuffer(ctx){
+  if(this.noise)return this.noise;
+  const length=Math.round(ctx.sampleRate*.31);
+  const b=ctx.createBuffer(1,length,ctx.sampleRate),a=b.getChannelData(0);
+  let seed=618219;
+  for(let i=0;i<length;i++){
+   seed=(1664525*seed+1013904223)>>>0;
+   a[i]=seed/2147483648-1;
+  }
+  this.noise=b;return b;
+ }
+ brush(ctx,when,frequency=1250,power=.16,duration=.08,type='bandpass'){
+  const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter();
+  const gain=ctx.createGain();
+  source.buffer=this.noiseBuffer(ctx);
+  filter.type=type;filter.Q.value=.53;
+  filter.frequency.setValueAtTime(Math.max(120,frequency),when);
+  if(duration>.05)filter.frequency.exponentialRampToValueAtTime(Math.max(140,frequency*.66),when+duration);
+  const amplitude=Math.max(.0001,Math.min(.12,this.volume*.06*power));
+  gain.gain.setValueAtTime(.00001,when);
+  gain.gain.linearRampToValueAtTime(amplitude,when+.003);
+  gain.gain.exponentialRampToValueAtTime(.00001,when+duration);
+  source.connect(filter);filter.connect(gain);gain.connect(ctx.destination);
+  source.start(when);source.stop(when+Math.min(.3,duration)+.015);
+ }
+ thump(ctx,when,power=.20){
+  const osc=ctx.createOscillator(),gain=ctx.createGain();
+  const amp=Math.min(.055,this.volume*.065*power);
+  osc.type='sine';osc.frequency.setValueAtTime(130,when);
+  osc.frequency.exponentialRampToValueAtTime(52,when+.145);
+  gain.gain.setValueAtTime(.00001,when);
+  gain.gain.linearRampToValueAtTime(Math.max(.0001,amp),when+.005);
+  gain.gain.exponentialRampToValueAtTime(.00001,when+.17);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(when);osc.stop(when+.18);
+ }
  beep(kind='select'){
   if(this.volume<=0)return;
   if(kind.startsWith('heart-')){
-   this.music.heartCue(kind.slice(6));
-   return;
+   // One clear percussive strike per activation. No melody or ringing arpeggio.
+   this.music.heartCue(kind.slice(6));return;
+  }
+  const ctx=this.getContext();if(!ctx)return;
+  const t=ctx.currentTime;
+  if(kind==='hit'||kind==='heavy'){
+   if(t-this.lastImpact<(kind==='heavy'?.12:.095))return;
+   this.lastImpact=t;
+  }
+  if(kind==='special'){
+   if(t-this.lastSpecial<.30)return;
+   this.lastSpecial=t;
   }
   try{
-   const ctx=this.getContext();if(!ctx)return;
-   const time=ctx.currentTime;
-   if(kind==='hit'||kind==='heavy'){
-    if(time-this.lastImpact<(kind==='heavy'?.105:.085))return;
-    this.lastImpact=time;
+   switch(kind){
+    case 'select':this.brush(ctx,t,2400,.12,.025,'highpass');break;
+    case 'summon':
+     this.brush(ctx,t,760,.24,.095);
+     this.thump(ctx,t+.065,.20);break;
+    case 'merge':
+     this.brush(ctx,t,1070,.30,.11);
+     this.thump(ctx,t+.03,.25);break;
+    case 'upgrade':
+     this.brush(ctx,t,1600,.14,.055,'highpass');
+     this.thump(ctx,t+.015,.12);break;
+    case 'heavy':
+     this.thump(ctx,t,.43);this.brush(ctx,t,750,.27,.115);break;
+    case 'hit':this.brush(ctx,t,1100,.11,.043);break;
+    case 'special':
+     this.brush(ctx,t,550,.18,.10);
+     this.thump(ctx,t+.03,.26);break;
+    case 'win':
+     this.thump(ctx,t,.20);
+     this.brush(ctx,t+.10,1150,.16,.13);break;
+    case 'lose':this.thump(ctx,t,.17);break;
+    default:this.brush(ctx,t,1800,.1,.028,'highpass');break;
    }
-   if((kind==='special'||kind.startsWith('heart-'))&&time-this.lastSpecial<.13)return;
-   if(kind==='special'||kind.startsWith('heart-'))this.lastSpecial=time;
-   const tones={
-    select:[515,.045,'sine',.75],
-    summon:[610,.16,'triangle',1.1],
-    merge:[830,.20,'triangle',1.0],
-    heart:[430,.27,'triangle',1.25],
-    'heart-star':[570,.19,'triangle',1.02],
-    'heart-rain':[720,.22,'sine',.9],
-    'heart-slash':[300,.12,'sawtooth',.95],
-    'heart-burst':[470,.21,'square',.72],
-    'heart-wave':[380,.30,'sine',.92],
-    'heart-orbit':[620,.28,'triangle',1.07],
-    lose:[245,.29,'triangle',.85],
-    win:[720,.27,'triangle',1.15],
-    upgrade:[750,.13,'sine',.8],
-    hit:[350,.050,'triangle',.60],
-    heavy:[165,.13,'sawtooth',1.05],
-    special:[550,.18,'triangle',1.1]
-   };
-   const [frequency,duration,wave,mul]=tones[kind]||tones.select;
-   const osc=ctx.createOscillator(),gain=ctx.createGain();
-   osc.type=wave;
-   osc.frequency.setValueAtTime(frequency,time);
-   const endFreq=kind==='heavy'?105:kind==='hit'?230:kind==='lose'?160:kind==='summon'?860:frequency*1.13;
-   osc.frequency.exponentialRampToValueAtTime(Math.max(40,endFreq),time+duration);
-   const power=Math.max(.0004,Math.min(.13,this.volume*.043*mul));
-   gain.gain.setValueAtTime(.0001,time);
-   gain.gain.exponentialRampToValueAtTime(power,time+.009);
-   gain.gain.exponentialRampToValueAtTime(.0001,time+duration);
-   osc.connect(gain);gain.connect(ctx.destination);osc.start(time);osc.stop(time+duration+.02);
-   if(kind==='heavy'||kind==='merge'||kind==='heart'||kind.startsWith('heart-')){
-    const accent=ctx.createOscillator(),env=ctx.createGain();
-    accent.type='sine';accent.frequency.setValueAtTime(kind.startsWith('heart-')?frequency*1.4:kind==='heart'?640:kind==='merge'?940:83,time);
-    accent.frequency.exponentialRampToValueAtTime(kind==='heavy'?57:1100,time+duration*.8);
-    env.gain.setValueAtTime(.0001,time);
-    env.gain.exponentialRampToValueAtTime(power*.56,time+.012);
-    env.gain.exponentialRampToValueAtTime(.0001,time+duration*.87);
-    accent.connect(env);env.connect(ctx.destination);accent.start(time);accent.stop(time+duration);
-   }
-  }catch{ /* Audio is optional when device/browser does not support it. */ }
+  }catch{/* Device audio is optional; gameplay is never blocked. */}
  }
 }
