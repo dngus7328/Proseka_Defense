@@ -264,6 +264,7 @@ export class Renderer {
   if(game.selected)this.drawRange(c,game.selected,game);
   const bodies=[...game.enemies.map(e=>({y:game.enemyPos(e).y,enemy:e})),...game.units.map(u=>({y:u.y,hero:u}))].sort((a,b)=>a.y-b.y);
   for(const item of bodies){if(item.enemy)this.drawEnemy(c,game,item.enemy,time);else this.drawHero(c,game,item.hero,time);}
+  drawHeartStates(c,game,time,TILE,true);
   this.drawEffects(c,game,time);
   this.drawHeartScene(c,game,time);
   if(game.phase==='ending'){
