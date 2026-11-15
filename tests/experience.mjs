@@ -47,6 +47,7 @@ for(const id of ['roof','city','closedwindow']){
  assert.equal(game.interference,null,'warning did not clear');
  assert.equal(game.fragments,from+8,'fragment dodge reward missing');
  assert.equal(game.crystals,to+12,'crystal dodge reward missing');
+ assert(game.counterTime>6.9,'dodge must grant a seven-second counterattack');
 }
 {
  const g=new Game({mapId:'roof',difficulty:'normal'});
@@ -73,6 +74,15 @@ for(const id of ['roof','city','closedwindow']){
   });
  }
  assert.equal(g.beginThreat(),false,'full board should not produce an unavoidable warning');
+}
+{
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.summon();g.startWave(5);g.beginThreat();
+ const target=g.interference,free=g.map.available.find(p=>g.canPlace(p.x,p.y));
+ g.selection(target.uid);g.moveSelected();g.clickTile(free.x,free.y);
+ const before=g.counterTime;g.speed=2;g.update(.05);
+ assert(Math.abs(g.counterTime-(before-.05))<.001,
+  'counterattack must last seven real seconds even at 2x speed');
 }
 {
  const g=new Game({mapId:'roof',difficulty:'normal'});
