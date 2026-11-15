@@ -215,7 +215,7 @@ try{
    return {items:list.querySelectorAll('.heart-item').length,
     described:list.querySelectorAll('.heart-ability').length,
     portraits:list.querySelectorAll('.heart-roster img').length,
-    effects:list.textContent.includes('범위 피해')};
+    effects:list.textContent.includes('장벽')&&list.textContent.includes('감속')};
   });
   assert(encyclopedia.items>=16&&encyclopedia.described===encyclopedia.items
     &&encyclopedia.portraits>=32&&encyclopedia.effects,
