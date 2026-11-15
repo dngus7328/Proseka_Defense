@@ -263,11 +263,16 @@ export class Interface {
   this.skillCutin.dataset.actor=id;
   this.skillCutin.dataset.style=heart.style;
   this.skillCutin.classList.toggle('simple',this.save.effects==='lite');
-  // Keep the whole activation in a narrow HUD-sized dialogue strip. No
-  // giant portrait, full-screen shading or animated overlays over the board.
+  // Original illustrations are used unchanged; each special now has its own
+  // full cinematic focal point and a short instrumental anticipation.
+  this.sound.heartAnticipation(heart.style);
+  const supporters=participants.filter(u=>u.id!==id).slice(0,5).map(u=>
+   `<img src="./Assets/characters/${encodeURIComponent(u.id)}/front.png" alt="" draggable="false"/>`
+  ).join('');
   this.skillCutin.innerHTML=`
    <div class="skill-cutin-panel">
     <div class="skill-cutin-art">
+      <div class="skill-cutin-support" aria-hidden="true">${supporters}</div>
       <img class="skill-cutin-lead" src="./Assets/characters/${encodeURIComponent(id)}/front.png" alt="" draggable="false" />
     </div>
     <div class="skill-cutin-dialogue">
