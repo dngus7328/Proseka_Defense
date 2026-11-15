@@ -472,16 +472,19 @@ export class Interface {
   if(active){
    const ability=HEART_BY_ID[active.heartId];
    const details=ability?heartEffectDetails(ability,{average:1},this.save.language):null;
-   el('skillConditionName').textContent=details?.short||active.type;
+   const caster=CHARACTER_BY_ID[active.casterId];
+   const casterName=caster?.names?.[this.save.language]||caster?.names?.ko||'';
+   el('skillConditionName').textContent=(casterName?casterName+' · ':'')+(details?.short||active.type);
    el('skillConditionCount').textContent=Math.ceil(active.remaining)+'s';
    bar.classList.remove('ready');
    host.replaceChildren();
    for(const id of active.actorIds){
-    const portrait=document.createElement('span');portrait.className='skill-member owned';
+    const portrait=document.createElement('span');portrait.className='skill-member owned'+(id===active.casterId?' skill-caster':'');
+    portrait.title=CHARACTER_BY_ID[id]?.names?.[this.save.language]||id;
     const im=document.createElement('img');im.src='./Assets/characters/'+id+'/front.png';im.alt='';
     portrait.append(im);host.append(portrait);
    }
-   bar.title=details?.detail||'';
+   bar.title=(casterName?casterName+' · ':'')+(details?.detail||'');
    return;
   }
   bar.removeAttribute('title');
