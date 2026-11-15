@@ -365,7 +365,7 @@ export class Game {
    if(this.heartTimers[heart.id]<=0){
     // Wide pairing discovery must not create an endless cinematic queue.
     // A group heart is independent; pair hearts share one 11-second slot.
-    if(heart.type==='pair'&&this.realTime-this.lastPairSkillTime<11){
+    if(heart.type==='pair'&&(this.realTime<5||this.realTime-this.lastPairSkillTime<11)){
      this.heartTimers[heart.id]=Math.max(.8,11-(this.realTime-this.lastPairSkillTime));
      continue;
     }
