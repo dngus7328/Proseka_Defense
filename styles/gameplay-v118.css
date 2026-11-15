@@ -190,3 +190,11 @@
   max-height:51px!important;
  }
 }
+
+/* Keep landscape dialogue completely above the wave/status rail. */
+@media (orientation:landscape){
+ .battle-dialogue{
+  bottom:calc(58px + env(safe-area-inset-bottom))!important;
+  max-height:58px!important;
+ }
+}
