@@ -343,6 +343,10 @@ export class Renderer {
   // Rank is visible from the ground ornament and badge without recoloring the sprite.
   c.save();c.translate(0,10);
   c.fillStyle='#20323c85';c.beginPath();c.ellipse(0,8,14+u.star*1.5,5.5,0,0,Math.PI*2);c.fill();
+  if(game.counterTime>0){
+   c.strokeStyle='#eadb91';c.lineWidth=1.6;
+   c.beginPath();c.ellipse(0,8,17+u.star*1.5,7.5,0,0,Math.PI*2);c.stroke();
+  }
   if(u.star>=2){
    const radius=13+u.star*2.2;
    c.strokeStyle=u.star===2?'#d1dfd5':u.star===3?'#e7cfa0':'#f9dc85';
