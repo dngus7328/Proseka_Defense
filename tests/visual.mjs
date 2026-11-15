@@ -23,7 +23,22 @@ try{
   page.on('pageerror',error=>errors.push(String(error)));
   await page.goto(origin+'/?ci=1&visual=1',{waitUntil:'networkidle',timeout:60000});
   await page.locator('#acceptNotice').click({timeout:12000});
+  const artReady=()=>{const b=document.getElementById('titleBackdrop');
+   return b?.classList.contains('art-ready')
+    &&[...b.querySelectorAll('.title-layer')].every(i=>i.complete&&i.naturalWidth>0)
+    &&document.getElementById('titleLanguageLogo')?.naturalWidth>0;};
+  try{await page.waitForFunction(artReady,null,{timeout:17000});}
+  catch(error){
+   const status=await page.evaluate(()=>({
+    backdrop:document.getElementById('titleBackdrop')?.className,
+    titleClass:document.getElementById('titleOverlay')?.className,
+    images:[...document.querySelectorAll('#titleBackdrop .title-layer')].map(i=>({src:i.src,complete:i.complete,width:i.naturalWidth})),
+    logo:{src:document.getElementById('titleLanguageLogo')?.src,width:document.getElementById('titleLanguageLogo')?.naturalWidth}
+   }));
+   throw new Error(vp.name+' title art failed to load: '+JSON.stringify(status)+'; '+error);
+  }
   await page.locator('#titleSkipIntro').evaluate(e=>e.click());
+  await page.waitForTimeout(100);
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
   await page.locator('#titleEnter').click({timeout:12000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby.png')});
