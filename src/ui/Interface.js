@@ -9,6 +9,7 @@ import {TITLE_LOGOS} from '../data/branding.js';
 import {TitleIntro} from './TitleIntro.js?v=1.20.0';
 import {persistSave} from '../core/Save.js';
 import {BattleExperience} from './BattleExperience.js?v=1.22.0';
+import {StoryFlow} from './StoryFlow.js?v=1.25.0';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
 const timeText=(sec)=>`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
@@ -22,6 +23,7 @@ export class Interface {
   this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';this.lastTeamSignature='';this.lastSkillSignature='';
   this.handlers={};this.heartBannerTimer=null;this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
   this.titleIntro=new TitleIntro();
+  this.storyFlow=new StoryFlow(this);
   this.experience=new BattleExperience(this);
   this.skillCutin=document.createElement('section');this.skillCutin.id='skillCutin';this.skillCutin.className='skill-cutin';this.skillCutin.setAttribute('aria-live','polite');this.skillCutin.setAttribute('aria-atomic','true');document.body.append(this.skillCutin);
  }
@@ -70,12 +72,12 @@ export class Interface {
  registerActions(){
   const click=(id,fn)=>el(id).addEventListener('click',fn);
   click('acceptNotice',()=>this.showTitle());
-  click('titleEnter',()=>{this.sound.beep('select');this.showLobby();});
+  click('titleEnter',()=>{this.sound.beep('select');this.storyFlow.beginPrologue();});
   click('lobbyBack',()=>this.showTitle());
   click('titleSettings',()=>this.openSettings());
   click('titleHearts',()=>this.openHearts());
   document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>this.setLanguage(b.dataset.lang)));
-  click('startButton',()=>this.handlers.onStart?.({...this.config}));
+  click('startButton',()=>this.storyFlow.startMission({...this.config}));
   click('openSettings',()=>this.openSettings());click('lobbySettings',()=>this.openSettings());click('pauseSettings',()=>this.openSettings());
   click('openCollection',()=>this.openHearts());click('heartButton',()=>this.openHearts());
   click('pauseButton',()=>this.togglePause());click('resumeButton',()=>this.resume());
@@ -102,7 +104,8 @@ export class Interface {
   });
   document.addEventListener('keydown',e=>{
    if(e.key==='Escape'){
-    if(this.overlayVisible('noticeOverlay')||this.overlayVisible('titleOverlay')||this.overlayVisible('lobbyOverlay'))return;
+    if(this.overlayVisible('storyOverlay')||this.overlayVisible('missionOverlay')){this.storyFlow.cancel();return;}
+     if(this.overlayVisible('noticeOverlay')||this.overlayVisible('titleOverlay')||this.overlayVisible('lobbyOverlay'))return;
     if(this.overlayVisible('settingsOverlay'))this.closeOverlay('settingsOverlay');
     else if(this.overlayVisible('heartsOverlay'))this.closeOverlay('heartsOverlay');
     else this.togglePause();
@@ -111,7 +114,7 @@ export class Interface {
   });
  }
  isModalOpen(){return [...document.querySelectorAll('.overlay')].some(e=>e.classList.contains('visible'));}
- showLobby(){this.titleIntro?.skip();this.game=null;this.closeUpgrades();this.config.difficulty='normal';this.renderLobby();this.showOverlay('lobbyOverlay');}
+ showLobby(){this.titleIntro?.skip();this.game=null;this.closeUpgrades();this.renderLobby();this.showOverlay('lobbyOverlay');}
  renderLobby(){
   const diff=el('difficultyChoices');if(!diff)return;
   const cleared=this.save.cleared;
@@ -579,6 +582,7 @@ export class Interface {
    row.innerHTML=`<span class="damage-rank">${String(i+1).padStart(2,'0')}</span><img class="damage-avatar" src="./Assets/characters/${encodeURIComponent(id)}/front.png" alt=""/><span class="damage-name">${escapeHTML(def.names[this.save.language])}<small>${escapeHTML(GROUPS.find(g=>g.id===def.group)?.short||'')}</small></span><strong class="damage-number">${format(damage)}</strong><div class="damage-bar"><span style="width:${damage>0?Math.max(2,damage/max*100):0}%"></span></div>`;
    list.append(row);
   }
+  this.storyFlow?.renderResult(result);
   el('toastStack').replaceChildren();el('boardFloat').textContent='';this.sound.beep(result.status==='win'?'win':'lose');this.showOverlay('resultOverlay');
  }
 }
