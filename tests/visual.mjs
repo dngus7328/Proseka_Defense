@@ -47,6 +47,12 @@ try{
   await page.locator('#summonButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
+  // A landscape roster must show actionable information rather than empty space.
+  if(vp.width>vp.height){
+   const tactics=await page.locator('#teamTactics').boundingBox();
+   assert(tactics&&tactics.width>120&&tactics.height>55,vp.name+' tactics panel missing');
+   assert((await page.locator('#teamTacticsDescription').textContent()).trim().length>10);
+  }
   const layout=await page.evaluate(()=>{
    const box=sel=>{const e=document.querySelector(sel);if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
    const g=window.__sekaiTest.getGame();
@@ -63,7 +69,7 @@ try{
    const g=window.__sekaiTest.getGame();
    g.startWave(5);
    if(!g.beginThreat())throw Error('No hazard began');
-   window.__sekaiTest.getUI().experience.update();
+   window.__sekaiTest.getUI().update(true);
   });
   await page.waitForFunction(()=>!document.getElementById('dangerBanner').hidden);
   await page.screenshot({path:path.join('artifacts',vp.name+'-danger.png')});
@@ -87,7 +93,8 @@ try{
    g.update(1.6);
   });
   await page.waitForFunction(()=>document.getElementById('resultOverlay').classList.contains('visible'));
-  assert(await page.locator('#resultInsight').locator('div').count()>=2,vp.name+' result summary missing');
+  assert(await page.locator('#resultInsight').locator('div').count()>=4,vp.name+' four result metrics missing');
+  await page.waitForTimeout(650);
   await page.screenshot({path:path.join('artifacts',vp.name+'-result.png')});
   assert.deepEqual(errors,[],vp.name+' script errors: '+errors.join(' | '));
   summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:6});
