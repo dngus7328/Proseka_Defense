@@ -121,7 +121,8 @@ assert(pairDiscoveryLine('emu-nene','ko').includes('에무'));
   {uid:2,id:'saki',star:1,x:2,y:1},
   {uid:3,id:'honami',star:1,x:3,y:1}
  ];
- assert(g.discoveredActive.some(h=>h.required.length===2&&!h.isGenerated));
+ assert(g.discoveredActive.some(h=>h.required.length===2&&h.isGenerated),
+  'ordinary character pairs must discover new cooperation hearts');
  g.realTime=12;g.spawnEnemy('boss',1);
  g.heartUpdate(.2,.2);
  const queued=g.heartQueue.filter(q=>q.heart.type==='pair').length+
