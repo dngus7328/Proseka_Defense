@@ -41,6 +41,11 @@ try{
   await page.waitForTimeout(100);
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
   await page.locator('#titleEnter').click({timeout:12000});
+  await page.waitForFunction(()=>{
+   const list=[...document.querySelectorAll('#lobbyTeamPreview img')];
+   return list.length===4&&list.every(img=>img.complete&&img.naturalWidth>0);
+  },null,{timeout:12000});
+  await page.waitForTimeout(520);
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby.png')});
   await page.locator('#startButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest?.getGame()?.phase==='playing',{timeout:10000});
