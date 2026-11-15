@@ -53,7 +53,7 @@ export class MusicDirector {
   this.schedule();
  }
  pause(value){
-  if(!this.timer)return;
+  if(!this.timer||this.paused===!!value)return;
   this.paused=!!value;
   if(!this.paused&&this.lastCtx)this.next=this.lastCtx.currentTime+.06;
   if(this.bus&&this.lastCtx)
@@ -78,7 +78,7 @@ export class MusicDirector {
    this.stepMusic(ctx,cfg,bar,step,this.next,s);
    this.step++;this.next+=stepSec;
   }
-  const target=ctx.currentTime<this.duckUntil?.14:1;
+  const target=ctx.currentTime<this.duckUntil?0.14:1;
   this.bus?.gain.setTargetAtTime(Math.max(.0001,this.getVolume()*.31*target),ctx.currentTime,.15);
  }
  pitch(cfg,degree,oct=0){
