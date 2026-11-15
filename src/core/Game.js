@@ -1,6 +1,6 @@
 import {CHARACTERS,CHARACTER_BY_ID,GROUPS,SIGNATURES,attackValue,attackInterval,attackRange} from '../data/characters.js';
 import {MAP_BY_ID,tileKey} from '../data/maps.js';
-import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js';
+import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js?v=1.19.0';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
 import {interferenceForMap,INTERFERENCE_WARNING_SECONDS} from '../data/interference.js';
 const rnd=(max)=>Math.floor(Math.random()*max);
