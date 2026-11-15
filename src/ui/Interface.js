@@ -130,6 +130,17 @@ export class Interface {
   });
   maps.scrollLeft=mapScrollLeft;
   const selected=MAPS.find(m=>m.id===this.config.mapId);
+  const teamPreview=el('lobbyTeamPreview');
+  if(teamPreview){
+   const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===selected?.affinityGroup).slice(0,4);
+   teamPreview.replaceChildren();
+   for(const [i,c] of members.entries()){
+    const img=document.createElement('img');
+    img.src=`./Assets/characters/${c.id}/front.png`;
+    img.alt='';img.loading='eager';img.style.setProperty('--member-index',i);
+    teamPreview.append(img);
+   }
+  }
   if(selected){
    el('app').dataset.theme=selected.theme;this.syncMapArtwork(selected);
    const host=document.querySelector('.lobby-art-copy');
