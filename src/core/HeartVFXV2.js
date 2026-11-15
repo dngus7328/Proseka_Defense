@@ -56,7 +56,7 @@ function linked(c,g,s,T,t,col,reduced){
  for(const p of members){marker(c,p.x,p.y,col);star(c,p.x,p.y-27,8,'#fff0cd');}
  if(members.length)tag(c,name(s.type,g.language),members[0].x,members[0].y-49,col);
 }
-function spot(c,x,y,s,col,type,t,lang){
+function spot(c,x,y,s,col,type,t,lang,primary=true){
  const r=type==='spotlight'?47:38;
  c.save();c.globalAlpha=.24;c.fillStyle=col;
  c.beginPath();c.moveTo(x-18,0);c.lineTo(x+18,0);c.lineTo(x+r,y+5);c.lineTo(x-r,y+5);c.closePath();c.fill();
@@ -65,14 +65,16 @@ function spot(c,x,y,s,col,type,t,lang){
  oval(c,x,y+5,r,r*.5,col,3.5);
  panel(c,x-17,y-7,34,13,'#344b60',col);
  c.fillStyle='#fff3cf';c.fillRect(x-12,y-3,24,5);
- tag(c,name(type,lang),x,y-39,col);gauge(c,x-21,y+27,42,s,col);
+ if(primary)tag(c,name(type,lang),x,y-39,col);
+ gauge(c,x-21,y+27,42,s,col);
 }
-function gate(c,x,y,s,col,t,lang){
+function gate(c,x,y,s,col,t,lang,primary=true){
  panel(c,x-23,y-21,46,43,'#2b4156ef',col);
  for(let i=-1;i<=1;i++)line(c,{x:x+i*13-6,y:y-18},{x:x+i*13+5,y:y+17},'#fff4d7',3);
  panel(c,x-24,y-26,48,8,col,'#fff5df');
  star(c,x,y-37+Math.sin(t*3)*1.8,9,'#fff0be');
- tag(c,name('barrier',lang),x,y-56,col);gauge(c,x-20,y+24,40,s,col);
+ if(primary)tag(c,name('barrier',lang),x,y-56,col);
+ gauge(c,x-20,y+24,40,s,col);
 }
 function portal(c,x,y,col,t,reduced){
  c.save();c.fillStyle='#2a4257e6';
@@ -121,8 +123,8 @@ export function drawHeartStates(c,g,time,T=32,foreground=false,reduced=false){
  c.globalAlpha=Math.min(1,s.remaining*.7,(s.total-s.remaining)*7+.4);
  const actors=g.units.filter(u=>s.unitIds.includes(u.uid));
  if(['ensemble','rescue','mirror'].includes(s.type))linked(c,g,s,T,time,col,reduced);
- if(s.zones)for(const z of s.zones){const p=P(z,T);spot(c,p.x,p.y,s,col,s.type,time,lang);}
- if(s.gates)for(const z of s.gates){const p=P(z,T);gate(c,p.x,p.y,s,col,time,lang);}
+ if(s.zones)for(const [i,z] of s.zones.entries()){const p=P(z,T);spot(c,p.x,p.y,s,col,s.type,time,lang,i===0);}
+ if(s.gates)for(const [i,z] of s.gates.entries()){const p=P(z,T);gate(c,p.x,p.y,s,col,time,lang,i===0);}
  if(s.type==='beat'){
   const phase=reduced?.4:(time/.69)%1;
   for(let i=0;i<g.map.path.length;i+=4){
