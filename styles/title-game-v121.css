@@ -161,7 +161,7 @@
  #titleOverlay .title-backdrop .title-enemies,
  #titleOverlay .title-backdrop .title-characters,
  #titleOverlay .title-backdrop .title-final{
-  width:100vw!important;top:55%!important;right:auto!important;bottom:auto!important;
+  width:100vw!important;top:50.5%!important;right:auto!important;bottom:auto!important;
   object-fit:contain!important;
  }
  #titleOverlay .title-backdrop .title-final{display:none!important}
@@ -193,7 +193,7 @@
 @media (orientation:portrait) and (max-height:690px){
  #titleOverlay .title-logo-wrap{top:clamp(63px,11dvh,100px)!important}
  #titleOverlay .title-backdrop .title-characters,
- #titleOverlay .title-backdrop .title-enemies{top:56%!important}
+ #titleOverlay .title-backdrop .title-enemies{top:52%!important}
  #titleOverlay .title-bottom{bottom:calc(11px + env(safe-area-inset-bottom))!important}
  #titleOverlay .title-enter{height:51px!important;min-height:51px!important}
  #titleOverlay .title-skip{bottom:calc(72px + env(safe-area-inset-bottom))!important}
