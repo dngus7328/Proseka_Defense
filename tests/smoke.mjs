@@ -29,7 +29,8 @@ for(const m of MAPS){
  assert.equal(g.map.id,m.id);
  assert(g.summon(),`${m.id}: failed initial summon`);
  assert.equal(g.units.length,1);
- assert.equal(g.crystals,72);
+ assert.equal(g.fragments,32);
+ assert.equal(g.crystals,100);
  assert(g.map.availableSet.has(`${g.units[0].x},${g.units[0].y}`));
  const icon=path.join(root,`Assets/ui/${m.id}.png`);
  assert(fs.existsSync(icon),`missing icon: ${icon}`);
@@ -52,7 +53,7 @@ assert(interfaceHtml.includes('Assets/currency/crystal.png'));
 assert(interfaceHtml.includes('Assets/currency/wish-piece.png'));
 assert(interfaceHtml.includes('currency-inline'));
 const interfaceJs=fs.readFileSync(path.join(root,'src/ui/Interface.js'),'utf8');
-assert(interfaceJs.includes('cost-piece\" src=\"./Assets/currency/wish-piece.png'));
+assert(interfaceJs.includes('cost-piece\" src=\"./Assets/currency/crystal.png'));
 
 for(const hero of CHARACTERS){
  for(const direction of ['front','front-left','back-left','back']){
@@ -177,14 +178,14 @@ console.log('OK — seven animated SEKAI arenas, seven unique enemy art forms, b
 
 
 {
- // Next-price rule must match actual paid crystals on every successful tap.
+ // Next-price rule must match actual paid fragments on every successful tap.
  const game=new Game({mapId:'roof',difficulty:'normal'});
- game.crystals=1000;
+ game.fragments=1000;
  for(let i=0;i<6;i++){
-  const expected=28+i, before=game.crystals;
+  const expected=28+i, before=game.fragments;
   assert.equal(game.cost,expected,'summon cost is not incremental');
   assert(game.summon(),`summon ${i+1} failed`);
-  assert.equal(before-game.crystals,expected,'paid crystal cost mismatch');
+  assert.equal(before-game.fragments,expected,'paid fragment cost mismatch');
   assert.equal(game.cost,expected+1,'next price did not increase immediately');
  }
 }
