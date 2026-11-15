@@ -315,3 +315,36 @@
   to{opacity:1;translate:0 0}
  }
 }
+
+
+/* The four/six member targets make the combination goal visible in battle. */
+.team-heart-progress{display:none}
+@media (orientation:landscape){
+ .team-heart-progress{
+  display:flex;flex-direction:column;gap:5px;flex:0 0 auto;
+  margin-top:3px;padding:7px;
+  background:#e4e9df;border:1px solid #bbc8bc;border-radius:6px;
+ }
+ .team-heart-caption{font-size:10px;color:#476877;letter-spacing:-.02em}
+ .team-heart-members{display:flex;gap:4px;align-items:center;justify-content:space-between}
+ .team-heart-member{
+  position:relative;flex:0 1 auto;
+  width:clamp(29px,4.8vw,44px);height:clamp(29px,4.8vw,44px);
+  display:grid;place-items:center;overflow:hidden;
+  background:#cdd5d1;border:1px solid #b4bdb6;
+  border-radius:5px;filter:grayscale(.8);opacity:.57;
+ }
+ .team-heart-member img{
+  display:block;width:100%;height:100%;object-fit:contain;
+  image-rendering:auto;
+ }
+ .team-heart-member.owned{
+  background:#fff3dc;border:2px solid #cea667;
+  box-shadow:0 2px 0 #e0c79a6b;opacity:1;filter:none;
+ }
+}
+@media (orientation:landscape) and (max-height:370px){
+ .team-heart-progress{gap:2px;padding:4px}
+ .team-heart-caption{font-size:9px}
+ .team-heart-member{width:clamp(27px,4.5vw,38px);height:clamp(27px,4.5vw,38px)}
+}
