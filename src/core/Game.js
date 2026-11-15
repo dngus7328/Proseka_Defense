@@ -1,5 +1,5 @@
 import {CHARACTERS,CHARACTER_BY_ID,GROUPS,SIGNATURES,attackValue,attackInterval,attackRange} from '../data/characters.js';
-import {MAP_BY_ID,tileKey} from '../data/maps.js';
+import {MAP_BY_ID,tileKey} from '../data/maps.js?v=1.22.0';
 import {HEARTS,heartsAvailableInSekai,activeHeartsForGame,MAX_HEART_CASTS_PER_MATCH,
  MIN_HEART_INTERVAL_SECONDS,getHeartParticipants,heartStrength} from '../data/hearts.js?v=1.22.0';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
@@ -85,7 +85,9 @@ export class Game {
   // All 26 are always in the pool. The selected SEKAI has an explicit 55%
   // priority roll, owned characters have a separate 25% merge-assistance
   // roll, and the remaining roll uses the entire roster uniformly.
-  const affinity=CHARACTERS.filter(c=>c.group===this.map.affinityGroup);
+  // The window SEKAIs explicitly offer ALL six Virtual Singers, not a
+  // shortened three- or four-member subset shown in older UI previews.
+  const affinity=(this.map.sekaiMembers||[]).map(id=>CHARACTER_BY_ID[id]).filter(Boolean);
   const ownedIds=[...new Set(this.units.map(u=>u.id))];
   const owned=ownedIds.map(id=>CHARACTER_BY_ID[id]).filter(Boolean);
   const roll=Math.random();
