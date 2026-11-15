@@ -57,6 +57,8 @@ try{
    const tactics=await page.locator('#teamTactics').boundingBox();
    assert(tactics&&tactics.width>120&&tactics.height>55,vp.name+' tactics panel missing');
    assert((await page.locator('#teamTacticsDescription').textContent()).trim().length>10);
+   assert(await page.locator('#teamHeartProgress .team-heart-member').count()>=4,
+    vp.name+' combination target portraits are missing');
   }
   const layout=await page.evaluate(()=>{
    const box=sel=>{const e=document.querySelector(sel);if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
