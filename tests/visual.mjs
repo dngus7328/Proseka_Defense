@@ -129,6 +129,16 @@ try{
   await page.locator('#summonButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
+  if(vp.name==='desktop'){
+   const ambient=await page.evaluate(()=>{
+    const e=document.querySelector('.world-decoration'),r=e?.getBoundingClientRect(),c=e&&getComputedStyle(e);
+    return {cssMatch:matchMedia('(min-width:1280px) and (min-height:620px) and (orientation:landscape)').matches,display:c?.display,opacity:c?.opacity,z:c?.zIndex,
+     bounds:r?{x:r.x,y:r.y,width:r.width,height:r.height}:null,html:e?.outerHTML.slice(0,350)};
+   });
+   assert(ambient.cssMatch&&ambient.display!=='none'&&ambient.bounds?.width>120&&ambient.bounds.x>=0,
+    'Desktop must display a real SEKAI location plaque in otherwise empty space: '+JSON.stringify(ambient));
+  }
+
   // The upgrade sheet must explain the mechanics, not just show labels and prices.
   await page.locator('#upgradeToggle').click({timeout:12000});
   await page.waitForFunction(()=>document.getElementById('app').classList.contains('upgrade-open'));
