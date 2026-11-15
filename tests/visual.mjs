@@ -39,18 +39,16 @@ try{
   }
   await page.locator('#titleSkipIntro').evaluate(e=>e.click());
   await page.waitForTimeout(100);
-  if(vp.width<vp.height){
-   const crowd=await page.evaluate(()=>{
-    const c=document.getElementById('titlePortraitCrowd'),ctx=c?.getContext('2d');
-    if(!ctx)return {width:0,filled:0};
-    const {data}=ctx.getImageData(0,0,c.width,c.height);
-    let filled=0;
-    for(let i=3;i<data.length;i+=4*224)if(data[i]>32)filled++;
-    return {width:c.width,filled};
-   });
-   assert(crowd.width>200&&crowd.filled>50,
-    vp.name+' portrait character crowd is missing: '+JSON.stringify(crowd));
-  }
+  // Preserve the artist's character group exactly once. The experimental
+  // portrait collage must not return, on mobile or landscape.
+  const titleArt=await page.evaluate(()=>{
+   const chars=document.querySelectorAll('#titleBackdrop .title-characters');
+   const el=chars[0];
+   return {count:chars.length,extraCanvas:!!document.getElementById('titlePortraitCrowd'),
+    display:el&&getComputedStyle(el).display,ready:!!el?.naturalWidth};
+  });
+  assert(titleArt.count===1&&!titleArt.extraCanvas&&titleArt.display!=='none'&&titleArt.ready,
+   vp.name+' duplicate title art detected: '+JSON.stringify(titleArt));
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
   await page.locator('#titleEnter').click({timeout:12000});
   await page.waitForFunction(()=>{
@@ -163,6 +161,15 @@ try{
   });
   await page.waitForFunction(()=>document.getElementById('skillCutin')?.classList.contains('visible'));
   await page.waitForTimeout(250);
+  const caster=await page.evaluate(()=>{
+   const ui=document.getElementById('skillCutin');
+   return {actor:ui?.dataset.actor,name:ui?.querySelector('.skill-cutin-speaker')?.textContent,
+    technique:ui?.querySelector('.skill-cutin-type')?.textContent,
+    effect:ui?.querySelector('.skill-cutin-words')?.textContent};
+  });
+  assert(caster.actor==='tsukasa'&&caster.name?.length>0&&caster.technique?.length>0&&
+   caster.effect?.includes('피해'),
+   vp.name+' invisible caster / unexplained effect: '+JSON.stringify(caster));
   const skillSize=await page.locator('#skillCutin').boundingBox();
   assert(skillSize&&skillSize.height>=36&&skillSize.height<=48&&skillSize.y<=62
     &&skillSize.width>=180,
@@ -180,6 +187,20 @@ try{
    vp.name+' special attack impact missing');
   await page.screenshot({path:path.join('artifacts',vp.name+'-skill-impact.png')});
   await page.waitForTimeout(1050);
+  // Keep a brief, nonblocking result banner long enough to understand it.
+  assert(await page.locator('#skillCutin').evaluate(el=>el.classList.contains('visible')),
+   vp.name+' skill effect explanation vanished before the player could read it');
+  await page.evaluate(()=>window.__sekaiTest.getUI().renderHearts());
+  const encyclopedia=await page.evaluate(()=>{
+   const list=document.getElementById('heartList');
+   return {items:list.querySelectorAll('.heart-item').length,
+    described:list.querySelectorAll('.heart-ability').length,
+    portraits:list.querySelectorAll('.heart-roster img').length,
+    effects:list.textContent.includes('범위 피해')};
+  });
+  assert(encyclopedia.items>=16&&encyclopedia.described===encyclopedia.items
+    &&encyclopedia.portraits>=32&&encyclopedia.effects,
+   vp.name+' heart collection does not explain skills: '+JSON.stringify(encyclopedia));
 
   // Use the actual game-end event to exercise populated result data and layout.
   await page.evaluate(()=>{
