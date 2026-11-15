@@ -47,7 +47,7 @@ export function heartAbilityDescription(heart,strength={average:1},lang='ko'){
  spotlight:{ko:`${seconds}초 동안 적 경로에 조명 구역을 설치해 지나가는 적의 속도를 크게 낮춰.`,ja:`${seconds}秒間、経路に減速スポットライトを設置。`,en:`Spotlights along the path slow crossing enemies for ${seconds}s.`},
  beat:{ko:`${seconds}초 동안 박자마다 적을 경직시키고 방어를 약화시켜.`,ja:`${seconds}秒間、ビートごとに敵を怯ませ防御を弱化。`,en:`Repeated beats stagger and expose enemies for ${seconds}s.`},
  barrier:{ko:`${seconds}초 동안 적 경로에 공연 장벽을 세워 통과하는 적을 멈춰.`,ja:`${seconds}秒間、道を塞ぐ舞台ゲートを設置。`,en:`Stage gates interrupt enemies trying to cross for ${seconds}s.`},
- quiet:{ko:`${seconds}초 동안 적의 움직임을 멈추고, 발동 중인 이상현상과 아군 행동 불능을 해제해.`,ja:`${seconds}秒間、敵を静止させ異変と味方の妨害を解除。`,en:`Halts enemies for ${seconds}s, clears disruption and cancels warnings.`},
+ quiet:{ko:`${seconds}초 동안 일반 적을 멈추고 보스는 감속시켜. 전장 이상현상과 아군 행동 불능도 해제해.`,ja:`${seconds}秒間、通常の敵を停止、ボスを減速。妨害も解除。`,en:`Stops normal enemies and slows bosses for ${seconds}s; cancels hazards and cleanses allies.`},
  portal:{ko:`앞서 나간 적들을 출발점 방향으로 돌려보내고 ${seconds}초 동안 전송문을 유지해.`,ja:`進んだ敵を入口へ戻し、${seconds}秒間転送門を維持。`,en:`Recalls front enemies toward spawn and keeps a portal for ${seconds}s.`},
  tether:{ko:`${seconds}초 동안 가장 위험한 적들의 움직임을 묶어.`,ja:`${seconds}秒間、先頭の敵を束縛。`,en:`Binds the leading enemies for ${seconds}s.`},
  stage:{ko:`${seconds}초 동안 적이 지나는 길목에 작은 조명 구역을 설치해.`,ja:`${seconds}秒間、敵の通り道に減速舞台を設置。`,en:`Places a slowing mini-stage for ${seconds}s.`},
@@ -149,6 +149,8 @@ export function activateHeartAbility(g,heart,participants,strength){
     const target=point(e,g);
     g.addEffect('line',old.x,old.y,{tx:target.x,ty:target.y,color:COLOR.portal,life:.6,star:4});
     e.stun=Math.max(e.stun||0,.35);
+    if(!e.heartPortalHits)e.heartPortalHits={};
+    e.heartPortalHits[state.id]=true;
    }
    state.portals=[pathSpot(g,.07),pathSpot(g,.7)];
    affected=count;
@@ -222,6 +224,22 @@ export function heartAfterMovement(g,e,before){
  if(e.hp<=0)return;
  const len=g.map.path.length;
  for(const s of g.heartStates){
+  // The sustained portal is functional: late-arriving enemies crossing its
+  // location are also recalled once, not just shown a decorative gateway.
+  if(s.type==='portal'&&s.portals?.length&&!e.heartPortalHits?.[s.id]){
+   const target=s.portals[s.portals.length-1];
+   const crossAt=Math.floor(before/len)*len+target.index;
+   if(before<crossAt&&e.progress>=crossAt){
+    const origin=g.enemyPos(e);
+    e.progress=Math.max(0,e.progress-(s.unitIds.length>=4?len*.21:len*.1));
+    e.stun=Math.max(e.stun||0,.32);
+    if(!e.heartPortalHits)e.heartPortalHits={};
+    e.heartPortalHits[s.id]=true;
+    const to=g.enemyPos(e);
+    g.addEffect('line',origin.x,origin.y,{tx:to.x,ty:to.y,
+     color:COLOR.portal,life:.54,star:4});
+   }
+  }
   if(!s.gates)continue;
   for(const gate of s.gates){
    const index=gate.index;
