@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {Game} from '../src/core/Game.js';
 import {HEARTS} from '../src/data/hearts.js';
 import {MusicDirector} from '../src/core/MusicDirector.js';
+import {heartEffectDetails,heartCasterDescription} from '../src/data/heartEffects.js';
 import {bgmForMap,BGM_TRACKS} from '../src/data/musicTracks.js';
 import {MAPS} from '../src/data/maps.js';
 import {CHARACTER_BY_ID} from '../src/data/characters.js';
@@ -169,6 +170,16 @@ for(const style of ['star','rain','slash','burst','wave','orbit']){
  if(style==='slash')assert(oldHp-enemy.hp>230,style+': no focused double strike');
  if(style==='orbit')assert(g.counterTime>=4,style+': no team resonance buff');
  assert(g.cameraShake>0,style+': attack lacks impact');
+ assert.equal(g.lastHeartEffect?.heartId,heart.id,style+': last caster event missing');
+ assert(g.lastHeartEffect?.actorId,'caster identity is absent');
+ for(const lang of ['ko','ja','en']){
+  const desc=heartEffectDetails(heart,{average:3},lang);
+  assert(desc.short.length>7&&desc.detail.length>15,
+   style+' has no readable effect explanation in '+lang);
+ }
+ const summary=heartCasterDescription(heart,participants,CHARACTER_BY_ID,'ko');
+ assert(summary.includes(CHARACTER_BY_ID[participants[0].id].names.ko),
+  'combination summary must list its actual participants');
 }
 // A disabled audio device keeps combat working, but original map score and
 // the cinematic skill cue must both be reachable from SoundEngine.
@@ -197,5 +208,21 @@ for(const style of ['star','rain','slash','burst','wave','orbit']){
  assert(cinema.includes('skill-cutin.impact')&&cinema.includes('skill-cutin-lead'));
  assert(main.includes('sound.startMusic(')&&main.includes('sound.endMusic('));
  assert(audio.includes('heartCue('),'audio heart cue missing');
+ const cardCSS=fs.readFileSync(path.join(root,'styles/heart-clarity-v120.css'),'utf8');
+ const heartEffects=fs.readFileSync(path.join(root,'src/data/heartEffects.js'),'utf8');
+ const titleJS=fs.readFileSync(path.join(root,'src/ui/TitleIntro.js'),'utf8');
+ const uiSource=fs.readFileSync(path.join(root,'src/ui/Interface.js'),'utf8');
+ const music=fs.readFileSync(path.join(root,'src/core/MusicDirector.js'),'utf8');
+ assert(cardCSS.includes('.heart-ability')&&cardCSS.includes('.skill-cutin-speaker'),
+  'skill explanations must be readable in both collection and combat');
+ assert(heartEffects.includes("ko:{")&&heartEffects.includes("ja:{")&&heartEffects.includes("en:{"));
+ assert(uiSource.includes('heartEffectDetails(heart,strength,lang)'),
+  'skill banner must name the actual applied ability');
+ assert(!titleJS.includes('paintPortraitCrowd')&&!html.includes('titlePortraitCrowd'),
+  'artist-supplied crowd must not be sliced, repeated or recomposited');
+ const cue=music.slice(music.indexOf(' heartCue('),music.indexOf(' finish('));
+ assert(!cue.includes('this.tone('),'skill impact sound must not ring with pitched melodies');
+ assert(music.includes('this.whoosh('),'short soft noise hit is required');
+
 }
 console.log('OK — distinct six-style heart mechanics, Suno-only BGM slots and responsive controls');

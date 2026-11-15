@@ -7,10 +7,6 @@ export class TitleIntro {
   this.overlay=document.getElementById('titleOverlay');
   this.backdrop=document.getElementById('titleBackdrop');
   this.layers=[...document.querySelectorAll('#titleBackdrop .title-layer')];
-  this.portraitCanvas=document.getElementById('titlePortraitCrowd');
-  this.sourceCrowd=this.backdrop?.querySelector('.title-characters');
-  this.onResize=()=>{if(this.ready)this.paintPortraitCrowd();};
-  window.addEventListener('resize',this.onResize);
   this.shownOnce=false;
   this.ready=false;
   this.loading=null;
@@ -28,7 +24,6 @@ export class TitleIntro {
     const ok=this.layers.length===4&&status.every(Boolean);
     if(ok){
      this.ready=true;
-     this.paintPortraitCrowd();
      this.backdrop?.classList.add('art-ready');
      if(this.overlay?.classList.contains('visible'))this.play();
     }else{
@@ -70,32 +65,6 @@ export class TitleIntro {
     img.src=`${base}?rev=${TITLE_ASSET_REV}-retry${this.retryCount}`;
    }
   });
- }
- // Original illustration is displayed as two full-height halves, preserving
- // poses and costumes; tall screens no longer shrink 26 faces into a thin strip.
- paintPortraitCrowd(){
-  const canvas=this.portraitCanvas,src=this.sourceCrowd;
-  if(!canvas||!src||!src.naturalWidth||!src.naturalHeight)return;
-  const w=Math.max(240,window.innerWidth),h=Math.max(300,window.innerHeight);
-  if(w>=h)return;
-  const dpr=Math.min(window.devicePixelRatio||1,1.6);
-  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
-  const c=canvas.getContext('2d');if(!c)return;
-  c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);
-  c.imageSmoothingEnabled=true;
-  // Two intact half-composites fill the tall title. Unlike horizontal
-  // slices, no character is cut through the head or torso at a row seam.
-  const groups=[
-   {x:0,width:.57,top:.245},
-   {x:.43,width:.57,top:.52}
-  ];
-  for(const part of groups){
-   const sx=Math.floor(part.x*src.naturalWidth);
-   const sw=Math.min(src.naturalWidth-sx,Math.ceil(part.width*src.naturalWidth));
-   const destWidth=w;
-   const destHeight=destWidth*src.naturalHeight/sw;
-   c.drawImage(src,sx,0,sw,src.naturalHeight,0,h*part.top,destWidth,destHeight);
-  }
  }
  show(){
   this.clearTimer();

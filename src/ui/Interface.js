@@ -1,11 +1,12 @@
 import {GROUPS,CHARACTER_BY_ID,SIGNATURES,attackValue,attackRange} from '../data/characters.js';
 import {MAPS} from '../data/maps.js';
-import {HEARTS} from '../data/hearts.js?v=1.19.0';
+import {HEARTS,heartStrength} from '../data/hearts.js?v=1.19.0';
+import {heartEffectDetails,heartCasterDescription} from '../data/heartEffects.js';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
-import {TitleIntro} from './TitleIntro.js?v=1.19.0';
+import {TitleIntro} from './TitleIntro.js?v=1.20.0';
 import {persistSave} from '../core/Save.js';
 import {BattleExperience} from './BattleExperience.js?v=1.19.0';
 const el=(id)=>document.getElementById(id);
@@ -19,14 +20,14 @@ export class Interface {
   this.save=save;this.renderer=renderer;this.sound=sound;this.game=null;
   this.config={difficulty:'normal',mapId:'roof'};
   this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';this.lastTeamSignature='';this.lastSkillSignature='';
-  this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
+  this.handlers={};this.heartBannerTimer=null;this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
   this.titleIntro=new TitleIntro();
   this.experience=new BattleExperience(this);
   this.skillCutin=document.createElement('section');this.skillCutin.id='skillCutin';this.skillCutin.className='skill-cutin';this.skillCutin.setAttribute('aria-live','polite');this.skillCutin.setAttribute('aria-atomic','true');document.body.append(this.skillCutin);
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.clearHeartCutin();this.experience?.reset();this.lastHeartNotificationTime=null;this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.clearHeartCutin();this.experience?.reset();this.lastHeartNotificationTime=null;game.language=this.save.language;this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -48,6 +49,7 @@ export class Interface {
  overlayVisible(id){return !!el(id)?.classList.contains('visible');}
  renderLanguages(){
   document.documentElement.lang=this.save.language;
+  if(this.game)this.game.language=this.save.language;
   // Keep the title artwork synchronized with the selected UI language.
   const titleLogo=el('titleLanguageLogo');
   if(titleLogo){
@@ -225,13 +227,37 @@ export class Interface {
   // Curated combos are always browseable; the 315 procedurally named duos
   // appear as they are discovered, instead of filling the UI with 315 ???s.
   const shown=HEARTS.filter(h=>!h.isGenerated||this.save.discovered.includes(h.id));
-  list.innerHTML='';shown.forEach(h=>{
+  list.replaceChildren();
+  shown.forEach(h=>{
    const known=this.save.discovered.includes(h.id);
-   const row=document.createElement('div');row.className='heart-item'+(known?'':' locked');
-   const icon=document.createElement('div');icon.className='heart-mark';icon.textContent=known?'♡':'?';
-   const title=document.createElement('div');const name=document.createElement('strong');name.textContent=known?h.names[this.save.language]:'???';
-   const info=document.createElement('small');info.textContent=known?h.required.map(id=>CHARACTER_BY_ID[id].names[this.save.language]).join(' + '):'· · ·';
-   title.append(name,info);row.append(icon,title);list.append(row);
+   const actorNames=h.required.map(id=>CHARACTER_BY_ID[id]?.names[this.save.language]||id);
+   const row=document.createElement('article');row.className='heart-item'+(known?'':' locked');
+   row.dataset.heartId=h.id;row.dataset.style=h.style;
+   const actors=document.createElement('div');actors.className='heart-roster';
+   for(const id of h.required){
+    const portrait=document.createElement('img');
+    portrait.src=`./Assets/characters/${encodeURIComponent(id)}/front.png`;
+    portrait.alt=CHARACTER_BY_ID[id]?.names[this.save.language]||id;
+    portrait.loading='lazy';actors.append(portrait);
+   }
+   const body=document.createElement('div');body.className='heart-info';
+   const name=document.createElement('strong');
+   name.textContent=known?h.names[this.save.language]||h.names.ko:
+    this.save.language==='ja'?'未発見の連携':
+    this.save.language==='en'?'Undiscovered team-up':'미발견 연계';
+   const names=document.createElement('small');names.textContent=actorNames.join(' + ');
+   const details=heartEffectDetails(h,{average:1},this.save.language);
+   const effect=document.createElement('span');effect.className='heart-ability';effect.textContent=details.short;
+   const explanation=document.createElement('p');explanation.className='heart-explanation';
+   explanation.textContent=details.detail;
+   const trigger=document.createElement('small');trigger.className='heart-requirement';
+   trigger.textContent=this.save.language==='ja'?
+    (h.type==='group'?'必要メンバー全員を配置すると自動発動':'2人を配置すると自動発動'):
+    this.save.language==='en'?
+    (h.type==='group'?'Automatically activates with all group members':'Automatically activates when both members are deployed'):
+    (h.type==='group'?'필요한 그룹 멤버를 모두 배치하면 자동 발동':'두 멤버를 함께 배치하면 자동 발동');
+   body.append(name,names,effect,explanation,trigger);
+   row.append(actors,body);list.append(row);
   });
   const unknown=HEARTS.length-shown.length;
   if(unknown){
@@ -280,61 +306,71 @@ export class Interface {
   }
  }
  onHeartStart({heart,participants,strength,actorId}){
-  const id=actorId||participants[0]?.id;
-  const actor=CHARACTER_BY_ID[id];
+  this.clearHeartCutin();
+  const id=actorId||participants[0]?.id,actor=CHARACTER_BY_ID[id];
   if(!actor||!this.skillCutin)return;
-  const lang=this.save.language;
-  const actorName=actor.names[lang]||actor.names.ko;
-  const group=GROUPS.find(g=>g.id===actor.group);
-  const line=SKILL_DIALOGUE[id]?.[lang]||SKILL_DIALOGUE[id]?.ko||'';
+  const lang=this.save.language,actorName=actor.names[lang]||actor.names.ko;
   const skillName=heart.names[lang]||heart.names.ko;
-  const label=lang==='ja'?'セカイの想い':lang==='en'?'SEKAI HEART':'세카이의 마음';
-  const accent=group?.color||'#b1d4d1';
-  this.skillCutin.style.setProperty('--skill-accent',accent);
+  const group=GROUPS.find(g=>g.id===actor.group);
+  const details=heartEffectDetails(heart,strength,lang);
+  const teammates=heartCasterDescription(heart,participants,CHARACTER_BY_ID,lang);
+  const kind=heart.type==='group'?
+   (lang==='ja'?'ユニット連携':lang==='en'?'UNIT SKILL':'그룹 필살기'):
+   (lang==='ja'?'2人連携':lang==='en'?'DUO SKILL':'2인 연계');
+  this.skillCutin.style.setProperty('--skill-accent',group?.color||'#b1d4d1');
   this.skillCutin.dataset.heart=heart.id;
   this.skillCutin.dataset.actor=id;
   this.skillCutin.dataset.style=heart.style;
   this.skillCutin.classList.toggle('simple',this.save.effects==='lite');
-  // Original illustrations are used unchanged; each special now has its own
-  // full cinematic focal point and a short instrumental anticipation.
-  this.sound.heartAnticipation(heart.style);
-  const supporters=participants.filter(u=>u.id!==id).slice(0,5).map(u=>
-   `<img src="./Assets/characters/${encodeURIComponent(u.id)}/front.png" alt="" draggable="false"/>`
-  ).join('');
+  this.skillCutin.title=`${actorName} · ${skillName}\n${details.detail}\n${teammates}`;
+  this.skillCutin.setAttribute('aria-label',this.skillCutin.title);
+  // The caster's own unmodified sprite is the first piece of information.
+  // Gameplay effects replace flavor dialogue in the small top-HUD banner.
   this.skillCutin.innerHTML=`
    <div class="skill-cutin-panel">
     <div class="skill-cutin-art">
-      <div class="skill-cutin-support" aria-hidden="true">${supporters}</div>
-      <img class="skill-cutin-lead" src="./Assets/characters/${encodeURIComponent(id)}/front.png" alt="" draggable="false" />
+     <img class="skill-cutin-lead" src="./Assets/characters/${encodeURIComponent(id)}/front.png" alt="" draggable="false"/>
     </div>
     <div class="skill-cutin-dialogue">
-      <div class="skill-cutin-head">
-       <span class="skill-cutin-speaker">${escapeHTML(actorName)}</span>
-       <span class="skill-cutin-type">${escapeHTML(label)}</span>
-       <span class="skill-cutin-stars" aria-label="${Math.round(strength.average)} stars">${'★'.repeat(Math.max(1,Math.min(4,Math.round(strength.average))))}</span>
-      </div>
-      <p class="skill-cutin-words">${escapeHTML(line)}</p>
+     <div class="skill-cutin-head">
+      <span class="skill-cutin-speaker">${escapeHTML(actorName)}</span>
+      <span class="skill-cutin-type" title="${escapeHTML(kind)}">${escapeHTML(skillName)}</span>
+     </div>
+     <p class="skill-cutin-words">${escapeHTML(details.short)}</p>
     </div>
-    <div class="skill-cutin-skill" title="${escapeHTML(skillName)}">${escapeHTML(skillName)}</div>
+    <div class="skill-cutin-skill" title="${escapeHTML(teammates)}">${escapeHTML(kind)}</div>
     <div class="skill-cutin-progress" aria-hidden="true"></div>
    </div>`;
-  this.skillCutin.classList.remove('visible','impact');
-  void this.skillCutin.offsetWidth;
   this.skillCutin.classList.add('visible');
   document.body.classList.add('heart-active');
-  this.setStatus(`${actorName} · ${skillName}`);
+  this.setStatus(`${actorName} · ${details.short}`);
  }
- onHeartFire({heart}){
-  const name=heart.names[this.save.language]||heart.names.ko;
-  if(this.skillCutin?.dataset.heart===heart.id)this.skillCutin.classList.add('impact');
-  this.setStatus(name);
-  // The dialogue strip already identifies the skill: a second floating
-  // caption would cover enemies in the playfield.
+ onHeartFire({heart,strength,actorId,affected}){
+  if(!this.skillCutin||this.skillCutin.dataset.heart!==heart.id)return;
+  this.skillCutin.classList.add('impact');
+  const details=heartEffectDetails(heart,strength,this.save.language);
+  const label=this.save.language==='ja'?`${affected||0}体に命中`:
+   this.save.language==='en'?`${affected||0} targets struck`:
+   `적 ${affected||0}명 타격`;
+  const body=this.skillCutin.querySelector('.skill-cutin-words');
+  if(body)body.textContent=`${label} · ${details.short}`;
+  this.setStatus(details.detail);
  }
  onHeartEnd(){
-  this.clearHeartCutin();
+  // A 1.6-second animation is too quick to understand on a phone. Keep
+  // the thin top strip visible after the strike, but restore the playfield.
+  document.body.classList.remove('heart-active');
+  if(this.heartBannerTimer!==null)window.clearTimeout(this.heartBannerTimer);
+  if(this.game?.phase!=='playing'){this.clearHeartCutin();return;}
+  this.heartBannerTimer=window.setTimeout(()=>{
+   this.heartBannerTimer=null;
+   this.clearHeartCutin();
+  },2100);
  }
  clearHeartCutin(){
+  if(this.heartBannerTimer!==null){
+   window.clearTimeout(this.heartBannerTimer);this.heartBannerTimer=null;
+  }
   if(!this.skillCutin)return;
   this.skillCutin.classList.remove('visible','impact');
   this.skillCutin.removeAttribute('data-heart');

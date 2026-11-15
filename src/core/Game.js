@@ -18,7 +18,7 @@ export class Game {
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
-  this.lastPairSkillTime=-Infinity;
+  this.lastPairSkillTime=-Infinity;this.lastHeartActivationTime=-Infinity;this.lastHeartEffect=null;
   this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};this.counterTime=0;
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
@@ -336,7 +336,11 @@ export class Game {
    life:.68,color:'#ecd7a9',style:heart.style
   });
   this.cameraShake=Math.max(this.cameraShake,heart.type==='group'?5.4:3.2);
-  this.emit('onHeartFire',{heart,strength,ability:heart.style});
+  const actorId=this.heartScene?.actorId||participants[0]?.id;
+  this.lastHeartEffect={heartId:heart.id,actorId,style:heart.style,
+   affected:Math.min(chosen.length,maxTargets),at:this.realTime};
+  this.emit('onHeartFire',{heart,strength,ability:heart.style,actorId,
+   affected:this.lastHeartEffect.affected});
   this.emit('onSound',`heart-${heart.style}`);this.emit('onChange');
  }
  heartUpdate(dt,realDt){
@@ -375,7 +379,7 @@ export class Game {
       ||this.heartScene?.heart.id===heart.id;
     if(alreadyWaiting){
      this.heartTimers[heart.id]=1;
-    }else if(this.heartQueue.length<8){
+    }else if(this.heartQueue.length<3){
      this.heartQueue.push({heart,participants:[...participants]});
      if(heart.type==='pair')this.lastPairSkillTime=this.realTime;
      this.heartTimers[heart.id]=Math.max(7,heart.cooldown/(1+this.upgrades.ability*.14));
@@ -385,7 +389,7 @@ export class Game {
     }
    }
   }
-  if(!this.heartScene&&this.heartQueue.length){
+  if(!this.heartScene&&this.heartQueue.length&&this.realTime-this.lastHeartActivationTime>=4.1){
    const pending=this.heartQueue.shift();
    const turn=this.heartCastCount[pending.heart.id]||0;
    const actor=pending.participants[turn%pending.participants.length];
@@ -393,6 +397,7 @@ export class Game {
    const actorUid=actor?.uid;
    this.heartCastCount[pending.heart.id]=turn+1;
    this.heartScene={...pending,actorId,actorUid,elapsed:0,fired:false};
+   this.lastHeartActivationTime=this.realTime;
    this.emit('onHeartStart',{...pending,actorId,actorUid,strength:heartStrength(pending.participants)});
   }
  }

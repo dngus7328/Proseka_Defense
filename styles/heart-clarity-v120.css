@@ -1,0 +1,122 @@
+/* v1.20: present the actual caster and its effect, not a mystery jingle. */
+#heartsOverlay .heart-list{display:grid;gap:7px;overflow-y:auto;max-height:56dvh;padding-right:3px}
+#heartsOverlay .heart-item{
+ display:flex;align-items:flex-start;gap:9px;
+ border-left:4px solid #b986a4;border-radius:6px;
+ background:#e6eee7;padding:10px;min-width:0;
+}
+#heartsOverlay .heart-item.locked{opacity:.77;border-left-color:#94b5b7}
+#heartsOverlay .heart-roster{
+ display:flex;align-items:flex-start;justify-content:center;
+ flex:0 0 auto;flex-wrap:wrap;gap:3px;
+ width:clamp(76px,24%,127px);max-width:127px;
+}
+#heartsOverlay .heart-roster img{
+ width:clamp(30px,6.5vw,43px);height:clamp(30px,6.5vw,43px);
+ object-fit:contain;background:#d4e3df;border:1px solid #b7ccca;
+ border-radius:5px;
+}
+#heartsOverlay .heart-info{
+ min-width:0;flex:1;display:flex;flex-direction:column;align-items:flex-start;
+ gap:4px;white-space:normal;
+}
+#heartsOverlay .heart-info strong{
+ display:block;font-size:clamp(12px,3.4vw,15px);font-weight:900;
+ line-height:1.3;color:#284558;white-space:normal;
+}
+#heartsOverlay .heart-info small{
+ font-size:10px;line-height:1.3;color:#59727c;white-space:normal;
+ word-break:keep-all;
+}
+#heartsOverlay .heart-ability{
+ display:inline;max-width:100%;
+ border-left:3px solid #ac7f9e;border-radius:2px;
+ background:#f9f6e9;padding:4px 6px;
+ font-size:clamp(11px,2.8vw,13px);line-height:1.4;
+ font-weight:900;color:#304d63;word-break:keep-all;
+}
+#heartsOverlay .heart-explanation{
+ margin:0;font-size:clamp(10px,2.55vw,12px);
+ line-height:1.5;color:#445966;word-break:keep-all;
+}
+#heartsOverlay .heart-requirement{
+ color:#798f90!important;font-size:10px!important;
+ border-top:1px solid #bed2ca;padding-top:3px;width:100%;
+}
+#heartsOverlay .heart-undiscovered{
+ margin:6px 0;font-size:12px;font-weight:750;
+ text-align:center;color:#627e89;
+}
+.skill-cutin,.skill-cutin.visible{width:min(440px,calc(100vw - 68px))!important}
+.skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{
+ grid-template-columns:42px minmax(0,1fr)!important;
+}
+.skill-cutin-art{width:42px!important}
+.skill-cutin-dialogue,.skill-cutin.simple .skill-cutin-dialogue{
+ padding:4px 8px 2px 7px!important;
+ gap:4px!important;justify-content:center!important;
+}
+.skill-cutin-head{
+ width:100%;height:15px;max-height:15px;overflow:hidden;
+ flex-wrap:nowrap!important;gap:6px!important;line-height:1.2!important;
+}
+.skill-cutin-head .skill-cutin-speaker{
+ flex:0 0 auto;font-size:12px!important;font-weight:950!important;
+ color:#ffe7bc!important;
+}
+.skill-cutin-head .skill-cutin-type{
+ flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+ font-size:11px!important;font-weight:800!important;color:#f5f0db!important;
+}
+.skill-cutin-dialogue p.skill-cutin-words,
+.skill-cutin.simple .skill-cutin-dialogue p.skill-cutin-words{
+ font-size:11px!important;line-height:14px!important;
+ max-height:15px!important;color:#f4f8ec!important;
+ font-weight:900!important;-webkit-line-clamp:1!important;
+ white-space:nowrap!important;text-overflow:ellipsis!important;
+}
+.skill-cutin-skill,.skill-cutin.simple .skill-cutin-skill{
+ display:none!important;
+}
+.skill-cutin.impact .skill-cutin-panel{
+ background:linear-gradient(95deg,#3d6071,#34536b)!important;
+ border-left-color:#f4dc98!important;
+}
+@media (orientation:portrait){
+ .skill-cutin,.skill-cutin.visible{
+  left:5px!important;width:calc(100vw - 64px)!important;
+  height:39px!important;min-height:39px!important;max-height:39px!important;
+ }
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{
+  grid-template-columns:40px minmax(0,1fr)!important;
+ }
+ .skill-cutin-art{width:40px!important}
+ .skill-cutin-dialogue,.skill-cutin.simple .skill-cutin-dialogue{
+  padding:2px 5px 2px 7px!important;gap:2px!important;
+ }
+ .skill-cutin-head{height:14px;max-height:14px}
+ .skill-cutin-head .skill-cutin-speaker{font-size:11px!important}
+ .skill-cutin-head .skill-cutin-type{font-size:10px!important}
+ .skill-cutin-dialogue p.skill-cutin-words{font-size:10px!important;line-height:13px!important}
+}
+@media (orientation:portrait) and (max-width:340px){
+ .skill-cutin-head .skill-cutin-speaker{font-size:10px!important}
+ .skill-cutin-head .skill-cutin-type{font-size:9px!important}
+ #heartsOverlay .heart-roster{width:70px}
+ #heartsOverlay .heart-roster img{width:31px;height:31px}
+}
+@media (orientation:landscape){
+ .skill-cutin,.skill-cutin.visible{
+  left:calc(5px + env(safe-area-inset-left))!important;
+  width:min(450px,calc(100vw - var(--rail-w,245px) - 20px))!important;
+  height:43px!important;min-height:43px!important;max-height:43px!important;
+ }
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{
+  grid-template-columns:42px minmax(0,1fr)!important;
+ }
+ .skill-cutin-art{width:42px!important}
+ .skill-cutin-dialogue,.skill-cutin.simple .skill-cutin-dialogue{
+  padding:3px 6px 3px 8px!important;gap:3px!important;
+ }
+ #heartsOverlay .heart-list{max-height:55dvh}
+}

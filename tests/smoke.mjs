@@ -208,6 +208,9 @@ assert.equal(new Set(HEARTS.map(h=>h.style)).size,6,'Six choreographies needed')
  assert.equal(spoken[0],'ichika','First speaker incorrect');
  assert.equal(g.heartScene.actorUid,1,'Caster marker must resolve exact unit UID');
  g.heartUpdate(.2,1.55);
+ // The next cinematic deliberately waits 4.1 seconds, to keep the caster
+ // and its ability readable. Time progression must be simulated in this test.
+ g.realTime=4.2;
  g.spawnEnemy('tank',0);
  g.heartTimers['leo-chorus']=0;
  g.heartUpdate(.2,.2);

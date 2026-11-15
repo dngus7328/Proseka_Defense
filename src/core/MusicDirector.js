@@ -130,35 +130,47 @@ export class MusicDirector {
   if(this.duckTimer!==null)clearTimeout(this.duckTimer);
   this.duckTimer=setTimeout(()=>{this.duckTimer=null;this.ducked=false;this.updateVolume();},seconds*1000);
  }
+ // Broadband noise + low percussion: intentionally no ascending
+ // electronic melody or fake instrumental music during special attacks.
+ whoosh(time,power=.10,rising=true){
+  const ctx=this.context;if(!ctx||!this.fxBus)return;
+  const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+  src.buffer=this.noiseBuffer();
+  filter.type='bandpass';filter.Q.value=.46;
+  filter.frequency.setValueAtTime(rising?360:2400,time);
+  filter.frequency.exponentialRampToValueAtTime(rising?2600:320,time+.18);
+  envelope(gain,time,power,.012,.02,.15);
+  src.connect(filter);filter.connect(gain);gain.connect(this.fxBus);
+  src.start(time);src.stop(time+.20);
+ }
  heartAnticipation(style='star'){
   const ctx=this.setup();if(!ctx)return;
-  const note=style==='slash'?57:style==='wave'?64:60;
-  const at=ctx.currentTime+.01;
-  for(let i=0;i<3;i++)this.tone(note+7*i,at+i*.13,.24,.14);
+  const t=ctx.currentTime+.01;
+  this.whoosh(t,.075,style!=='wave');
   this.duck(1.5);
  }
  heartCue(style='star'){
   const ctx=this.setup();if(!ctx)return;
-  const presets={
-   star:{notes:[72,79,84,88],kind:'piano',drum:'snare'},
-   rain:{notes:[76,79,83,88,91],kind:'piano',drum:'hat'},
-   slash:{notes:[60,67,72,79],kind:'pluck',drum:'kick'},
-   burst:{notes:[72,76,79,84,88],kind:'piano',drum:'snare'},
-   wave:{notes:[69,72,76,81],kind:'pad',drum:'hat'},
-   orbit:{notes:[72,79,76,84,88,91],kind:'piano',drum:'snare'}
+  const t=ctx.currentTime+.01;
+  const signatures={
+   star:[['snare',.05,.16],['kick',.17,.19]],
+   rain:[['hat',.01,.08],['hat',.11,.07],['snare',.21,.13]],
+   slash:[['kick',.03,.27],['snare',.16,.18]],
+   burst:[['kick',.04,.30],['snare',.13,.21],['kick',.27,.14]],
+   wave:[['hat',.06,.08],['kick',.25,.18]],
+   orbit:[['snare',.04,.12],['kick',.13,.22],['hat',.26,.08]]
   };
-  const cue=presets[style]||presets.star,t=ctx.currentTime+.015;
-  cue.notes.forEach((note,i)=>this.tone(note,t+i*.088,cue.kind==='pad'?.68:.34,.28+(i===cue.notes.length-1?.12:0),cue.kind));
-  this.beat(cue.drum,t+.20,.24);
-  this.beat('kick',t+.39,.29);
-  this.tone(cue.notes.at(-1)-12,t+.41,.72,.34,'pad');
+  this.whoosh(t,style==='burst'?.16:.11,style==='rain'||style==='wave');
+  for(const [type,delay,power] of signatures[style]||signatures.star)
+   this.beat(type,t+delay,power);
   this.duck(1.25);
  }
  finish(won){
   const ctx=this.setup();if(!ctx)return;
   const t=ctx.currentTime+.02;
-  const notes=won?[72,76,79,84,88]:[72,70,67,64];
-  notes.forEach((n,i)=>this.tone(n,t+i*.15,.4,.27));
-  if(won){this.beat('snare',t+.35,.18);this.tone(60,t+.52,.88,.23,'pad');}
+  this.whoosh(t,.07,won);
+  this.beat('kick',t+.14,won?.17:.10);
+  if(won)this.beat('snare',t+.3,.14);
  }
+
 }
