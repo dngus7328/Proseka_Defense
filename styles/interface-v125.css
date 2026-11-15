@@ -1,0 +1,184 @@
+/* v1.25 — flat arcade controls, coherent button hierarchy.
+   Scaffolding and tap targets unchanged; original art is untouched. */
+:root{
+ --ui-ink:#2b4050;
+ --ui-muted:#68808a;
+ --ui-paper:#f4f1e9;
+ --ui-white:#faf8f1;
+ --ui-border:#9aabae;
+ --ui-gold:#e9c98f;
+ --ui-gold-hover:#f1d9a7;
+ --ui-aqua:#91b3ab;
+ --ui-radius:6px;
+}
+:is(
+ .summon-action,.square-action,.primary-button,.quiet-button,
+ .choice-button,.map-choice,.title-enter,.title-small-control,
+ .lobby-back,.icon-button,.minor-button,.clear-selection,
+ .upgrade-card,.danger-evade,.close-dialog,
+ .team-unit
+){
+ border-radius:var(--ui-radius)!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ filter:none;
+ transform:none;
+ transition:background-color .12s ease,border-color .12s ease,color .12s ease!important;
+ outline-offset:2px;
+}
+:is(.summon-action,.square-action,.primary-button,.quiet-button,.title-enter,
+ .choice-button,.map-choice,.title-small-control,.lobby-back,
+ .upgrade-card,.icon-button,.minor-button,.danger-evade)::before{
+ box-shadow:none!important;
+}
+.summon-action:before{display:none!important}
+button:not(:disabled):focus-visible{
+ outline:2px solid #317486!important;
+ outline-offset:2px!important;
+}
+/* Single, restrained button rhythm. Primary is the only gold surface. */
+:is(.summon-action,.primary-button,.title-enter,#startButton,#missionDeploy){
+ background:var(--ui-gold)!important;
+ color:var(--ui-ink)!important;
+ border:1.5px solid #a7895d!important;
+ border-bottom-width:2px!important;
+}
+:is(.summon-action,.primary-button,.title-enter,#startButton,#missionDeploy):hover:not(:disabled){
+ background:var(--ui-gold-hover)!important;
+}
+:is(.summon-action,.primary-button,.title-enter,#startButton,#missionDeploy):active:not(:disabled){
+ background:#d7b67e!important;
+ border-color:#96784e!important;
+ transform:translateY(1px)!important;
+}
+.summon-text small{border-radius:3px!important;background:none!important;padding:0!important;color:#6d5c4b!important}
+.summon-text strong{font-weight:900!important;letter-spacing:-.035em!important;color:var(--ui-ink)!important}
+.summon-symbol,.summon-symbol svg{color:#806a50!important}
+.summon-arrow{opacity:.65}
+.square-action{
+ background:var(--ui-white)!important;
+ color:var(--ui-ink)!important;
+ border:1.5px solid var(--ui-border)!important;
+ border-bottom-width:2px!important;
+ gap:5px!important;
+}
+.square-action:hover:not(:disabled){background:#e8ede9!important;border-color:#7f9c9f!important}
+.square-action:active:not(:disabled){background:#dbe4df!important;transform:translateY(1px)!important}
+.square-action>span{color:#597d82!important}
+.square-action.upgrade-trigger>span{color:#8f7a5c!important}
+#heartButton>span{color:#ac7d90!important}
+#heartButton svg{fill:none!important}
+.square-action strong{
+ color:var(--ui-ink)!important;
+ font-weight:850!important;
+ font-size:clamp(10px,2.9vw,13px)!important;
+ letter-spacing:-.035em!important;
+ line-height:1.18!important;
+ word-break:keep-all!important;
+}
+.square-action small{color:#865b70!important;font-weight:850!important}
+:is(.quiet-button,.minor-button,.close-dialog,.lobby-back,.icon-button,.title-small-control){
+ background:#f4f2eb!important;
+ border:1.5px solid var(--ui-border)!important;
+ color:var(--ui-ink)!important;
+}
+:is(.quiet-button,.minor-button,.close-dialog,.lobby-back,.icon-button,.title-small-control):hover:not(:disabled){
+ background:#e5ece8!important;
+ border-color:#758f94!important;
+}
+:is(.quiet-button,.minor-button,.close-dialog,.lobby-back,.icon-button,.title-small-control):active:not(:disabled){
+ background:#dce5e1!important;
+ transform:translateY(1px)!important;
+}
+.choice-button,.map-choice{
+ border:1.5px solid var(--ui-border)!important;
+ background:#f7f5ee!important;
+ color:#3e5563!important;
+}
+:is(.choice-button,.map-choice):hover:not(:disabled){
+ background:#edece5!important;
+ border-color:#698a8e!important;
+}
+:is(.choice-button,.map-choice).active{
+ background:#e6f0e9!important;
+ border:2px solid #4d8a87!important;
+ color:#203e49!important;
+}
+:is(.choice-button,.map-choice).active:before{display:none!important}
+.map-choice .map-thumb{border-radius:3px!important}
+.upgrade-card{
+ border:1px solid var(--ui-border)!important;
+ border-left:3px solid #77a7a5!important;
+ background:#f7f5ed!important;
+ color:var(--ui-ink)!important;
+}
+.upgrade-card:disabled{opacity:.6}
+.upgrade-card:hover:not(:disabled){background:#e8efea!important}
+.upgrade-card .upgrade-card-name{font-weight:850!important}
+.upgrade-card .level-pips i.filled{background:#649b91!important}
+.team-unit{border:1px solid #9eafab!important}
+.team-unit.selected{border-color:#477e7a!important;background:#dceae3!important}
+.selection-panel{
+ border:1.5px solid #96abaa!important;
+ background:#f7f5ee!important;
+ box-shadow:0 3px 11px #182f4122!important;
+ border-radius:var(--ui-radius)!important;
+}
+.selection-panel .hero-portrait{border-radius:4px!important}
+.resource-row{box-shadow:none!important}
+.resource-card strong{text-shadow:none!important}
+.resource-card{border-radius:0!important}
+.battle-header,.wave-panel{
+ border-radius:3px 3px 0 0!important;
+ box-shadow:none!important;
+}
+.battle-header{border-bottom-width:2px!important}
+.wave-panel{border-radius:0!important}
+.main-actions{
+ background:var(--ui-paper)!important;
+ box-shadow:none!important;
+ border-top:1px solid #91a7aa!important;
+}
+/* Playfield remains larger and more prominent than its buttons. */
+.board-frame{
+ border-radius:3px!important;
+ box-shadow:none!important;
+ outline:none!important;
+}
+.board-frame:before,.board-frame:after{box-shadow:none!important}
+.dialog:not(.lobby-dialog):not(.result-dialog){
+ border:1.5px solid #95aab0!important;
+ border-top:4px solid #779e9b!important;
+ background:#f8f5ed!important;
+ border-radius:8px!important;
+ box-shadow:0 12px 32px #0c223455!important;
+}
+.dialog h2{font-weight:900!important;letter-spacing:-.035em!important}
+.setting-row select{border-radius:var(--ui-radius)!important;background:#f6f5ee!important}
+/* Flat title navigation; art is supplied by the creator and not redrawn. */
+#titleOverlay .title-small-control{
+ border:1px solid #7895a2!important;
+ background:#f7f4eaee!important;
+ color:#294755!important;
+ border-radius:4px!important;
+}
+#titleOverlay .title-enter{
+ clip-path:none!important;
+ border-radius:5px!important;
+ box-shadow:none!important;
+}
+#titleOverlay .title-enter svg{color:#294755}
+/* Preserve safe-area spacing and the game's existing portrait/landscape
+   grid; do not reflow or shrink the actual button hit targets. */
+@media(orientation:portrait) and (max-width:360px){
+ .square-action strong{font-size:10px!important}
+ .square-action>span,.square-action svg{width:22px;height:22px}
+}
+@media(orientation:landscape){
+ .square-action strong{font-size:clamp(9px,1.6vw,12px)!important}
+ .main-actions{border-left:1px solid #91a7aa!important}
+}
+@media(prefers-reduced-motion:reduce){
+ :is(.summon-action,.square-action,.primary-button,.quiet-button,.choice-button,
+  .map-choice,.title-enter,.upgrade-card){transition:none!important}
+}

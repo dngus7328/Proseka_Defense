@@ -1,10 +1,10 @@
 {
   "name": "sekai-random-defense-fan-prototype",
   "private": true,
-  "version": "1.24.0",
+  "version": "1.25.0",
   "type": "module",
   "scripts": {
-    "test": "node tests/smoke.mjs && node tests/experience.mjs && node tests/sekai-hearts.mjs && node tests/sekai-visual-v123.mjs"
+    "test": "node tests/smoke.mjs && node tests/experience.mjs && node tests/sekai-hearts.mjs && node tests/sekai-visual-v123.mjs && node tests/story-route-v125.mjs"
   },
   "description": "HTML5 fan defense prototype with game-first responsive UI"
 }

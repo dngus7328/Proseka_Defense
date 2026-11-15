@@ -61,6 +61,17 @@ try{
     vp.name+' title has clipped '+id+': '+JSON.stringify(r));
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
   await page.locator('#titleEnter').click({timeout:12000});
+  assert(await page.locator('#storyOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' first-time Miku story never opened');
+  assert((await page.locator('#storyLine').textContent()).length>=15,
+   vp.name+' story opening was empty');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-story-opening.png')});
+  await page.locator('#storyContinue').click({timeout:12000});
+  assert((await page.locator('#storyIndex').textContent()).startsWith('02'),
+   vp.name+' story cannot advance');
+  await page.locator('#storySkip').click({timeout:12000});
+  assert(await page.locator('#lobbyOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' did not reach SEKAI selection after story');
   await page.waitForFunction(()=>{
    const list=[...document.querySelectorAll('#lobbyTeamPreview img')];
    return list.length===4&&list.every(img=>img.complete&&img.naturalWidth>0);
@@ -96,6 +107,24 @@ try{
   }
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby-switched.png')});
   await page.locator('#startButton').click({timeout:12000});
+  assert(await page.locator('#storyOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' first SEKAI/difficulty dialogue did not play');
+  assert((await page.locator('#storySpeaker').textContent()).length>=2,
+   vp.name+' SEKAI speaker is missing');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-sekai-first-entry.png')});
+  await page.locator('#storySkip').click({timeout:12000});
+  assert(await page.locator('#missionOverlay').evaluate(e=>e.classList.contains('visible')),
+   vp.name+' mission briefing was skipped');
+  const briefing=await page.evaluate(()=>({
+    name:document.getElementById('missionWorldName').textContent,
+    roster:document.querySelectorAll('#missionRoster .mission-member').length,
+    objective:document.getElementById('missionObjective').textContent,
+    mapPixels:document.getElementById('missionMap').width
+  }));
+  assert(briefing.roster===4&&briefing.objective.length>12&&briefing.mapPixels>100,
+   vp.name+' mission briefing incomplete: '+JSON.stringify(briefing));
+  await page.screenshot({path:path.join('artifacts',vp.name+'-mission-briefing.png')});
+  await page.locator('#missionDeploy').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest?.getGame()?.phase==='playing',{timeout:10000});
   await page.locator('#summonButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
@@ -265,9 +294,35 @@ try{
    g.update(1.6);
   });
   await page.waitForFunction(()=>document.getElementById('resultOverlay').classList.contains('visible'));
+  const outcome=await page.evaluate(()=>({
+   title:document.getElementById('resultTitle').textContent,
+   story:document.getElementById('resultStoryLine').textContent,
+   speaker:document.getElementById('resultStorySpeaker').textContent,
+   world:document.getElementById('resultWorldTitle').textContent,
+   portrait:document.getElementById('resultStoryPortrait').naturalWidth
+  }));
+  assert(outcome.story.length>12&&outcome.speaker&&outcome.world&&outcome.portrait>0,
+   vp.name+' post-battle SEKAI story missing: '+JSON.stringify(outcome));
   assert(await page.locator('#resultInsight').locator('div').count()>=4,vp.name+' four result metrics missing');
   await page.waitForTimeout(650);
   await page.screenshot({path:path.join('artifacts',vp.name+'-result.png')});
+  // Also inspect the victory/debrief version without simulating a 4-minute
+  // playthrough. The result data is the real completed fixture with a QA
+  // status override; do not mutate combat performance or player records.
+  await page.evaluate(()=>{
+   const ui=window.__sekaiTest.getUI();
+   const g=window.__sekaiTest.getGame();
+   ui.showResult({...g.result,status:'win',reason:null});
+  });
+  assert((await page.locator('#resultTitle').textContent()).length>=2,
+   vp.name+' victory text missing');
+  assert((await page.locator('#resultStoryLine').textContent()).length>=12,
+   vp.name+' successful SEKAI epilogue missing');
+  assert(await page.locator('.result-dialog').evaluate(e=>e.classList.contains('victory')),
+   vp.name+' victory result still uses defeat status');
+  assert(await page.locator('#resultNext').isEnabled(),
+   vp.name+' normal clear should enable the next difficulty');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-victory-debrief.png')});
   assert.deepEqual(errors,[],vp.name+' script errors: '+errors.join(' | '));
   summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:9});
   await context.close();

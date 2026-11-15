@@ -22,6 +22,8 @@ jobs:
           node --check src/core/Game.js
           node --check src/core/Renderer.js
           node --check src/ui/Interface.js
+          node --check src/ui/StoryFlow.js
+          node --check src/data/storyScenes.js
           node --check src/ui/BattleExperience.js
           node --check src/data/interference.js
           node --check src/data/battleChatter.js
