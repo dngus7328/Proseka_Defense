@@ -247,3 +247,44 @@ button,input,select{font-family:inherit!important}
 @media(prefers-reduced-motion:reduce){
  .board-frame,.battle-header,.square-action{transition:none!important}
 }
+
+/* On a wide PC, the empty side of the arena becomes a real location plaque.
+   This uses the existing, map-specific crest and name, not duplicate sprites. */
+@media(min-width:1280px) and (min-height:620px) and (orientation:landscape){
+ .world-decoration{
+  position:absolute!important;z-index:1!important;
+  left:clamp(18px,3.8vw,62px)!important;top:50%!important;
+  transform:translateY(-50%)!important;
+  width:clamp(165px,14vw,204px)!important;
+  min-height:215px!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  gap:12px!important;
+  margin:0!important;padding:20px 14px!important;
+  background:#f7f2e5c9!important;
+  border:1px solid #fff9efb0!important;
+  border-left:5px solid var(--stage-border)!important;
+  border-radius:2px!important;box-shadow:none!important;
+  color:#284451!important;pointer-events:none!important;
+ }
+ .world-decoration img{
+  display:block!important;width:96px!important;height:96px!important;
+  max-width:100%!important;object-fit:contain!important;
+  margin:0!important;filter:none!important;
+ }
+ .world-decoration span{
+  display:block!important;font-family:var(--hud-font)!important;
+  color:#344f62!important;font-size:17px!important;
+  font-weight:700!important;letter-spacing:.1em!important;
+  line-height:1.1!important;text-align:center!important;
+  overflow-wrap:anywhere!important;
+ }
+ .world-decoration i{
+  display:block!important;width:50px!important;height:2px!important;
+  background:var(--stage-border)!important;opacity:.75!important;
+ }
+}
+/* No overflow or identity loss on narrow and small-screen layouts. */
+@media(max-width:1279px), (max-height:619px), (orientation:portrait){
+ .world-decoration{display:none!important}
+}
