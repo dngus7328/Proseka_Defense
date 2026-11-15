@@ -225,8 +225,8 @@ assert.equal(new Set(HEARTS.map(h=>h.style)).size,6,'Six choreographies needed')
  const heart=HEARTS.find(h=>h.id==='leo-chorus');
  g.fireHeart(heart,g.units);
  assert(g.effects.some(e=>e.type==='heart'&&e.style==='star'));
- assert(g.effects.some(e=>e.type==='heartHit'&&e.style==='star'),
-   'Skill needs accurately targeted visual impact');
+ assert(g.heartStates.some(e=>e.type==='ensemble'&&e.unitIds.length>=4),
+   'Group skill must establish a meaningful ensemble buff instead of a one-hit sparkle');
 }
 console.log('OK — rising summon costs, all 26 localized character voices, rotating speakers and precise heart impacts');
 
