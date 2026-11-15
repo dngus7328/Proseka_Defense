@@ -427,13 +427,20 @@ export class Interface {
   el('resultSymbol').textContent=result.status==='win'?'✦':'×';
   const next=el('resultNext');next.disabled=result.status!=='win'||result.difficulty==='endless';
   const list=el('damageList');list.innerHTML='';
-  const entries=Object.entries(result.damageByMember).sort((a,b)=>b[1]-a[1]);
+  // Include deployed members even if the run ended before their first attack.
+  const allIds=[...new Set([...Object.keys(result.damageByMember),...(result.team||[]).map(u=>u.id)])];
+  const entries=allIds.map(id=>[id,result.damageByMember[id]||0]).sort((a,b)=>b[1]-a[1]);
+  const heroId=entries[0]?.[0];
+  const heroArtwork=el('resultHeroArt');
+  heroArtwork.hidden=!heroId;
+  if(heroId)heroArtwork.src=`./Assets/characters/${encodeURIComponent(heroId)}/front.png`;
+  document.querySelector('.result-dialog')?.classList.toggle('victory',result.status==='win');
   const max=entries[0]?.[1]||1;
   if(!entries.length){const empty=document.createElement('div');empty.className='empty-damage';empty.textContent=this.t('noDamage');list.append(empty);}
   for(const [i,[id,damage]] of entries.entries()){
    const def=CHARACTER_BY_ID[id];if(!def)continue;
    const row=document.createElement('div');row.className='damage-row';
-   row.innerHTML=`<span class="damage-rank">${String(i+1).padStart(2,'0')}</span><span class="damage-name">${escapeHTML(def.names[this.save.language])}<small>${escapeHTML(GROUPS.find(g=>g.id===def.group)?.short||'')}</small></span><strong class="damage-number">${format(damage)}</strong><div class="damage-bar"><span style="width:${Math.max(1,damage/max*100)}%"></span></div>`;
+   row.innerHTML=`<span class="damage-rank">${String(i+1).padStart(2,'0')}</span><img class="damage-avatar" src="./Assets/characters/${encodeURIComponent(id)}/front.png" alt=""/><span class="damage-name">${escapeHTML(def.names[this.save.language])}<small>${escapeHTML(GROUPS.find(g=>g.id===def.group)?.short||'')}</small></span><strong class="damage-number">${format(damage)}</strong><div class="damage-bar"><span style="width:${damage>0?Math.max(2,damage/max*100):0}%"></span></div>`;
    list.append(row);
   }
   el('toastStack').replaceChildren();el('boardFloat').textContent='';this.sound.beep(result.status==='win'?'win':'lose');this.showOverlay('resultOverlay');
