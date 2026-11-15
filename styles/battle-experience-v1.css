@@ -106,3 +106,67 @@
 @media (prefers-reduced-motion:reduce){
  .danger-banner,.battle-dialogue{animation:none!important;transition:none!important}
 }
+
+/* Results are a short game recap, not an empty admin table. */
+#resultOverlay .result-dialog{
+ background:linear-gradient(155deg,#2a475d,#172d45 57%,#142b41 100%);
+}
+#resultOverlay .result-dialog.victory{
+ background:linear-gradient(155deg,#47636c,#264f60 55%,#193e54 100%);
+}
+#resultOverlay .result-art{
+ height:130px;min-height:130px;overflow:visible;
+}
+#resultOverlay .result-bars{opacity:.36}
+#resultOverlay .result-hero-art{
+ display:block;position:absolute;left:50%;top:0;
+ transform:translateX(-50%);
+ height:125px;width:125px;object-fit:contain;
+ image-rendering:auto;filter:drop-shadow(0 5px 2px #1124377d);
+}
+#resultOverlay .result-hero-art[hidden]{display:none!important}
+#resultOverlay #resultSymbol{
+ position:absolute;z-index:3;left:calc(50% + 35px);top:2px;
+ font-size:34px;transform:rotate(12deg);
+ color:#ffdf9b;text-shadow:0 2px 0 #2f4661;
+}
+#resultOverlay .result-dialog h2{
+ color:#fff1cc;text-shadow:0 2px 0 #20394c;
+}
+#resultOverlay .result-summary{
+ background:#0f2c4038;border-top:2px solid #a2b6b64d;
+ border-radius:6px;overflow:hidden;padding:0 8px;
+}
+#resultOverlay .damage-list{padding-right:3px}
+#resultOverlay .damage-row{
+ display:grid;grid-template-columns:26px 36px minmax(0,1fr) auto;
+ gap:5px 8px;padding:8px 0;
+ align-items:center;border-bottom:1px solid #bad0cf26;
+}
+#resultOverlay .damage-avatar{
+ grid-column:2;grid-row:1;width:36px;height:36px;
+ object-fit:contain;border:1px solid #6c8b95;
+ border-radius:6px;background:#e1e8d9;
+}
+#resultOverlay .damage-name{grid-column:3;grid-row:1}
+#resultOverlay .damage-number{grid-column:4;grid-row:1}
+#resultOverlay .damage-bar{
+ grid-column:3/5;grid-row:2;height:6px;background:#60798978;border-radius:4px;
+}
+#resultOverlay .damage-bar span{
+ height:100%;background:#edc477;border-radius:4px;
+}
+#resultOverlay .result-actions button{border-radius:7px}
+@media (orientation:landscape){
+ #resultOverlay .result-art{height:100%;min-height:0}
+ #resultOverlay .result-hero-art{height:min(95px,26dvh);width:min(95px,26dvh);top:0}
+ #resultOverlay #resultSymbol{font-size:24px;left:calc(50% + 27px)}
+ #resultOverlay .result-summary{padding:0 7px}
+ #resultOverlay .damage-row{padding:5px 0}
+}
+@media (prefers-reduced-motion: no-preference){
+ #resultOverlay.visible .result-hero-art{animation:resultMemberEnter .5s cubic-bezier(.2,.82,.25,1) both}
+ @keyframes resultMemberEnter{
+  from{opacity:0;translate:0 15px}to{opacity:1;translate:0 0}
+ }
+}
