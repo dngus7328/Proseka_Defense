@@ -13,7 +13,7 @@ assert.equal(bgmForMap('closedwindow'),bgmForScene('lobby'));
 assert.equal(bgmForMap('openwindow'),bgmForScene('lobby'));
 let instances=[];
 class FakeAudio{
- constructor(){this.paused=true;this.volume=1;this.currentTime=0;this.listeners={};instances.push(this);}
+ constructor(){this.paused=true;this.volume=1;this.currentTime=0;this.listeners={};this.dataset={};instances.push(this);}
  addEventListener(type,fn){this.listeners[type]=fn;}
  play(){this.paused=false;return Promise.resolve();}
  pause(){this.paused=true;}
