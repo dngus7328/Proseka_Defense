@@ -326,9 +326,6 @@ export class Interface {
   this.skillCutin.setAttribute('aria-label',this.skillCutin.title);
   // The caster's own unmodified sprite is the first piece of information.
   // Gameplay effects replace flavor dialogue in the small top-HUD banner.
-  const members=participants.filter(u=>u.id!==id).map(u=>
-   `<img src="./Assets/characters/${encodeURIComponent(u.id)}/front.png" alt="" draggable="false"/>`
-  ).join('');
   this.skillCutin.innerHTML=`
    <div class="skill-cutin-panel">
     <div class="skill-cutin-art">
@@ -337,11 +334,11 @@ export class Interface {
     <div class="skill-cutin-dialogue">
      <div class="skill-cutin-head">
       <span class="skill-cutin-speaker">${escapeHTML(actorName)}</span>
-      <span class="skill-cutin-type">${escapeHTML(kind)}</span>
+      <span class="skill-cutin-type" title="${escapeHTML(kind)}">${escapeHTML(skillName)}</span>
      </div>
      <p class="skill-cutin-words">${escapeHTML(details.short)}</p>
     </div>
-    <div class="skill-cutin-skill" title="${escapeHTML(teammates)}">${escapeHTML(skillName)}</div>
+    <div class="skill-cutin-skill" title="${escapeHTML(teammates)}">${escapeHTML(kind)}</div>
     <div class="skill-cutin-progress" aria-hidden="true"></div>
    </div>`;
   this.skillCutin.classList.add('visible');
