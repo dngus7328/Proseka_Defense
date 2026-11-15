@@ -304,6 +304,8 @@ export class Game {
   const color=GROUPS.find(g=>g.id===CHARACTER_BY_ID[participants[0]?.id]?.group)?.color||'#d3cddf';
   const effect=activateHeartAbility(this,heart,participants,strength);
   const actorId=this.heartScene?.actorId||participants[0]?.id;
+   const activeState=this.heartStates.find(s=>s.heartId===heart.id);
+   if(activeState)activeState.casterId=actorId;
   const actor=this.units.find(u=>u.id===actorId);
   // The attack is visually anchored to its actual caster and any world zones;
   // we no longer apply an identical full-map damage blast to every skill.

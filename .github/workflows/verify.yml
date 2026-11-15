@@ -29,6 +29,8 @@ jobs:
           node --check src/core/MusicDirector.js
           node --check src/core/HeartAbilities.js
           node --check src/core/HeartVFX.js
+          node --check src/core/HeartVFXV2.js
+          node --check src/core/SekaiMapArtV2.js
           node --check src/data/heartEffects.js
   visual:
     runs-on: ubuntu-latest
