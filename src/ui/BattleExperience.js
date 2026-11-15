@@ -27,6 +27,7 @@ export class BattleExperience {
   const dialogue=el('battleDialogue');if(dialogue)dialogue.hidden=true;
   const warning=el('dangerBanner');if(warning)warning.hidden=true;
   this.firstFour.clear();this.lastLine=-Infinity;
+  this.lastTacticsKey='';
  }
  showLine(id,line,force=false){
   const g=this.game,actor=CHARACTER_BY_ID[id]||CHARACTER_BY_ID.miku;
@@ -48,6 +49,7 @@ export class BattleExperience {
   const threat=this.game?.interference,box=el('dangerBanner');
   if(!box)return;
   box.hidden=!threat;
+  this.updateTactics();
   if(!threat)return;
   const lang=this.ui.save.language,actor=CHARACTER_BY_ID[threat.id];
   box.style.setProperty('--danger',threat.color);
@@ -58,6 +60,51 @@ export class BattleExperience {
   el('dangerTimer').textContent=String(Math.ceil(threat.remaining));
   const btn=el('dangerMove');
   btn.disabled=pending;btn.textContent=pending?this.lang.chosen:this.lang.evade;
+ }
+ updateTactics(){
+  const game=this.game;if(!game)return;
+  const lang=this.ui.save.language;
+  const map=game.map;
+  const danger=game.interference;
+  const hintKey=[lang,map.id,game.wave,game.units.length,game.threatStats.avoided,!!danger,game.moveMode].join(':');
+  if(this.lastTacticsKey===hintKey)return;
+  this.lastTacticsKey=hintKey;
+  const icon=el('teamTacticsIcon'),name=el('teamTacticsTitle');
+  const text=el('teamTacticsDescription'),hint=el('teamTacticsHint');
+  if(!icon||!name||!text||!hint)return;
+  icon.src=`./Assets/ui/${map.id}.png`;
+  name.textContent=map.shortNames?.[lang]||map.names[lang]||map.names.ko;
+  if(danger){
+   text.textContent={
+    ko:'표시된 멤버를 다른 배치칸으로 이동해 위험을 피하자.',
+    ja:'印のあるメンバーを別の空きマスに移動して回避しよう。',
+    en:'Move the marked member to another free tile to avoid interference.'
+   }[lang];
+   hint.textContent={
+    ko:'대피 성공 시 크리스탈 +12 · 마음의 조각 +8',
+    ja:'回避成功でクリスタル +12・かけら +8',
+    en:'Dodge bonus: +12 crystals and +8 fragments'
+   }[lang];
+  }else if(game.wave<5&&game.difficulty==='normal'){
+   text.textContent={
+    ko:'처음에는 같은 멤버를 2명 모아 합성하는 게 중요해.',
+    ja:'まず同じメンバーを二人集めて合成しよう。',
+    en:'Build pairs of matching members to merge them.'
+   }[lang];
+   hint.textContent={
+    ko:'5웨이브부터 전장 이상현상이 나타나. 배치 이동을 기억해.',
+    ja:'ウェーブ5から異変が始まる。移動を覚えておこう。',
+    en:'Stage hazards start at wave 5. You can relocate members.'
+   }[lang];
+  }else{
+   const type=interferenceForMap(map.id);
+   text.textContent=HINTS[type.type][lang];
+   hint.textContent={
+    ko:'멤버를 누르면 공격 범위와 합성·이동 버튼이 보여.',
+    ja:'メンバーをタップすると攻撃範囲・合成・移動が表示される。',
+    en:'Tap a member to view range, merge and move controls.'
+   }[lang];
+  }
  }
  focusThreat(){
   const g=this.game,t=g?.interference;
