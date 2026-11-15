@@ -166,6 +166,13 @@ export class BattleExperience {
   };
   add(lang.wave,`${result.wave} / ${result.difficulty==='endless'?'∞':'20'}`);
   add(lang.avoided,`${result.threatStats?.avoided||0}${lang.times}`);
+  const extraLabels={
+   ko:{star:'4성 멤버',hearts:'활성화한 조합'},
+   ja:{star:'★4のメンバー',hearts:'発動した連携'},
+   en:{star:'4-STAR MEMBERS',hearts:'ACTIVE COMBOS'}
+  }[this.ui.save.language]||{star:'4성 멤버',hearts:'활성화한 조합'};
+  add(extraLabels.star,`${result.fourStars||0}`);
+  add(extraLabels.hearts,`${result.activeHearts||0}`);
   const info=result.status==='win'?lang.win:result.reason==='final_timeout'?lang.time:lang.overflow;
   let extra=el('resultAdvice');
   if(!extra){extra=document.createElement('p');extra.id='resultAdvice';extra.className='result-advice';box.after(extra);}
