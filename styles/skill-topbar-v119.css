@@ -125,3 +125,50 @@ body.heart-active .battle-dialogue{opacity:1!important;visibility:visible!import
 @media (prefers-reduced-motion:reduce){
  .skill-cutin,.skill-cutin.visible,.skill-cutin-panel{transition:none!important;animation:none!important}
 }
+
+
+/* Final compact layout: title/status text uses the reserved masthead line and
+   never touches the resource bar, which starts around 41–43px on phones. */
+@media (orientation:portrait){
+ .skill-cutin,.skill-cutin.visible{
+  top:calc(2px + env(safe-area-inset-top))!important;
+  height:39px!important;min-height:39px!important;max-height:39px!important;
+ }
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{
+  grid-template-columns:40px minmax(0,1fr)!important;
+ }
+ .skill-cutin-art{width:40px!important}
+ .skill-cutin-dialogue,.skill-cutin.simple .skill-cutin-dialogue{
+  padding:2px 5px 12px 6px!important;
+  gap:0!important;
+ }
+ .skill-cutin-head{gap:3px!important;line-height:1!important}
+ .skill-cutin-speaker{font-size:10px!important}
+ .skill-cutin-type{font-size:8px!important}
+ .skill-cutin-stars{display:none!important}
+ .skill-cutin-dialogue p.skill-cutin-words,
+ .skill-cutin.simple .skill-cutin-dialogue p.skill-cutin-words{
+  font-size:9px!important;line-height:11px!important;max-height:11px!important;
+ }
+ .skill-cutin-skill,.skill-cutin.simple .skill-cutin-skill{
+  left:40px!important;height:12px!important;line-height:11px!important;
+  padding-left:6px!important;font-size:9px!important;
+ }
+}
+@media (orientation:portrait) and (max-width:360px){
+ .skill-cutin,.skill-cutin.visible{height:38px!important;min-height:38px!important;max-height:38px!important}
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{grid-template-columns:38px minmax(0,1fr)!important}
+ .skill-cutin-art{width:38px!important}
+ .skill-cutin-skill,.skill-cutin.simple .skill-cutin-skill{left:38px!important}
+}
+@media (orientation:landscape){
+ .skill-cutin,.skill-cutin.visible{height:43px!important;min-height:43px!important;max-height:43px!important}
+ .skill-cutin-panel,.skill-cutin.simple .skill-cutin-panel{grid-template-columns:43px minmax(0,1fr)!important}
+ .skill-cutin-art{width:43px!important}
+ .skill-cutin-dialogue,.skill-cutin.simple .skill-cutin-dialogue{padding:3px 5px 15px 7px!important}
+ .skill-cutin-skill,.skill-cutin.simple .skill-cutin-skill{left:43px!important;height:15px!important}
+}
+body.heart-active .selection-panel,
+body.heart-active .battle-dialogue{
+ opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+}
