@@ -1,6 +1,6 @@
 import {GROUPS,CHARACTER_BY_ID,SIGNATURES,attackValue,attackRange} from '../data/characters.js';
 import {MAPS} from '../data/maps.js';
-import {HEARTS,HEART_BY_ID,heartStrength} from '../data/hearts.js?v=1.21.0';
+import {HEARTS,HEART_BY_ID,heartStrength} from '../data/hearts.js?v=1.22.0';
 import {heartEffectDetails,heartCasterDescription} from '../data/heartEffects.js?v=1.21.0';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
@@ -145,7 +145,8 @@ export class Interface {
   // Only the preview and map-specific description need to change on tap.
   const teamPreview=el('lobbyTeamPreview');
   if(teamPreview){
-   const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===selected?.affinityGroup).slice(0,4);
+   const members=Object.values(CHARACTER_BY_ID).filter(c=>selected?.sekaiMembers?.includes(c.id));
+   teamPreview.classList.toggle('six-singers',members.length===6);
    teamPreview.replaceChildren();
    for(const [i,c] of members.entries()){
     const img=document.createElement('img');
@@ -457,7 +458,8 @@ export class Interface {
  updateSkillCondition(force=false){
   const g=this.game,host=el('skillConditionAvatars');if(!g||!host)return;
   const group=g.map.affinityGroup||'leo';
-  const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===group);
+  const members=(g.map.sekaiMembers||[]).map(id=>CHARACTER_BY_ID[id]).filter(Boolean);
+  host.dataset.memberCount=String(members.length);
   const owned=new Set(g.units.map(u=>u.id));
   const count=members.filter(c=>owned.has(c.id)).length;
   const active=g.heartStates?.slice().sort((a,b)=>b.remaining-a.remaining)[0];
@@ -474,7 +476,7 @@ export class Interface {
    el('skillConditionCount').textContent=Math.ceil(active.remaining)+'s';
    bar.classList.remove('ready');
    host.replaceChildren();
-   for(const id of active.actorIds.slice(0,4)){
+   for(const id of active.actorIds){
     const portrait=document.createElement('span');portrait.className='skill-member owned';
     const im=document.createElement('img');im.src='./Assets/characters/'+id+'/front.png';im.alt='';
     portrait.append(im);host.append(portrait);
