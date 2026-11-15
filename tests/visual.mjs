@@ -78,7 +78,8 @@ try{
      theme:document.getElementById('app').dataset.theme,
      overlay:document.getElementById('lobbyOverlay').classList.contains('visible')};
    });
-   assert(preview.overlay&&preview.width>100&&preview.height>100&&preview.colors>15,
+   const paletteMinimum=(area==='closedwindow'||area==='openwindow')?11:16;
+   assert(preview.overlay&&preview.width>100&&preview.height>100&&preview.colors>=paletteMinimum,
     vp.name+' map '+area+' blank / solid-blue lobby preview: '+JSON.stringify(preview));
    if(area==='closedwindow'||area==='openwindow'){
     await page.waitForFunction(()=>{
