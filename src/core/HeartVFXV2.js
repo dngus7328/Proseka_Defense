@@ -43,7 +43,7 @@ function marker(c,x,y,col){
  c.save();c.fillStyle=col;c.globalAlpha=.22;c.beginPath();c.ellipse(x,y+7,24,12,0,0,TAU);c.fill();
  c.globalAlpha=1;oval(c,x,y+7,24,12,col,3);c.restore();
 }
-function linked(c,g,s,T,t,col){
+function linked(c,g,s,T,t,col,reduced){
  const members=g.units.filter(u=>s.unitIds.includes(u.uid)).map(u=>P(u,T));
  for(let i=0;i<members.length-1;i++){
   const a=members[i],b=members[i+1];
@@ -120,7 +120,7 @@ export function drawHeartStates(c,g,time,T=32,foreground=false,reduced=false){
  c.save();
  c.globalAlpha=Math.min(1,s.remaining*.7,(s.total-s.remaining)*7+.4);
  const actors=g.units.filter(u=>s.unitIds.includes(u.uid));
- if(['ensemble','rescue','mirror'].includes(s.type))linked(c,g,s,T,time,col);
+ if(['ensemble','rescue','mirror'].includes(s.type))linked(c,g,s,T,time,col,reduced);
  if(s.zones)for(const z of s.zones){const p=P(z,T);spot(c,p.x,p.y,s,col,s.type,time,lang);}
  if(s.gates)for(const z of s.gates){const p=P(z,T);gate(c,p.x,p.y,s,col,time,lang);}
  if(s.type==='beat'){
