@@ -121,15 +121,25 @@ export class Interface {
    button.addEventListener('click',()=>{this.config.difficulty=d.id;this.renderLobby();});diff.append(button);
   });
   const maps=el('mapChoices');const mapScrollLeft=maps.scrollLeft;maps.innerHTML='';MAPS.forEach(map=>{
-   const button=document.createElement('button');button.className=`map-choice${this.config.mapId===map.id?' active':''}`;
+   const button=document.createElement('button');button.type='button';button.dataset.mapId=map.id;button.className=`map-choice${this.config.mapId===map.id?' active':''}`;
    const canvas=document.createElement('canvas');canvas.className='map-thumb';
    const icon=document.createElement('img');icon.className='map-icon';icon.src=`./Assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;icon.alt='';
    const name=document.createElement('strong');name.textContent=`${map.order} · ${map.shortNames?.[this.save.language]||map.names[this.save.language]}`;
    button.append(canvas,icon,name);this.renderer.drawThumbnail(canvas,map);
-   button.addEventListener('click',()=>{this.config.mapId=map.id;this.renderLobby();});maps.append(button);
+   button.addEventListener('click',()=>{
+    if(this.config.mapId===map.id)return;
+    this.config.mapId=map.id;
+    // Keep the existing map cards mounted. Rebuilding seven canvases on
+    // every tap could briefly expose the blue canvas background on phones.
+    for(const item of maps.children)item.classList.toggle('active',item.dataset.mapId===map.id);
+    this.updateSelectedMap(map);
+   });maps.append(button);
   });
   maps.scrollLeft=mapScrollLeft;
-  const selected=MAPS.find(m=>m.id===this.config.mapId);
+  this.updateSelectedMap(MAPS.find(m=>m.id===this.config.mapId));
+ }
+ updateSelectedMap(selected){
+  // Only the preview and map-specific description need to change on tap.
   const teamPreview=el('lobbyTeamPreview');
   if(teamPreview){
    const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===selected?.affinityGroup).slice(0,4);
