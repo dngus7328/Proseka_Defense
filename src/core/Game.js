@@ -6,6 +6,7 @@ const rnd=(max)=>Math.floor(Math.random()*max);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const nearest=(array,target)=>array.slice().sort((a,b)=>dist(a,target)-dist(b,target));
+export const FINAL_WAVE_CLEANUP_SECONDS=30;
 export class Game {
  constructor(config,callbacks={}){
   this.callbacks=callbacks;this.map=MAP_BY_ID[config.mapId]||MAP_BY_ID.roof;
@@ -25,6 +26,10 @@ export class Game {
  get capacity(){return 60;}
  get isEndless(){return this.difficulty==='endless';}
  get maxWave(){return this.isEndless?Infinity:20;}
+ get finalCleanupSecondsLeft(){
+  return !this.isEndless&&this.wave===20&&this.waveTime>=30
+   ? Math.max(0,FINAL_WAVE_CLEANUP_SECONDS-(this.waveTime-30)):null;
+ }
  get power(){return Math.round(this.units.reduce((n,u)=>n+attackValue(u,this.upgrades)/attackInterval(u,this.upgrades),0));}
  get discoveredActive(){return HEARTS.filter(h=>!!getHeartParticipants(this,h));}
  emit(type,payload){this.callbacks[type]?.(payload);}
@@ -408,10 +413,14 @@ export class Game {
   }
   this.heartUpdate(dt,realDt);
   this.enemies=this.enemies.filter(e=>e.hp>0);
-  if(this.enemies.length>=this.capacity){this.end('lose');return;}
+  if(this.enemies.length>=this.capacity){this.end('lose','enemy_overflow');return;}
   if(this.waveTime>=30){
    if(this.wave===20&&!this.isEndless){
-    if(this.enemies.length===0&&this.spawnCursor>=this.waveRoster.length)this.end('win');
+    // A short clean-up window lets players finish surviving enemies, but cannot softlock.
+    if(this.spawnCursor>=this.waveRoster.length){
+     if(this.enemies.length===0)this.end('win');
+     else if(this.finalCleanupSecondsLeft<=0)this.end('lose','final_timeout');
+    }
    }else{this.startWave(this.wave+1);this.crystals+=26+this.wave*7;this.fragments+=12+this.wave*4;this.emit('onChange');}
   }
  }
@@ -422,11 +431,11 @@ export class Game {
   this.effects=this.effects.filter(e=>e.life>0);
   this.units.forEach(u=>{u.motion=Math.max(0,u.motion-dt);u.entrance=Math.max(0,(u.entrance||0)-dt);u.promotion=Math.max(0,(u.promotion||0)-dt);});
  }
- end(status){
+ end(status,reason=null){
   if(this.phase!=='playing')return;
   this.phase='ending';
   this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.emit('onHeartEnd',{});
-  this.result={status,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,damageByMember:{...this.damageByMember}};
+  this.result={status,reason,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,damageByMember:{...this.damageByMember}};
   this.endReal=0;this.endFromSpeed=this.speed;this.endAnimSpeed=this.speed;
   this.emit('onEndStart',this.result);
  }
