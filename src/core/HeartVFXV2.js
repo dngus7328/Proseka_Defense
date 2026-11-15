@@ -1,7 +1,7 @@
 // Mechanic-specific battlefield and cast effects. The shapes reflect the
 // actual HeartAbilities state; this never invents damage or resources.
 import {CHARACTER_BY_ID} from '../data/characters.js';
-import {heartAbilityName} from './HeartAbilities.js';
+import {heartAbilityName,mechanicForHeart} from './HeartAbilities.js';
 const TAU=Math.PI*2;
 const COLORS={ensemble:'#f9d891',spotlight:'#f4c777',beat:'#efad84',barrier:'#ffdf92',quiet:'#c8d4eb',portal:'#a5e3de',tether:'#e2c4ed',armor:'#f6b99d',rescue:'#b1e2d1',mirror:'#d4c7f2',stage:'#f1bed6'};
 const NAMES={
@@ -48,7 +48,7 @@ function linked(c,g,s,T,t,col){
  for(let i=0;i<members.length-1;i++){
   const a=members[i],b=members[i+1];
   line(c,a,b,'#2b4055',7);line(c,a,b,col,4);
-  const phase=g.reduceMotion?.5:(t*.7+i*.27)%1;
+  const phase=reduced?.5:(t*.7+i*.27)%1;
   star(c,a.x+(b.x-a.x)*phase,a.y+(b.y-a.y)*phase,8,'#fff8dc');
  }
  if(s.type==='ensemble'&&members.length>2)
@@ -103,7 +103,7 @@ function enemyLocks(c,g,s,T,col){
   tag(c,name(s.type,g.language),p.x,p.y-42,col);
  }
 }
-export function drawHeartStates(c,g,time,T=32,foreground=false){
+export function drawHeartStates(c,g,time,T=32,foreground=false,reduced=false){
  const states=(g.heartStates||[]).filter(s=>s.remaining>0);
  if(!states.length)return;
  const s=states[states.length-1],col=COLORS[s.type]||'#ffe5aa',lang=g.language||'ko';
@@ -124,7 +124,7 @@ export function drawHeartStates(c,g,time,T=32,foreground=false){
  if(s.zones)for(const z of s.zones){const p=P(z,T);spot(c,p.x,p.y,s,col,s.type,time,lang);}
  if(s.gates)for(const z of s.gates){const p=P(z,T);gate(c,p.x,p.y,s,col,time,lang);}
  if(s.type==='beat'){
-  const phase=g.reduceMotion?.4:(time/.69)%1;
+  const phase=reduced?.4:(time/.69)%1;
   for(let i=0;i<g.map.path.length;i+=4){
    const p=P(g.map.path[i],T);
    oval(c,p.x,p.y,8+phase*19,8+phase*19,col,3);
@@ -146,7 +146,7 @@ export function drawHeartStates(c,g,time,T=32,foreground=false){
   tag(c,name('quiet',lang),g.map.w*T/2,28,col);
  }
  if(s.type==='portal'&&s.portals?.length){
-  for(const z of s.portals){const p=P(z,T);portal(c,p.x,p.y,col,time,!!g.reduceMotion);}
+  for(const z of s.portals){const p=P(z,T);portal(c,p.x,p.y,col,time,reduced);}
   if(s.portals.length>1){
    c.save();c.setLineDash([7,6]);
    line(c,P(s.portals[0],T),P(s.portals[s.portals.length-1],T),col,3);c.restore();
@@ -157,15 +157,12 @@ export function drawHeartStates(c,g,time,T=32,foreground=false){
  if(['armor','tether'].includes(s.type))enemyLocks(c,g,s,T,col);
  c.restore();
 }
-const mechanic=(heart)=>heart.type==='group'?
- ({leo:'ensemble',mmj:'spotlight',vbs:'beat',wxs:'barrier',n25:'quiet',vs:'portal'}[heart.group]||'ensemble'):
- ({star:'tether',rain:'stage',slash:'armor',burst:'barrier',wave:'rescue',orbit:'mirror'}[heart.style]||'tether');
 export function drawHeartCinematic(c,g,time,T=32,reduced=false){
  const scene=g.heartScene;if(!scene)return;
  const k=Math.max(0,Math.min(1,scene.elapsed/1.62)),fade=Math.min(1,k*8,(1-k)*7);
  if(fade<=0)return;
  const s=g.heartStates?.find(state=>state.heartId===scene.heart.id);
- const type=s?.type||mechanic(scene.heart),col=COLORS[type],lang=g.language||'ko';
+ const type=s?.type||mechanicForHeart(scene.heart),col=COLORS[type],lang=g.language||'ko';
  const w=g.map.w*T,h=g.map.h*T,actor=g.units.find(u=>u.uid===scene.actorUid);
  const p=actor?P(actor,T):{x:w/2,y:h/2};
  c.save();c.globalAlpha=fade;
