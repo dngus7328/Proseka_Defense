@@ -48,7 +48,18 @@ export class Interface {
   this.titleIntro?.show();
  }
  hideOverlays(){for(const o of document.querySelectorAll('.overlay'))o.classList.remove('visible');}
- showOverlay(id){this.closeUpgrades();this.hideOverlays();el(id)?.classList.add('visible');document.body.classList.toggle('menu-mode',!this.game);}
+ showOverlay(id){
+  this.closeUpgrades();
+  // Keep the opening scene visible under a translucent settings or Hearts
+  // overlay. Otherwise the hidden battle layout appears behind the dialog.
+  const parent=id==='settingsOverlay'?this.settingsOrigin:
+   id==='heartsOverlay'?this.overlayOrigin:null;
+  this.hideOverlays();
+  if(parent==='title'||parent==='lobby')
+   el(parent==='title'?'titleOverlay':'lobbyOverlay')?.classList.add('visible');
+  el(id)?.classList.add('visible');
+  document.body.classList.toggle('menu-mode',!this.game);
+ }
  overlayVisible(id){return !!el(id)?.classList.contains('visible');}
  renderLanguages(){
   document.documentElement.lang=this.save.language;
@@ -65,6 +76,8 @@ export class Interface {
   el('languageSelect').value=this.save.language;
   el('volumeRange').value=this.save.volume;
   el('musicVolumeRange').value=this.save.musicVolume??55;
+  el('musicVolumeValue').textContent=(this.save.musicVolume??55)+'%';
+  el('effectVolumeValue').textContent=this.save.volume+'%';
   el('effectsSelect').value=this.save.effects;
   this.renderer.effectsLite=this.save.effects==='lite';
   el('touchToggle').checked=this.save.touch;
@@ -94,8 +107,8 @@ export class Interface {
   click('resultExit',()=>this.handlers.onExit?.());click('resultRetry',()=>this.handlers.onRetry?.());click('resultNext',()=>this.handlers.onNext?.());
   document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>this.closeOverlay(button.dataset.close)));
   el('languageSelect').addEventListener('change',e=>this.setLanguage(e.target.value));
-  el('volumeRange').addEventListener('input',e=>{this.save.volume=Number(e.target.value);this.sound.setVolume(this.save.volume/100);persistSave(this.save);});
-  el('musicVolumeRange').addEventListener('input',e=>{this.save.musicVolume=Number(e.target.value);this.sound.setMusicVolume(this.save.musicVolume/100);this.sound.retryMusic();persistSave(this.save);});
+  el('volumeRange').addEventListener('input',e=>{this.save.volume=Number(e.target.value);el('effectVolumeValue').textContent=this.save.volume+'%';this.sound.setVolume(this.save.volume/100);persistSave(this.save);});
+  el('musicVolumeRange').addEventListener('input',e=>{this.save.musicVolume=Number(e.target.value);el('musicVolumeValue').textContent=this.save.musicVolume+'%';this.sound.setMusicVolume(this.save.musicVolume/100);this.sound.retryMusic();persistSave(this.save);});
   el('effectsSelect').addEventListener('change',e=>{this.save.effects=e.target.value;this.renderer.effectsLite=e.target.value==='lite';persistSave(this.save);});
   el('touchToggle').addEventListener('change',e=>{this.save.touch=e.target.checked;persistSave(this.save);});
   el('gameCanvas').addEventListener('pointerdown',e=>{
