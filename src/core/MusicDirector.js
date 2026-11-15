@@ -1,4 +1,4 @@
-import {bgmForScene} from '../data/musicTracks.js';
+import {bgmForScene} from '../data/musicTracks.js?v=1.29.0';
 
 // The author supplies all eight BGM masters; no backing music is synthesized.
 // Circular-crossfaded assets use native HTMLAudio looping and a quick
