@@ -1,0 +1,39 @@
+/* v1.19: portrait title uses the same original composite, recomposed into
+   five close-packed bands. The painting and costumes are never modified. */
+#titleOverlay .title-backdrop .title-portrait-crowd{
+ display:none!important;pointer-events:none!important;
+ position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ z-index:5!important;opacity:1!important;
+ image-rendering:auto!important;object-fit:fill!important;
+ border:0!important;box-shadow:none!important;
+}
+@media (orientation:portrait){
+ #titleOverlay .title-backdrop.art-ready .title-portrait-crowd{
+  display:block!important;
+ }
+ #titleOverlay .title-backdrop.art-ready .title-characters{
+  display:none!important;
+ }
+ #titleOverlay .title-backdrop.art-ready .title-final{
+  display:none!important;
+ }
+ #titleOverlay .title-backdrop.art-ready .title-enemies{
+  opacity:.33!important;
+ }
+ #titleOverlay .title-backdrop-filter{
+  background:linear-gradient(180deg,#e9f5f84c 0%,#e3effd3b 22%,transparent 47%,transparent 77%,#213b596b 100%)!important;
+ }
+ #titleOverlay .title-logo-wrap{
+  z-index:11!important;top:clamp(66px,12dvh,120px)!important;
+ }
+ #titleOverlay .title-logo-image{
+  max-height:clamp(95px,17dvh,156px)!important;
+ }
+ #titleOverlay .title-bottom{z-index:13!important}
+}
+@media (orientation:landscape){
+ #titleOverlay .title-backdrop.art-ready .title-characters{
+  width:max(100vw,calc(100dvh * 1.777))!important;
+ }
+}
