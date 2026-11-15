@@ -445,3 +445,15 @@
  #resultOverlay .result-story-copy{padding:5px}
  #resultOverlay #resultStoryLine{font-size:11px}
 }
+
+/* Readability on bright map tiles, including 320px portrait layouts. */
+#resultOverlay .result-story-copy{
+ background:#1f3648ee!important;
+ border:1px solid #788e924d;
+ padding:6px 8px!important;
+}
+#resultOverlay #resultStoryLine{color:#f3f1e9!important}
+#resultOverlay .result-dialog.victory .result-story{
+ border-left-color:#acd1ba!important;
+}
+#resultOverlay .result-dialog.victory #resultStoryLabel{color:#cde1be!important}
