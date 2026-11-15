@@ -9,8 +9,8 @@ for(const key of eight){
  assert(info?.mp3.endsWith('/'+(key==='lobby'?'main':key)+'.mp3'));
 }
 assert.equal(Object.keys(MUSIC_CREDITS).length,8);
-assert.equal(bgmForMap('closedwindow'),bgmForScene('lobby'));
-assert.equal(bgmForMap('openwindow'),bgmForScene('lobby'));
+assert.deepEqual(bgmForMap('closedwindow'),bgmForScene('lobby'));
+assert.deepEqual(bgmForMap('openwindow'),bgmForScene('lobby'));
 let instances=[];
 class FakeAudio{
  constructor(){this.paused=true;this.volume=1;this.currentTime=0;this.listeners={};this.dataset={};instances.push(this);}
