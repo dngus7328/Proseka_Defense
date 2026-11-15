@@ -1,0 +1,27 @@
+name: Verify gameplay and responsive layout
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run logic and UI wiring regression tests
+        run: npm test
+      - name: JavaScript syntax
+        run: |
+          node --check src/core/Game.js
+          node --check src/core/Renderer.js
+          node --check src/ui/Interface.js
+          node --check src/ui/BattleExperience.js
+          node --check src/data/interference.js
+          node --check src/data/battleChatter.js
