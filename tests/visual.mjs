@@ -39,6 +39,18 @@ try{
   }
   await page.locator('#titleSkipIntro').evaluate(e=>e.click());
   await page.waitForTimeout(100);
+  if(vp.width<vp.height){
+   const crowd=await page.evaluate(()=>{
+    const c=document.getElementById('titlePortraitCrowd'),ctx=c?.getContext('2d');
+    if(!ctx)return {width:0,filled:0};
+    const {data}=ctx.getImageData(0,0,c.width,c.height);
+    let filled=0;
+    for(let i=3;i<data.length;i+=4*224)if(data[i]>32)filled++;
+    return {width:c.width,filled};
+   });
+   assert(crowd.width>200&&crowd.filled>50,
+    vp.name+' portrait character crowd is missing: '+JSON.stringify(crowd));
+  }
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
   await page.locator('#titleEnter').click({timeout:12000});
   await page.waitForFunction(()=>{
@@ -47,6 +59,21 @@ try{
   },null,{timeout:12000});
   await page.waitForTimeout(520);
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby.png')});
+  for(const area of ['stage','wonderland','city','roof']){
+   await page.locator(`#mapChoices .map-choice[data-map-id="${area}"]`).click({timeout:9000});
+   const preview=await page.evaluate(()=>{
+    const el=document.getElementById('lobbyPreview');
+    const data=el.getContext('2d').getImageData(0,0,el.width,el.height).data;
+    const colors=new Set();
+    for(let i=0;i<data.length;i+=16*4)colors.add([data[i]>>5,data[i+1]>>5,data[i+2]>>5].join(':'));
+    return {width:el.width,height:el.height,colors:colors.size,
+     theme:document.getElementById('app').dataset.theme,
+     overlay:document.getElementById('lobbyOverlay').classList.contains('visible')};
+   });
+   assert(preview.overlay&&preview.width>100&&preview.height>100&&preview.colors>15,
+    vp.name+' map '+area+' blank / solid-blue lobby preview: '+JSON.stringify(preview));
+  }
+  await page.screenshot({path:path.join('artifacts',vp.name+'-lobby-switched.png')});
   await page.locator('#startButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest?.getGame()?.phase==='playing',{timeout:10000});
   await page.locator('#summonButton').click({timeout:12000});
@@ -93,7 +120,9 @@ try{
     assert(e.height>=40&&e.width>=55,vp.name+' untappable UI: '+e.id);
   }
   const musicActive=await page.evaluate(()=>window.__sekaiTest.getUI().sound.music.mapId);
-  assert.equal(musicActive,'roof',vp.name+' stage BGM not started');
+  assert.equal(musicActive,'roof',vp.name+' stage Suno music slot not selected');
+  assert.equal(await page.evaluate(()=>window.__sekaiTest.getUI().sound.music.audio),null,
+   vp.name+' must not play unapproved synthesized background music');
 
   // Stage hazard, direct evade selection, click a safe tile, and verify reward.
   await page.evaluate(()=>{
@@ -135,8 +164,9 @@ try{
   await page.waitForFunction(()=>document.getElementById('skillCutin')?.classList.contains('visible'));
   await page.waitForTimeout(250);
   const skillSize=await page.locator('#skillCutin').boundingBox();
-  assert(skillSize&&skillSize.width>vp.width*.47&&skillSize.height>=140,
-   vp.name+' special attack cut-in remains tiny');
+  assert(skillSize&&skillSize.height>=40&&skillSize.height<=70&&skillSize.y<=62
+    &&skillSize.width>=180,
+   vp.name+' special attack message must stay in the top HUD: '+JSON.stringify(skillSize));
   await page.screenshot({path:path.join('artifacts',vp.name+'-skill-lead.png')});
   await page.waitForTimeout(580);
   assert(await page.locator('#skillCutin').evaluate(el=>el.classList.contains('impact')),
@@ -162,7 +192,7 @@ try{
   await page.waitForTimeout(650);
   await page.screenshot({path:path.join('artifacts',vp.name+'-result.png')});
   assert.deepEqual(errors,[],vp.name+' script errors: '+errors.join(' | '));
-  summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:8});
+  summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:9});
   await context.close();
  }
 }finally{await browser.close();}
