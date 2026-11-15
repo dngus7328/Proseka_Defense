@@ -1,0 +1,65 @@
+/* v1.23 — clarity without a full-screen modal or glossy neon effects.
+   The cinematic is drawn on the game canvas; the HUD stays accessible. */
+#skillCondition.heart-active-status{
+ border:2px solid #d8b57f!important;
+ border-left-width:5px!important;
+ background:#fff0d8!important;
+ box-shadow:0 3px 0 #273e5040!important;
+}
+#skillCondition.heart-active-status .skill-condition-name{
+ font-weight:950!important;
+ color:#253c50!important;
+ line-height:1.25!important;
+ letter-spacing:-.012em!important;
+}
+#skillCondition.heart-active-status #skillConditionCount{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-width:43px!important;
+ font-weight:900!important;
+ color:#442e43!important;
+ background:#f8d59f!important;
+ border:1px solid #b48b7a!important;
+ border-radius:4px!important;
+ padding:3px 5px!important;
+}
+#skillCondition.heart-active-status .skill-caster{
+ outline:2px solid #bb7e77!important;
+ outline-offset:-2px!important;
+ background:#fff7d7!important;
+ position:relative;z-index:2;
+}
+#skillCondition.heart-active-status .skill-caster::after{
+ content:'★';position:absolute;right:-3px;top:-7px;
+ font-size:11px;line-height:1;color:#915b50;
+ text-shadow:0 1px #fff5df;
+}
+.skill-cutin.visible .skill-cutin-panel{
+ background:#293f54!important;
+ border-left-color:var(--skill-accent,#f1d29d)!important;
+ border-bottom-color:#eccd9d!important;
+}
+.skill-cutin.visible .skill-cutin-speaker{color:#fff1c9!important}
+.skill-cutin.visible .skill-cutin-type{color:#fcf0de!important}
+.skill-cutin.visible .skill-cutin-words{color:#ffffff!important}
+.skill-cutin.impact .skill-cutin-panel{
+ border-left-color:#fff1a8!important;
+ background:#42586b!important;
+}
+@media (max-width:420px){
+ #skillCondition.heart-active-status{padding:4px 6px!important}
+ #skillCondition.heart-active-status .skill-condition-name{
+  font-size:10px!important;
+ }
+ #skillCondition.heart-active-status .skill-condition-avatars{
+  gap:1px!important;
+ }
+ #skillCondition.heart-active-status .skill-member{
+  width:22px!important;min-width:22px!important;height:22px!important;
+ }
+ #skillCondition.heart-active-status #skillConditionCount{
+  min-width:35px!important;padding:2px 3px!important;font-size:11px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .skill-cutin.visible .skill-cutin-panel{animation:none!important;transition:none!important}
+}
