@@ -1,0 +1,179 @@
+/* v1.18 – actual mobile gameplay framing.
+   Respect the map's natural 11:12 ratio. The controls remain tappable. */
+@media (orientation:portrait){
+ :root{--dock-h:118px}
+ .battle{
+   top:calc(95px + env(safe-area-inset-top))!important;
+   bottom:calc(118px + env(safe-area-inset-bottom))!important;
+   left:0!important;right:0!important;
+   display:flex!important;flex-direction:column!important;
+   gap:0!important;justify-content:flex-start!important;
+   align-items:center!important;padding:0 5px!important;
+   min-height:0!important;overflow:hidden!important;
+ }
+ .battle-header,.wave-panel{
+   width:min(100%,calc((100dvh - 95px - 118px - 78px)*var(--map-ratio,.91667)))!important;
+   max-width:calc(100vw - 10px)!important;flex-shrink:0!important;
+ }
+ .battle-header{height:31px!important;min-height:31px!important;flex-basis:31px!important}
+ .wave-panel{height:29px!important;min-height:29px!important;flex-basis:29px!important}
+ .board-frame{
+   width:min(calc(100vw - 10px),calc((100dvh - 95px - 118px - 77px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*var(--map-ratio,.916667)))!important;
+   height:auto!important;max-height:none!important;min-height:0!important;
+   aspect-ratio:var(--map-aspect,11/12)!important;
+   flex:none!important;align-self:center!important;
+ }
+ #gameCanvas{width:100%!important;height:100%!important;object-fit:contain!important}
+ .resource-row{top:calc(43px + env(safe-area-inset-top))!important;height:49px!important}
+ .resource-card strong{font-size:clamp(16px,4.7vw,20px)!important}
+ .masthead{height:37px!important}
+ .skill-condition{flex-shrink:0!important;margin:5px auto 0!important}
+ .team-strip{
+   flex:1 1 0!important;min-height:0!important;
+   max-height:66px!important;margin-top:5px!important;overflow:hidden!important;
+   padding:5px!important;gap:5px!important;
+ }
+ .team-strip-caption{writing-mode:horizontal-tb!important;transform:none!important;letter-spacing:0!important}
+ .team-strip-slots{min-height:0!important;overflow-x:auto!important}
+ .team-unit{width:44px!important;height:44px!important;flex-basis:44px!important}
+ .team-unit img{width:42px!important;height:42px!important}
+ .main-actions{
+   height:calc(118px + env(safe-area-inset-bottom))!important;
+   padding:8px max(8px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important;
+   grid-template-columns:minmax(90px,.96fr) minmax(0,2.04fr)!important;gap:6px!important;
+ }
+ .secondary-actions{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}
+ .square-action{gap:4px!important;padding:5px 1px!important;min-width:0!important}
+ .square-action strong{font-size:clamp(10px,2.8vw,13px)!important;line-height:1.25!important;word-break:keep-all!important}
+ .square-action>span,.square-action svg{width:clamp(22px,6.1vw,30px)!important;height:clamp(22px,6.1vw,30px)!important}
+ .summon-text strong{font-size:clamp(19px,5vw,25px)!important}
+ .selection-panel{
+   left:8px!important;right:8px!important;bottom:calc(121px + env(safe-area-inset-bottom))!important;
+   max-height:min(45dvh,330px)!important;overflow-y:auto!important;
+   max-width:420px!important;padding:7px!important;
+ }
+ .upgrades{bottom:calc(118px + env(safe-area-inset-bottom))!important;max-height:70dvh!important;overflow-y:auto!important}
+ .battle-dialogue{
+   bottom:calc(120px + env(safe-area-inset-bottom))!important;
+   left:50%!important;position:fixed!important;z-index:29!important;
+   width:calc(100vw - 20px)!important;max-width:440px!important;
+   min-height:50px!important;pointer-events:none!important;
+ }
+ .battle-dialogue-copy span{font-size:clamp(11px,3vw,13px)!important}
+}
+@media (orientation:portrait) and (max-height:725px){
+ :root{--dock-h:105px}
+ .battle{
+   top:calc(83px + env(safe-area-inset-top))!important;
+   bottom:calc(105px + env(safe-area-inset-bottom))!important;
+ }
+ .battle-header,.wave-panel{width:min(calc(100vw - 10px),calc((100dvh - 83px - 105px - 56px)*var(--map-ratio,.916667)))!important}
+ .battle-header{height:28px!important;min-height:28px!important;flex-basis:28px!important}
+ .wave-panel{height:25px!important;min-height:25px!important;flex-basis:25px!important}
+ .board-frame{
+   width:min(calc(100vw - 10px),calc((100dvh - 83px - 105px - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*var(--map-ratio,.916667)))!important;
+ }
+ .resource-row{top:calc(41px + env(safe-area-inset-top))!important;height:41px!important}
+ .resource-card .mini-label{font-size:9px!important}
+ .resource-icon{width:20px!important;height:20px!important}
+ .skill-condition,.team-strip{display:none!important}
+ .main-actions{
+   height:calc(105px + env(safe-area-inset-bottom))!important;
+   padding-top:7px!important;padding-bottom:calc(8px + env(safe-area-inset-bottom))!important;
+ }
+ .square-action strong{font-size:clamp(10px,2.9vw,12px)!important}
+ .battle-dialogue{bottom:calc(111px + env(safe-area-inset-bottom))!important;min-height:44px!important}
+ .selection-panel{bottom:calc(111px + env(safe-area-inset-bottom))!important}
+ .upgrades{bottom:calc(105px + env(safe-area-inset-bottom))!important}
+}
+@media (orientation:landscape){
+ :root{--rail-w:clamp(228px,31vw,318px)}
+ .battle{
+   --board-w:min(700px,calc((100dvh - 65px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*var(--map-ratio,.916667)),calc(100vw - var(--rail-w) - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)))!important;
+   grid-template-rows:29px minmax(0,1fr) 27px!important;
+   gap:0 5px!important;padding:4px!important;
+ }
+ .board-frame{
+   width:100%!important;height:auto!important;
+   max-height:calc(100dvh - 65px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+   aspect-ratio:var(--map-aspect,11/12)!important;overflow:hidden!important;
+ }
+ #gameCanvas{object-fit:contain!important}
+ .team-strip{max-width:none!important;padding:6px!important;gap:4px!important}
+ .team-strip-slots{
+   flex:0 1 auto!important;max-height:36%!important;min-height:0!important;
+   overflow-y:auto!important;flex-wrap:wrap!important;
+ }
+ .team-unit{width:clamp(34px,4.7vw,48px)!important;height:clamp(34px,4.7vw,48px)!important;flex-basis:clamp(34px,4.7vw,48px)!important}
+ .team-unit img{width:100%!important;height:100%!important}
+ .team-tactics{gap:3px!important;padding:5px 7px!important}
+ .team-tactics p{font-size:clamp(10px,1.3vw,12px)!important;line-height:1.3!important}
+ .team-tactics small{font-size:10px!important}
+ .team-heart-progress{margin-top:1px!important;padding:4px!important;gap:3px!important}
+ .resource-row{height:49px!important;top:calc(44px + env(safe-area-inset-top))!important}
+ .resource-card .mini-label{font-size:clamp(10px,1.25vw,12px)!important}
+ .resource-card strong{font-size:clamp(17px,2.1vw,22px)!important}
+ .resource-icon{width:22px!important;height:22px!important}
+ .main-actions{
+   top:calc(95px + env(safe-area-inset-top))!important;
+   bottom:env(safe-area-inset-bottom)!important;
+   display:flex!important;flex-direction:column!important;
+   justify-content:center!important;align-items:stretch!important;
+   gap:9px!important;padding:10px!important;
+ }
+ .main-actions>.summon-action{
+   height:clamp(69px,24dvh,95px)!important;flex:0 0 clamp(69px,24dvh,95px)!important;
+   gap:9px!important;border-radius:9px!important;
+ }
+ .summon-text strong{font-size:clamp(22px,3.1vw,29px)!important}
+ .summon-symbol,.summon-symbol svg{width:clamp(26px,4vw,36px)!important;height:clamp(26px,4vw,36px)!important}
+ .secondary-actions{
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   grid-template-rows:repeat(2,minmax(57px,auto))!important;
+   width:100%!important;height:auto!important;gap:7px!important;flex:0 0 auto!important;
+ }
+ .secondary-actions>.square-action{
+   min-height:clamp(57px,16dvh,75px)!important;height:auto!important;
+   display:flex!important;flex-direction:row!important;gap:6px!important;
+   padding:5px!important;border-radius:8px!important;
+   grid-column:auto!important;grid-row:auto!important;
+ }
+ .secondary-actions>.square-action strong{
+   font-size:clamp(12px,1.65vw,15px)!important;line-height:1.2!important;
+   white-space:normal!important;word-break:keep-all!important;
+ }
+ .secondary-actions>.square-action>span,.secondary-actions>.square-action svg{
+   height:clamp(20px,3.2vw,30px)!important;width:clamp(20px,3.2vw,30px)!important;flex-shrink:0!important;
+ }
+ #heartButton{grid-column:1/3!important;justify-content:center!important;min-height:51px!important}
+ #heartButton strong{font-size:clamp(13px,1.7vw,17px)!important}
+ #heartCount{font-size:12px!important}
+ .selection-panel{
+   bottom:calc(8px + env(safe-area-inset-bottom))!important;
+   max-height:72dvh!important;width:min(325px,calc(100vw - var(--rail-w) - 20px))!important;
+   overflow:auto!important;
+ }
+ .upgrades{top:calc(93px + env(safe-area-inset-top))!important;overflow-y:auto!important}
+ .battle-dialogue{
+   left:calc((100vw - var(--rail-w))/2)!important;
+   bottom:calc(28px + env(safe-area-inset-bottom))!important;
+   width:min(90%,360px)!important;
+ }
+}
+@media (orientation:landscape) and (max-height:390px){
+ .main-actions{gap:6px!important;padding:7px!important}
+ .main-actions>.summon-action{height:67px!important;flex-basis:67px!important}
+ .secondary-actions{grid-template-rows:repeat(2,minmax(53px,auto))!important;gap:5px!important}
+ .secondary-actions>.square-action{min-height:53px!important;padding:4px!important}
+ .secondary-actions>.square-action strong{font-size:clamp(11px,1.7vw,14px)!important}
+ #heartButton{min-height:49px!important}
+ .team-tactics small{display:none!important}
+ .team-heart-member{width:clamp(26px,4vw,36px)!important;height:clamp(26px,4vw,36px)!important}
+}
+@media (orientation:landscape) and (max-height:310px){
+ .main-actions>.summon-action{height:53px!important;flex-basis:53px!important}
+ .secondary-actions{grid-template-rows:repeat(2,minmax(42px,auto))!important}
+ .secondary-actions>.square-action{min-height:42px!important}
+ .team-tactics{display:none!important}
+ .battle{grid-template-rows:25px minmax(0,1fr) 22px!important}
+}
