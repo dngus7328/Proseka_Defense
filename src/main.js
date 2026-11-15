@@ -1,7 +1,7 @@
 import {Renderer} from './core/Renderer.js?v=1.17.0';
 import {Game} from './core/Game.js?v=1.17.0';
 import {loadSave,persistSave} from './core/Save.js';
-import {SoundEngine} from './core/Audio.js';
+import {SoundEngine} from './core/Audio.js?v=1.18.0';
 import {Interface} from './ui/Interface.js?v=1.17.0';
 import {DIFFICULTIES} from './data/enemies.js';
 
@@ -49,22 +49,23 @@ function startGame(config){
    onEndStart:()=>{ui.status('FINISH');},
    onResult:result=>finishRun(result)
  });
- renderer.setMap(game.map);ui.setGame(game);
+ renderer.setMap(game.map);ui.setGame(game);sound.startMusic(game.map.id);
 }
 function finishRun(result){
  if(result.status==='win'&&!save.cleared.includes(result.difficulty))save.cleared.push(result.difficulty);
  if(result.difficulty==='extreme'&&result.status==='win'&&!save.cleared.includes('extreme'))save.cleared.push('extreme');
  const key=result.difficulty;
  if(!save.best[key]||result.wave>save.best[key].wave||(result.wave===save.best[key].wave&&result.elapsed<save.best[key].time))save.best[key]={wave:result.wave,time:result.elapsed};
+ sound.endMusic(result.status==='win');
  persistSave(save);ui.renderLobby();ui.showResult(result);
 }
-function exitGame(){game=null;ui.showTitle();}
+function exitGame(){sound.stopMusic();game=null;ui.showTitle();}
 function retry(){if(!currentConfig)return;startGame(currentConfig);}
 function next(){
  if(!game||game.result?.status!=='win')return;
  if(game.difficulty==='extreme'){
    currentConfig={...currentConfig,difficulty:'endless'};
-   game.continueEndless();ui.hideOverlays();ui.update(true);
+   game.continueEndless();sound.startMusic(game.map.id);ui.hideOverlays();ui.update(true);
    return;
  }
  const i=DIFFICULTIES.findIndex(d=>d.id===game.difficulty);if(i<0||i>=DIFFICULTIES.length-2)return;
@@ -87,6 +88,7 @@ function frame(now){
  const dt=Math.min(.16,rawDt);
  averageRaf=averageRaf*.965+Math.max(0,rawDt*1000)*.035;
  if(game){
+  sound.pauseMusic(game.phase==='paused');
   const active=game.phase==='playing'||game.phase==='ending';
   if(active){
    simAccum=Math.min(.14,simAccum+dt);
