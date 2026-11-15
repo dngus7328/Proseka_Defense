@@ -7,6 +7,7 @@ import {getText,LANGUAGES} from '../data/locales.js';
 import {TITLE_LOGOS} from '../data/branding.js';
 import {TitleIntro} from './TitleIntro.js?v=1.15.1';
 import {persistSave} from '../core/Save.js';
+import {BattleExperience} from './BattleExperience.js?v=1.17.0';
 const el=(id)=>document.getElementById(id);
 const format=(n)=>Math.round(n).toLocaleString();
 const timeText=(sec)=>`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(Math.floor(sec%60)).padStart(2,'0')}`;
@@ -20,11 +21,12 @@ export class Interface {
   this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';this.lastTeamSignature='';this.lastSkillSignature='';
   this.handlers={};this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
   this.titleIntro=new TitleIntro();
+  this.experience=new BattleExperience(this);
   this.skillCutin=document.createElement('section');this.skillCutin.id='skillCutin';this.skillCutin.className='skill-cutin';this.skillCutin.setAttribute('aria-live','polite');this.skillCutin.setAttribute('aria-atomic','true');document.body.append(this.skillCutin);
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.clearHeartCutin();this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.clearHeartCutin();this.experience?.reset();this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -33,7 +35,7 @@ export class Interface {
   this.noticeTimer=window.setTimeout(()=>{this.noticeTimer=null;this.showTitle();},4600);
  }
  showTitle(){
-  this.clearHeartCutin();
+  this.clearHeartCutin();this.experience?.reset();
   el('app').dataset.theme=(MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]).theme;
   if(this.noticeTimer!==null){window.clearTimeout(this.noticeTimer);this.noticeTimer=null;}
   this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
@@ -142,6 +144,7 @@ export class Interface {
    }
   }
   if(selected&&el('lobbyPreview'))this.renderer.drawThumbnail(el('lobbyPreview'),selected);
+  this.experience?.updateMap(selected);
  }
  syncMapArtwork(map){
   if(!map)return;
@@ -220,15 +223,18 @@ export class Interface {
   const name=character.names[this.save.language];
   const bonus=source==='affinity'?(this.save.language==='ja'?'セカイボーナス':this.save.language==='en'?'SEKAI BONUS':'세카이 보정'):'';
   this.setStatus(`${name}${bonus?' · '+bonus:''}`);
+  this.experience?.onSummon(unit,character);
  }
  onPromotion({unit}){
   const name=CHARACTER_BY_ID[unit.id]?.names[this.save.language]||unit.id;
   this.setStatus(`${name}  ${'★'.repeat(unit.star)}`);
+  this.experience?.onPromotion(unit);
  }
   onHeartSeen(id){
   if(this.save.discovered.includes(id))return;
   this.save.discovered.push(id);persistSave(this.save);this.renderHearts();
   this.toast(this.t('discovered'),true);
+  this.experience?.onPairDiscovered(id);
  }
  onHeartStart({heart,participants,strength,actorId}){
   const id=actorId||participants[0]?.id;
@@ -314,6 +320,7 @@ export class Interface {
   el('summonButton').disabled=g.crystals<g.cost||g.phase!=='playing';
   el('autoMergeButton').disabled=g.phase!=='playing'||!g.units.some(u=>u.star<4&&g.units.some(v=>u.uid!==v.uid&&v.id===u.id&&v.star===u.star));
 
+  this.experience?.update();
   this.updateSelection(force);
   this.updateTeamStrip(force);
   this.updateSkillCondition(force);
@@ -414,7 +421,7 @@ export class Interface {
   }
  }
  showResult(result){
-  this.clearHeartCutin();
+  this.clearHeartCutin();this.experience?.showResult(result);
   el('resultTitle').textContent=result.status==='win'?this.t('win'):this.t('lose');
   el('resultTime').textContent=timeText(result.elapsed);
   el('resultSymbol').textContent=result.status==='win'?'✦':'×';
