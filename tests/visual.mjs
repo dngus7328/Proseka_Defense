@@ -129,6 +129,16 @@ try{
   await page.locator('#summonButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
+  if(vp.name==='desktop'){
+   const ambient=await page.evaluate(()=>{
+    const e=document.querySelector('.world-decoration'),r=e?.getBoundingClientRect(),c=e&&getComputedStyle(e);
+    return {cssMatch:matchMedia('(min-width:1280px) and (min-height:620px) and (orientation:landscape)').matches,display:c?.display,opacity:c?.opacity,z:c?.zIndex,
+     bounds:r?{x:r.x,y:r.y,width:r.width,height:r.height}:null,html:e?.outerHTML.slice(0,350)};
+   });
+   assert(ambient.cssMatch&&ambient.display!=='none'&&ambient.bounds?.width>120&&ambient.bounds.x>=0,
+    'Desktop must display a real SEKAI location plaque in otherwise empty space: '+JSON.stringify(ambient));
+  }
+
   // The upgrade sheet must explain the mechanics, not just show labels and prices.
   await page.locator('#upgradeToggle').click({timeout:12000});
   await page.waitForFunction(()=>document.getElementById('app').classList.contains('upgrade-open'));
@@ -193,8 +203,14 @@ try{
   }
   const musicActive=await page.evaluate(()=>window.__sekaiTest.getUI().sound.music.mapId);
   assert.equal(musicActive,'roof',vp.name+' stage Suno music slot not selected');
-  assert.equal(await page.evaluate(()=>window.__sekaiTest.getUI().sound.music.audio),null,
-   vp.name+' must not play unapproved synthesized background music');
+  const musicScene=await page.evaluate(()=>{
+   const director=window.__sekaiTest.getUI().sound.music;
+   return {scene:director.currentScene,
+    src:director.audio?.currentSrc||director.audio?.src||''};
+  });
+  assert.equal(musicScene.scene,'roof',vp.name+' wrong SEKAI BGM route');
+  if(musicScene.src)assert(/\/(?:roof)\.(?:ogg|mp3)(?:\?|$)/.test(musicScene.src),
+   vp.name+' BGM source must match the selected SEKAI: '+musicScene.src);
 
   // Stage hazard, direct evade selection, click a safe tile, and verify reward.
   await page.evaluate(()=>{

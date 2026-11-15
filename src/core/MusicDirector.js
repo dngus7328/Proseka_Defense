@@ -1,8 +1,8 @@
-import {bgmForMap} from '../data/musicTracks.js';
+import {bgmForScene} from '../data/musicTracks.js';
 
-// The author supplies BGM separately (Suno exports). This module never
-// synthesizes or automatically composes a backing soundtrack.
-// Web Audio is used only for short special-attack and result sound effects.
+// The author supplies all eight BGM masters; no backing music is synthesized.
+// Circular-crossfaded assets use native HTMLAudio looping and a quick
+// volume crossfade when switching menu, SEKAI, and boss scenes.
 const midi=n=>440*2**((n-69)/12);
 function envelope(g,time,power,attack,hold,release){
  g.gain.setValueAtTime(.00001,time);
@@ -16,7 +16,12 @@ export class MusicDirector {
   this.getVolume=getEffectVolume;
   this.getMusicVolume=getMusicVolume;
   this.mapId=null;
+  this.baseScene=null;
+  this.currentScene=null;
+  this.bossActive=false;
   this.audio=null;
+  this.players=new Map();
+  this.fadeFrame=null;
   this.fxBus=null;
   this.context=null;
   this.noise=null;
@@ -39,45 +44,140 @@ export class MusicDirector {
   this.updateVolume();
   return ctx;
  }
+ musicGain(){
+  const v=Math.max(0,Math.min(1,this.getMusicVolume()));
+  return v*(this.ducked?.20:.72);
+ }
  updateVolume(){
   const fx=Math.max(0,Math.min(1,this.getVolume()));
-  const music=Math.max(0,Math.min(1,this.getMusicVolume()));
   if(this.context&&this.fxBus)
    this.fxBus.gain.setTargetAtTime(fx*.57,this.context.currentTime,.05);
-  if(this.audio)this.audio.volume=this.ducked?music*.20:music*.72;
+  const level=this.musicGain();
+  if(this.audio)this.audio.volume=level;
  }
- start(mapId){
-  if(this.mapId===mapId)return;
-  this.stop();
-  this.mapId=mapId;
-  const src=bgmForMap(mapId);
-  if(!src||typeof Audio==='undefined')return; // No BGM until Suno files are supplied.
-  const audio=new Audio(src);
+ makePlayer(key){
+  const files=bgmForScene(key);
+  if(!files||typeof Audio==='undefined')return null;
+  const available=typeof document!=='undefined'?
+   document.createElement('audio').canPlayType('audio/ogg; codecs="vorbis"'):'';
+  const audio=new Audio();
   audio.loop=true;
   audio.preload='auto';
-  this.audio=audio;
-  this.paused=false;
-  this.updateVolume();
-  audio.play().catch(()=>{}); // Browsers may require a tap before playback.
+  audio.playsInline=true;
+  audio.dataset.track=key;
+  const primary=available?files.ogg:files.mp3;
+  audio.src=primary;
+  // Use MP3 if the device advertises Vorbis but fails to load it.
+  let fallbackUsed=!available;
+  audio.addEventListener('error',()=>{
+   if(!fallbackUsed){
+    fallbackUsed=true;
+    audio.src=files.mp3;
+    if(!this.paused&&this.audio===audio)audio.play().catch(()=>{});
+   }else{
+    this.players.delete(key);
+    if(this.audio===audio)this.audio=null;
+   }
+  });
+  this.players.set(key,audio);
+  return audio;
+ }
+ activate(key){
+  if(this.currentScene===key){
+   this.retryPlayback();
+   return;
+  }
+  if(this.fadeFrame!==null&&typeof cancelAnimationFrame==='function'){
+   cancelAnimationFrame(this.fadeFrame);
+   this.fadeFrame=null;
+  }
+  const previous=this.audio;
+  this.currentScene=key;
+  const next=this.players.get(key)||this.makePlayer(key);
+  this.audio=next;
+  if(!next){
+   if(previous)previous.pause();
+   return;
+  }
+  next.volume=0;
+  if(!this.paused)next.play().catch(()=>{});
+  if(previous===next){this.updateVolume();return;}
+  // Smooth transitions on stage entry, boss spawn, and return to normal wave.
+  // Inactive loops remain paused at their original position, not restarted.
+  const start=typeof performance!=='undefined'?performance.now():0;
+  const from=previous?.volume||0;
+  const step=(now)=>{
+   if(this.paused)return;
+   const t=Math.min(1,Math.max(0,(now-start)/360));
+   const eased=t*t*(3-2*t);
+   const target=this.musicGain();
+   if(next)this.audio===next&&(next.volume=target*eased);
+   if(previous)previous.volume=from*(1-eased);
+   if(t<1&&typeof requestAnimationFrame==='function')this.fadeFrame=requestAnimationFrame(step);
+   else{
+    this.fadeFrame=null;
+    if(previous){previous.pause();previous.volume=0;}
+    if(next&&this.audio===next)next.volume=target;
+   }
+  };
+  if(typeof requestAnimationFrame==='function')this.fadeFrame=requestAnimationFrame(step);
+  else{
+   if(previous)previous.pause();
+   this.updateVolume();
+  }
+ }
+ // Title/mission setup use the submitted title and general menu tracks.
+ playScene(scene){
+  this.mapId=null;
+  this.baseScene=scene==='title'?'title':'lobby';
+  this.bossActive=false;
+  this.activate(this.baseScene);
+ }
+ start(mapId){
+  this.mapId=mapId;
+  this.baseScene=mapId;
+  this.bossActive=false;
+  this.activate(mapId);
+ }
+ setBossActive(active){
+  if(!this.mapId)return;
+  const value=!!active;
+  if(this.bossActive===value)return;
+  this.bossActive=value;
+  this.activate(value?'boss':this.mapId);
+ }
+ retryPlayback(){
+  if(this.audio&&!this.paused&&this.audio.paused)this.audio.play().catch(()=>{});
  }
  pause(value){
   const paused=!!value;
   if(this.paused===paused)return;
   this.paused=paused;
-  if(!this.audio)return;
-  if(paused)this.audio.pause();
-  else this.audio.play().catch(()=>{});
+  if(paused){
+   if(this.fadeFrame!==null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(this.fadeFrame);
+   this.fadeFrame=null;
+   for(const audio of this.players.values())audio.pause();
+  }else{
+   this.updateVolume();
+   this.retryPlayback();
+  }
  }
  stop(){
   if(this.duckTimer!==null){clearTimeout(this.duckTimer);this.duckTimer=null;}
-  if(this.audio){
-   this.audio.pause();
-   this.audio.removeAttribute('src');
-   this.audio.load();
-   this.audio=null;
+  if(this.fadeFrame!==null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(this.fadeFrame);
+  this.fadeFrame=null;
+  for(const audio of this.players.values()){
+   audio.pause();
+   audio.removeAttribute('src');
+   audio.load();
   }
+  this.players.clear();
+  this.audio=null;
   this.mapId=null;
+  this.baseScene=null;
+  this.currentScene=null;
   this.paused=false;
+  this.bossActive=false;
   this.ducked=false;
  }
  tone(note,time,length,power=.22,type='piano'){

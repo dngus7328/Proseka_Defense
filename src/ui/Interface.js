@@ -22,7 +22,7 @@ export class Interface {
   this.save=save;this.renderer=renderer;this.sound=sound;this.game=null;
   this.config={difficulty:'normal',mapId:'roof'};
   this.overlayOrigin='title';this.settingsOrigin='title';this.noticeTimer=null;this.lastUpgrades='';this.lastHero='';this.lastTeamSignature='';this.lastSkillSignature='';
-  this.handlers={};this.heartBannerTimer=null;this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);
+  this.handlers={};this.heartBannerTimer=null;this.renderLanguages();this.registerActions();this.sound.setVolume(save.volume/100);this.sound.setMusicVolume((save.musicVolume??55)/100);
   this.titleIntro=new TitleIntro();
   this.storyFlow=new StoryFlow(this);
   this.experience=new BattleExperience(this);
@@ -42,7 +42,7 @@ export class Interface {
   this.clearHeartCutin();this.experience?.reset();
   el('app').dataset.theme=(MAPS.find(m=>m.id===this.config.mapId)||MAPS[0]).theme;
   if(this.noticeTimer!==null){window.clearTimeout(this.noticeTimer);this.noticeTimer=null;}
-  this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');
+  this.game=null;this.closeUpgrades();this.showOverlay('titleOverlay');this.sound.playScene('title');
   const map=MAPS.find(m=>m.id===this.config.mapId)||MAPS[0];this.syncMapArtwork(map);
   this.renderer.drawTitleScene(el('titlePreview'),map);
   this.titleIntro?.show();
@@ -64,6 +64,7 @@ export class Interface {
   for(const e of document.querySelectorAll('[data-lang]'))e.classList.toggle('active',e.dataset.lang===this.save.language);
   el('languageSelect').value=this.save.language;
   el('volumeRange').value=this.save.volume;
+  el('musicVolumeRange').value=this.save.musicVolume??55;
   el('effectsSelect').value=this.save.effects;
   this.renderer.effectsLite=this.save.effects==='lite';
   el('touchToggle').checked=this.save.touch;
@@ -73,7 +74,7 @@ export class Interface {
  registerActions(){
   const click=(id,fn)=>el(id).addEventListener('click',fn);
   click('acceptNotice',()=>this.showTitle());
-  click('titleEnter',()=>{this.sound.beep('select');this.storyFlow.beginPrologue();});
+  click('titleEnter',()=>{this.sound.beep('select');this.sound.retryMusic();this.storyFlow.beginPrologue();});
   click('lobbyBack',()=>this.showTitle());
   click('titleSettings',()=>this.openSettings());
   click('titleHearts',()=>this.openHearts());
@@ -94,6 +95,7 @@ export class Interface {
   document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>this.closeOverlay(button.dataset.close)));
   el('languageSelect').addEventListener('change',e=>this.setLanguage(e.target.value));
   el('volumeRange').addEventListener('input',e=>{this.save.volume=Number(e.target.value);this.sound.setVolume(this.save.volume/100);persistSave(this.save);});
+  el('musicVolumeRange').addEventListener('input',e=>{this.save.musicVolume=Number(e.target.value);this.sound.setMusicVolume(this.save.musicVolume/100);this.sound.retryMusic();persistSave(this.save);});
   el('effectsSelect').addEventListener('change',e=>{this.save.effects=e.target.value;this.renderer.effectsLite=e.target.value==='lite';persistSave(this.save);});
   el('touchToggle').addEventListener('change',e=>{this.save.touch=e.target.checked;persistSave(this.save);});
   el('gameCanvas').addEventListener('pointerdown',e=>{
@@ -115,7 +117,7 @@ export class Interface {
   });
  }
  isModalOpen(){return [...document.querySelectorAll('.overlay')].some(e=>e.classList.contains('visible'));}
- showLobby(){this.titleIntro?.skip();this.game=null;this.closeUpgrades();this.renderLobby();this.showOverlay('lobbyOverlay');}
+ showLobby(){this.titleIntro?.skip();this.game=null;this.closeUpgrades();this.renderLobby();this.showOverlay('lobbyOverlay');this.sound.playScene('lobby');}
  renderLobby(){
   const diff=el('difficultyChoices');if(!diff)return;
   const cleared=this.save.cleared;

@@ -1,13 +1,20 @@
-import {MusicDirector} from './MusicDirector.js?v=1.20.0';
+import {MusicDirector} from './MusicDirector.js?v=1.28.0';
 
 // No music is synthesized here. All SFX are short, unpitched physical-style
 // noises: soft taps, brushes, hits and low impact thumps, not ascending bleeps.
 export class SoundEngine {
  constructor(){
-  this.context=null;this.volume=.35;
+  this.context=null;this.volume=.35;this.musicVolume=.55;
   this.lastImpact=-Infinity;this.lastSpecial=-Infinity;this.noise=null;
-  this.music=new MusicDirector(()=>this.getContext(),()=>this.volume);
+  this.music=new MusicDirector(()=>this.getContext(),()=>this.volume,()=>this.musicVolume);
  }
+ setMusicVolume(value){
+  this.musicVolume=Math.max(0,Math.min(1,value));
+  this.music.updateVolume();
+ }
+ playScene(scene){this.music.playScene(scene);}
+ setBossActive(value){this.music.setBossActive(value);}
+ retryMusic(){this.music.retryPlayback();}
  setVolume(value){
   this.volume=Math.max(0,Math.min(1,value));
   this.music.updateVolume();

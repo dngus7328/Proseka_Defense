@@ -1,0 +1,290 @@
+/* v1.28 — typography & game-screen art direction.
+   One compact visual hierarchy: a themed world stage + readable tactical HUD.
+   Supplied portraits, title illustration, logos and 32px game map stay intact.
+   No simulated glossy cards, neon, random gradients, or new sprite collages. */
+:root{
+ font-family:"Noto Sans KR","Noto Sans JP","Apple SD Gothic Neo",system-ui,sans-serif!important;
+ --hud-font:"Rajdhani","Noto Sans KR",sans-serif;
+ --game-ink:#243c49;
+ --game-paper:#f4f1e9;
+}
+button,input,select{font-family:inherit!important}
+.mini-label,.dialog-overline,.mission-section-label,.story-topline,
+.lobby-label,.stage-id,.field-summary-name,.team-strip-caption,
+#statusLine,.result-time strong,.wave-head strong,
+#timerText,.resource-card strong,.skill-condition-count{
+ font-variant-numeric:tabular-nums;
+}
+#timerText,#waveText,#enemyCount,#crystalText,#fragmentText,
+#skillConditionCount,#unitCount,#maxStarCount,#summonCost{
+ font-family:var(--hud-font)!important;font-weight:700!important;
+ font-variant-numeric:tabular-nums!important;
+ letter-spacing:.015em!important;
+}
+/* Every world has its own matte palette. A real game environment should
+   identify the location before the player reads any labels. */
+.app{
+ --ambient-top:#b2b9b3;
+ --ambient-low:#7e9195;
+ --stage-border:#6b8c91;
+ --stage-shadow:#283944;
+ background:#aebbc0;
+}
+.app[data-theme="school"]{
+ --ambient-top:#e1c2ad;--ambient-low:#b290a2;
+ --stage-border:#795d7d;--stage-shadow:#4b425e;
+}
+.app[data-theme="stage"]{
+ --ambient-top:#e8c4d8;--ambient-low:#ad9bbd;
+ --stage-border:#7d608f;--stage-shadow:#51416d;
+}
+.app[data-theme="street"]{
+ --ambient-top:#d6b8a4;--ambient-low:#9599a4;
+ --stage-border:#615d79;--stage-shadow:#41455b;
+}
+.app[data-theme="wonderland"]{
+ --ambient-top:#f7ddc4;--ambient-low:#d3a6ba;
+ --stage-border:#b2819d;--stage-shadow:#76617f;
+}
+.app[data-theme="empty"]{
+ --ambient-top:#e5e5ec;--ambient-low:#adb3c2;
+ --stage-border:#9ea6b6;--stage-shadow:#697688;
+}
+.app[data-theme="closed"]{
+ --ambient-top:#9690a4;--ambient-low:#4c4b68;
+ --stage-border:#605970;--stage-shadow:#313244;
+}
+.app[data-theme="open"]{
+ --ambient-top:#eef1e9;--ambient-low:#b3d1d4;
+ --stage-border:#91b6bd;--stage-shadow:#668f9a;
+}
+/* Flat painted surfaces on either side of the map are part of its SEKAI.
+   The map itself remains full top-down and unobstructed. */
+.battle{
+ background:
+  repeating-linear-gradient(0deg,transparent 0,transparent 61px,#ffffff0d 61px,#ffffff0d 62px),
+  linear-gradient(155deg,var(--ambient-top),var(--ambient-low))!important;
+}
+.battle:before{
+ background:
+  radial-gradient(ellipse at 12% 14%,#ffffff36,transparent 53%),
+  linear-gradient(180deg,#ffffff12,transparent 28%,transparent 79%,#22374718)!important;
+}
+.battle:after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ width:min(78%,780px);height:min(64%,530px);
+ top:50%;left:50%;transform:translate(-50%,-48%);
+ border:1px solid #ffffff27;
+ outline:1px solid #1d35421c;outline-offset:10px;
+ background:repeating-linear-gradient(90deg,transparent 0,transparent 43px,#ffffff09 43px,#ffffff09 44px);
+}
+.app[data-theme="school"] .battle:after{
+ background:repeating-linear-gradient(90deg,#fff4d812 0,#fff4d812 1px,transparent 1px,transparent 74px);
+}
+.app[data-theme="stage"] .battle:after{
+ background:repeating-linear-gradient(90deg,transparent 0,transparent 84px,#ffffff1a 84px,#ffffff1a 87px);
+}
+.app[data-theme="street"] .battle:after{
+ background:repeating-linear-gradient(0deg,transparent 0,transparent 57px,#f4ece21c 57px,#f4ece21c 59px);
+}
+.app[data-theme="wonderland"] .battle:after{
+ border-radius:45% 45% 4px 4px;
+ border-color:#f6e7d780;
+}
+.app[data-theme="empty"] .battle:after{
+ border-color:#ffffff60;
+ background:linear-gradient(135deg,#fafafa10,transparent 70%);
+}
+.app[data-theme="closed"] .battle:after{
+ border:2px solid #c0b1c930;
+ background:linear-gradient(90deg,#d6d4df10,#242c4e0b);
+}
+.app[data-theme="open"] .battle:after{
+ border:3px double #f9f8ea70;
+ background:linear-gradient(90deg,#ffffff0c,transparent);
+}
+/* Board is the most important object; it should feel seated in the world. */
+.board-frame{
+ background:var(--ambient-low)!important;
+ border:2px solid var(--stage-shadow)!important;
+ border-radius:1px!important;
+ box-shadow:0 0 0 3px #f9f5ecad,0 0 0 5px var(--stage-border),0 12px 18px #102b3540!important;
+}
+.board-frame:before{box-shadow:inset 0 0 0 1px #fffcf04d!important}
+.battle-header,.wave-panel{
+ background:#20384add!important;
+ border:0!important;
+ border-radius:1px!important;
+ backdrop-filter:none!important;
+}
+.battle-header{border-bottom:2px solid var(--stage-border)!important}
+.wave-panel{border-top:2px solid var(--stage-border)!important}
+.stage-signal{background:#f0c98c!important;height:12px!important;width:3px!important}
+.stage-mode{background:#e0e6df!important;border-radius:2px!important}
+.wave-track{height:5px!important;border-radius:1px!important}
+.wave-track span{background:#e9bf8d!important;border-radius:1px!important}
+.speed-button{clip-path:none!important;border-radius:2px!important;background:#e9c88f!important}
+.board-float:not(:empty){border-radius:2px!important;border:1px solid #738994!important;box-shadow:none!important}
+/* Design system — dark structural rails, cream information surfaces,
+   one muted rose accent for call-to-action and no metallic fake bevel. */
+.masthead .icon-button{
+ border:1px solid #9eb5b6!important;box-shadow:none!important;border-radius:3px!important;
+ color:#f8f5eb!important;background:#263c4bdc!important;
+}
+.resource-row{background:#1e3344!important;border-color:#6c9297!important}
+.resource-card{border-color:#ffffff33!important}
+.main-actions{
+ background:#1c3140!important;border-top:2px solid #829b9a!important;
+ box-shadow:none!important;
+}
+.summon-action{
+ background:#e9ca97!important;border:1px solid #a58e6c!important;
+ border-radius:4px!important;clip-path:none!important;box-shadow:none!important;
+}
+.summon-action .summon-text strong{font-size:clamp(17px,3.5vw,22px)!important}
+.square-action{
+ background:#e8ebe4!important;color:#263c48!important;
+ border:1px solid #8fa8a8!important;border-radius:3px!important;
+}
+.square-action:disabled{opacity:.55!important}
+.selection-panel{
+ background:#f6f2e8!important;border:1px solid #7d999e!important;
+ box-shadow:0 4px 16px #162f3c2d!important;border-radius:3px!important;
+}
+.selection-panel .hero-stats{
+ border-color:#c3cfcc!important;
+}
+.team-tactics,.skill-condition,.field-summary{
+ box-shadow:none!important;backdrop-filter:none!important;
+}
+/* The lobby is a game preparation screen, not a showroom.
+   The original canvas scene remains behind its briefing and roster. */
+.lobby-dialog{background:#1c3242!important}
+.lobby-art{
+ background:linear-gradient(145deg,var(--ambient-top),var(--ambient-low))!important;
+}
+.lobby-art-mask{
+ background:linear-gradient(180deg,#243a4e19,transparent 24%,transparent 60%,#162d3cbd)!important;
+}
+.lobby-top,.lobby-bottom{
+ background:#1c3245!important;
+ border-color:#6c8990!important;
+}
+.lobby-content{
+ background:#233e50f1!important;border-color:#85a7a6!important;
+}
+.map-choice,.choice-button{
+ background:#f1f1e9!important;border-color:#899f9f!important;
+ border-radius:3px!important;box-shadow:none!important;
+}
+.map-choice.active,.choice-button.active{
+ background:#e5eee8!important;border:2px solid #6f9a98!important;
+}
+.map-thumb{border-radius:2px!important}
+.lobby-fan,.dialog-head h2{font-weight:900!important;letter-spacing:-.045em!important}
+#startButton,.primary-button,#missionDeploy{
+ border-radius:3px!important;box-shadow:none!important;
+}
+/* Story cards should obey the same font and line spacing as the mission UI. */
+#storyOverlay #storyLine{
+ font-weight:500!important;letter-spacing:-.025em!important;
+ line-height:1.7!important;
+}
+#storyOverlay #storySpeaker{letter-spacing:-.04em!important}
+#storyOverlay .story-text-box{
+ border-color:#a9b8b7!important;border-left-color:#c1859a!important;
+ background:#f8f5edf2!important;
+ box-shadow:0 6px 18px #1d314028!important;
+}
+#storyOverlay .story-actions button{font-weight:800!important}
+.mission-stage,.settings-dialog,.collection-dialog{
+ font-family:"Noto Sans KR","Noto Sans JP",system-ui,sans-serif!important;
+}
+.mission-goal,.mission-hint,#upgradeIntro,.heart-explanation,
+.heart-guide,.upgrade-card-description{
+ line-height:1.65!important;letter-spacing:-.015em!important;
+ word-break:keep-all!important;
+}
+.result-story-copy p{line-height:1.6!important}
+/* Setting sliders should look deliberate and respect native keyboard use. */
+.setting-row input[type="range"]{
+ accent-color:#718f98!important;height:24px!important;
+}
+.setting-row select{
+ background:#f6f4ec!important;border:1px solid #9daead!important;
+}
+/* The title scene retains supplied art but has a readable bottom action lane. */
+#titleOverlay .title-backdrop-filter{
+ background:
+  linear-gradient(180deg,#ffffff11 0%,transparent 28%,transparent 68%,#122d4252 100%),
+  linear-gradient(90deg,transparent 43%,#f2f0e515 100%)!important;
+}
+#titleOverlay .title-enter{
+ font-family:"Noto Sans KR",sans-serif!important;
+ background:#ba768e!important;border-color:#e5cdd4!important;
+ border-bottom-color:#985c72!important;
+ border-radius:3px!important;
+ box-shadow:0 4px 0 #34424b38!important;
+}
+#titleOverlay .title-small-control{
+ font-family:"Noto Sans KR",sans-serif!important;
+ font-size:12px!important;letter-spacing:-.025em!important;
+}
+/* Never hide story content or shrink HUD to microtext on narrow phones. */
+@media(max-width:700px){
+ .battle:after{width:91%;height:78%;outline-offset:4px}
+ .board-frame{box-shadow:0 0 0 2px #fff7e5a3,0 0 0 3px var(--stage-border)!important}
+ .battle-header,.wave-panel{backdrop-filter:none!important}
+ .resource-card strong{font-size:clamp(16px,5vw,22px)!important}
+ .lobby-content{background:#1f3649ed!important}
+ #storyOverlay #storyLine{line-height:1.5!important}
+}
+@media(orientation:landscape) and (max-height:470px){
+ .battle:after{height:90%;width:67%}
+ .board-frame{box-shadow:0 0 0 1px #fff9eba3,0 0 0 2px var(--stage-border)!important}
+ .lobby-content{background:#233d50f0!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .board-frame,.battle-header,.square-action{transition:none!important}
+}
+
+/* On a wide PC, the empty side of the arena becomes a real location plaque.
+   This uses the existing, map-specific crest and name, not duplicate sprites. */
+@media(min-width:1280px) and (min-height:620px) and (orientation:landscape){
+ .world-decoration{
+  position:absolute!important;z-index:1!important;
+  left:clamp(18px,3.8vw,62px)!important;top:50%!important;
+  transform:translateY(-50%)!important;
+  width:clamp(165px,14vw,204px)!important;
+  min-height:215px!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  gap:12px!important;
+  margin:0!important;padding:20px 14px!important;
+  background:#f7f2e5c9!important;
+  border:1px solid #fff9efb0!important;
+  border-left:5px solid var(--stage-border)!important;
+  border-radius:2px!important;box-shadow:none!important;
+  color:#284451!important;pointer-events:none!important;
+ }
+ .world-decoration img{
+  display:block!important;width:96px!important;height:96px!important;
+  max-width:100%!important;object-fit:contain!important;
+  margin:0!important;filter:none!important;
+ }
+ .world-decoration span{
+  display:block!important;font-family:var(--hud-font)!important;
+  color:#344f62!important;font-size:17px!important;
+  font-weight:700!important;letter-spacing:.1em!important;
+  line-height:1.1!important;text-align:center!important;
+  overflow-wrap:anywhere!important;
+ }
+ .world-decoration i{
+  display:block!important;width:50px!important;height:2px!important;
+  background:var(--stage-border)!important;opacity:.75!important;
+ }
+}
+/* No overflow or identity loss on narrow and small-screen layouts. */
+@media(max-width:1279px), (max-height:619px), (orientation:portrait){
+ .world-decoration{display:none!important}
+}

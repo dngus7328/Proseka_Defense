@@ -1,6 +1,6 @@
 const KEY='sekai-defense-fan-v1';
 const defaultStory=()=>({introSeen:false,visitedSekai:[],visitedMission:[],firstClear:[]});
-const DEFAULT={language:'ko',volume:35,effects:'full',touch:true,cleared:[],best:{},discovered:[],story:defaultStory()};
+const DEFAULT={language:'ko',volume:35,musicVolume:55,effects:'full',touch:true,cleared:[],best:{},discovered:[],story:defaultStory()};
 export function loadSave(){
  try{
   const parsed=JSON.parse(localStorage.getItem(KEY)||'{}');

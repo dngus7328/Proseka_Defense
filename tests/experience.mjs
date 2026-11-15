@@ -260,11 +260,11 @@ for(const role of ['tether','stage','armor','barrier','rescue','mirror']){
 // the cinematic skill cue must both be reachable from SoundEngine.
 {
  const director=new MusicDirector(()=>null,()=>.35);
- assert(Object.values(BGM_TRACKS).every(track=>track===null),
-  'do not ship synthesized or unapproved BGM before Suno masters exist');
- assert.equal(bgmForMap('roof'),null);
+ assert(Object.values(BGM_TRACKS).every(track=>track?.ogg?.startsWith('./Assets/music/')&&track?.mp3?.startsWith('./Assets/music/')),
+  'only submitted BGM paths are permitted');
+ assert(bgmForMap('roof')?.ogg?.endsWith('/roof.ogg'));
  director.start('roof');
- assert.equal(director.audio,null,'empty Suno slot must stay silent');
+ assert.equal(director.audio,null,'headless audio remains optional');
  assert.equal(director.mapId,'roof');
  director.heartAnticipation('star');
  director.heartCue('burst');

@@ -1,8 +1,8 @@
 import {Renderer} from './core/Renderer.js?v=1.21.0';
 import {Game} from './core/Game.js?v=1.22.0';
 import {loadSave,persistSave} from './core/Save.js';
-import {SoundEngine} from './core/Audio.js?v=1.20.0';
-import {Interface} from './ui/Interface.js?v=1.25.0';
+import {SoundEngine} from './core/Audio.js?v=1.28.0';
+import {Interface} from './ui/Interface.js?v=1.28.0';
 import {DIFFICULTIES} from './data/enemies.js';
 
 const save=loadSave();
@@ -34,7 +34,7 @@ function startGame(config){
    onSelection:()=>ui.update(true),
    onToast:(key)=>ui.toast(key),
    onWave:({wave})=>{ui.status(`WAVE ${String(wave).padStart(2,'0')}`);},
-   onBossWave:({wave})=>{ui.experience?.onBossWave(wave);ui.toast('checkpoint');},
+   onBossWave:({wave})=>{sound.setBossActive(true);ui.experience?.onBossWave(wave);ui.toast('checkpoint');},
     onThreatStart:entry=>ui.experience?.onThreatStart(entry),
     onThreatAvoid:entry=>ui.experience?.onThreatAvoid(entry),
     onThreatHit:entry=>ui.experience?.onThreatHit(entry),
@@ -57,6 +57,7 @@ function finishRun(result){
  const key=result.difficulty;
  if(!save.best[key]||result.wave>save.best[key].wave||(result.wave===save.best[key].wave&&result.elapsed<save.best[key].time))save.best[key]={wave:result.wave,time:result.elapsed};
  sound.endMusic(result.status==='win');
+ sound.playScene('lobby');
  persistSave(save);ui.renderLobby();ui.showResult(result);
 }
 function exitGame(){sound.stopMusic();game=null;ui.showTitle();}
@@ -103,6 +104,7 @@ function frame(now){
   sound.pauseMusic(game.phase==='paused');
   const active=game.phase==='playing'||game.phase==='ending';
   if(active){
+   sound.setBossActive(game.enemies.some(e=>e.kind==='boss'&&e.hp>0));
    simAccum=Math.min(.14,simAccum+dt);
    let steps=0;
    while(simAccum>=SIM_STEP&&steps<MAX_SIM_STEPS){
