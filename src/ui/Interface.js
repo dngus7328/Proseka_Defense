@@ -26,7 +26,7 @@ export class Interface {
  }
  t(key){return getText(this.save.language,key);}
  bindGameHandlers(handlers){this.handlers=handlers;}
- setGame(game){this.clearHeartCutin();this.experience?.reset();this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
+ setGame(game){this.clearHeartCutin();this.experience?.reset();this.lastHeartNotificationTime=null;this.game=game;this.syncMapArtwork(game.map);el('app').dataset.theme=game.map.theme;document.body.classList.remove('menu-mode');this.lastUpgrades='';this.lastHero='';this.closeUpgrades();this.hideOverlays();this.update(true);this.setStatus('READY');}
  status(text){el('statusLine').textContent=text;}
  setStatus(text){this.status(text);}
  notice(){
@@ -93,6 +93,7 @@ export class Interface {
   el('touchToggle').addEventListener('change',e=>{this.save.touch=e.target.checked;persistSave(this.save);});
   el('gameCanvas').addEventListener('pointerdown',e=>{
     if(!this.game||this.game.phase!=='playing')return;
+    e.preventDefault(); // Prevent mobile canvas focus/tap blue overlay.
     const p=this.renderer.mapClick(e);this.game.clickTile(p.x,p.y);
     if(this.save.touch&&p.x>=0&&p.y>=0&&p.x<this.game.map.w&&p.y<this.game.map.h)this.game.addEffect('ring',p.x,p.y,{radius:.45,color:'#e4f8ec',life:.2});
     this.update(true);
