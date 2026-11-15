@@ -1,0 +1,340 @@
+/* v1.26 — Title composition, readable battle geography and visual-novel dialogue.
+   Original title character artwork and all character PNGs are used intact.
+   No image copies, generated illustrations, shiny frames or neon decoration. */
+
+/* TITLE — keep the artist's original group once; build one clear logo/action lane. */
+#titleOverlay .title-screen{background:#a5c9dc!important}
+#titleOverlay .title-backdrop{background:#a5c9dc!important}
+#titleOverlay .title-backdrop .title-bg{
+ object-fit:cover!important;object-position:50% 52%!important;
+ filter:saturate(.94)!important;
+}
+#titleOverlay .title-backdrop .title-enemies,
+#titleOverlay .title-backdrop .title-characters,
+#titleOverlay .title-backdrop .title-final{
+ left:49%!important;top:53%!important;
+ width:min(107vw,calc(100dvh * 1.92))!important;
+ max-width:none!important;transform:translate(-50%,-50%)!important;
+}
+#titleOverlay .title-backdrop-filter{
+ display:block!important;z-index:6!important;
+ background:
+  linear-gradient(90deg,transparent 0%,transparent 51%,#e9edf01f 74%,#e9edf052 100%),
+  linear-gradient(180deg,#d9edf53b 0%,transparent 28%,transparent 72%,#1c344866 100%)!important;
+ backdrop-filter:none!important;
+}
+#titleOverlay .title-screen::after{
+ pointer-events:none!important;height:8%!important;
+ background:linear-gradient(180deg,transparent,#1e324338)!important;
+}
+#titleOverlay .title-header{
+ padding:calc(15px + env(safe-area-inset-top)) clamp(13px,2vw,32px) 0!important;
+ justify-content:space-between!important;align-items:flex-start!important;
+}
+#titleOverlay .title-issue{
+ display:block!important;max-width:190px;
+ font-weight:800!important;line-height:1.5!important;
+ font-size:10px!important;color:#24465d!important;opacity:.82!important;
+}
+#titleOverlay .title-header-actions{gap:7px!important}
+#titleOverlay .title-small-control{
+ background:#f5f4ebee!important;border:1px solid #91acb4!important;
+ border-radius:3px!important;box-shadow:none!important;
+ color:#345566!important;font-weight:850!important;
+ border-bottom-width:1px!important;
+}
+#titleOverlay .title-logo-wrap{
+ left:auto!important;right:clamp(20px,5.5vw,100px)!important;
+ top:clamp(98px,18.5dvh,170px)!important;
+ transform:none!important;width:min(37vw,505px)!important;
+ max-height:34dvh!important;
+}
+#titleOverlay .title-logo-image{
+ max-height:30dvh!important;
+ filter:drop-shadow(0 2px 0 #f7faf1e8) drop-shadow(0 3px 3px #20394c32)!important;
+}
+#titleOverlay .title-bottom{
+ left:auto!important;right:clamp(22px,5.8vw,104px)!important;
+ bottom:calc(clamp(28px,7.2dvh,72px) + env(safe-area-inset-bottom))!important;
+ width:min(34vw,420px)!important;max-width:calc(100vw - 30px)!important;
+ transform:none!important;
+}
+#titleOverlay .title-enter{
+ width:100%!important;min-height:58px!important;height:58px!important;
+ background:#bd7086!important;
+ border:1px solid #e9d8da!important;border-bottom:3px solid #865368!important;
+ border-radius:4px!important;box-shadow:0 3px 0 #233d4a24!important;
+ color:#fffaf3!important;text-shadow:none!important;
+ font-size:clamp(17px,2vw,20px)!important;letter-spacing:.01em!important;
+ padding:8px 18px!important;
+}
+#titleOverlay .title-enter::before{
+ content:"♪";width:32px;height:32px;font-size:20px;
+ background:#f4ebde;color:#a95c77;border-radius:3px;
+}
+#titleOverlay .title-enter:hover{background:#aa607a!important}
+#titleOverlay .title-enter:focus-visible,
+#titleOverlay .title-small-control:focus-visible{
+ outline:3px solid #ffe3aa!important;outline-offset:3px!important;
+}
+#titleOverlay .title-skip{
+ right:clamp(22px,5.8vw,104px)!important;
+ bottom:calc(clamp(96px,15dvh,140px) + env(safe-area-inset-bottom))!important;
+ background:#f7f5ed!important;border-radius:3px!important;
+ box-shadow:none!important;
+}
+
+/* STORY — this is a scene with an illustrated character and a bottom dialogue,
+   not a small beige information modal floating in the center. */
+#storyOverlay{
+ inset:0!important;padding:0!important;
+ background:#172b3c!important;align-items:stretch!important;justify-content:stretch!important;
+}
+#storyOverlay .story-stage{
+ position:relative!important;display:block!important;
+ width:100vw!important;max-width:none!important;min-width:0!important;
+ height:100dvh!important;max-height:100dvh!important;
+ padding:0!important;margin:0!important;
+ overflow:hidden!important;border:0!important;border-radius:0!important;
+ background:#aebfbd!important;box-shadow:none!important;
+ color:#243e4d!important;
+}
+#storyOverlay .story-portrait-wrap{
+ position:absolute!important;inset:0!important;display:flex!important;
+ align-items:flex-end!important;justify-content:flex-start!important;
+ overflow:hidden!important;margin:0!important;
+ border:0!important;border-radius:0!important;
+ background:linear-gradient(135deg,#9cbbc1,#d9e0d8)!important;
+ isolation:isolate;
+}
+#storyOverlay[data-sekai="roof"] .story-portrait-wrap{background:linear-gradient(120deg,#97758a,#e6c5ae)!important}
+#storyOverlay[data-sekai="stage"] .story-portrait-wrap{background:linear-gradient(120deg,#9b78a8,#e9d0da)!important}
+#storyOverlay[data-sekai="city"] .story-portrait-wrap{background:linear-gradient(120deg,#817b8d,#dfc6b3)!important}
+#storyOverlay[data-sekai="wonderland"] .story-portrait-wrap{background:linear-gradient(120deg,#b18da6,#f6ddc3)!important}
+#storyOverlay[data-sekai="night"] .story-portrait-wrap{background:linear-gradient(120deg,#a4a7b9,#e4e4e7)!important}
+#storyOverlay[data-sekai="closedwindow"] .story-portrait-wrap{background:linear-gradient(120deg,#4b4e67,#95849c)!important}
+#storyOverlay[data-sekai="openwindow"] .story-portrait-wrap{background:linear-gradient(120deg,#98b9c4,#f4e4d5)!important}
+#storyOverlay .story-portrait-wrap::before{
+ content:"";display:block!important;z-index:1!important;
+ position:absolute!important;inset:0!important;left:0!important;right:0!important;
+ top:0!important;bottom:0!important;
+ width:100%!important;height:100%!important;border:0!important;transform:none!important;
+ background:linear-gradient(90deg,#142e3d10 0%,transparent 49%,#eff4ef85 100%),
+  linear-gradient(0deg,#132b398a 0%,transparent 46%,#f8fbf331 100%)!important;
+ pointer-events:none;
+}
+#storyOverlay .story-portrait-wrap::after,
+#storyOverlay .story-stage-line{display:none!important}
+#storyOverlay #storyWorldBackdrop{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ opacity:.15!important;object-fit:cover!important;
+ filter:saturate(.75) contrast(.9)!important;
+ image-rendering:auto!important;z-index:0!important;
+}
+#storyOverlay #storyPortrait{
+ display:block!important;position:relative!important;z-index:2!important;
+ flex:none!important;align-self:flex-end!important;
+ width:min(42vw,500px)!important;max-width:none!important;
+ height:80dvh!important;max-height:none!important;
+ object-fit:contain!important;object-position:center bottom!important;
+ margin-left:clamp(8px,7vw,110px)!important;margin-bottom:1dvh!important;
+ transform:scale(1.24)!important;transform-origin:center bottom!important;
+ filter:none!important;
+}
+#storyOverlay .story-topline{
+ position:absolute!important;z-index:5!important;
+ top:calc(25px + env(safe-area-inset-top))!important;
+ left:clamp(18px,5vw,80px)!important;right:clamp(18px,5vw,80px)!important;
+ padding-bottom:11px!important;border-bottom:1px solid #fff7e66b!important;
+ color:#233f52!important;font-size:12px!important;
+ letter-spacing:.14em!important;font-weight:900!important;
+}
+#storyOverlay .story-text-box{
+ position:absolute!important;z-index:5!important;
+ right:clamp(22px,7vw,120px)!important;
+ bottom:calc(101px + env(safe-area-inset-bottom))!important;
+ width:min(57vw,740px)!important;box-sizing:border-box!important;
+ min-height:164px!important;max-height:36dvh!important;
+ padding:22px 26px!important;gap:10px!important;
+ justify-content:flex-start!important;
+ border:1px solid #8da4a7!important;border-left:5px solid #71939d!important;
+ border-radius:2px!important;background:#f8f6edf2!important;
+ box-shadow:0 6px 0 #1e37411d!important;
+ overflow-y:auto!important;
+}
+#storyOverlay #storySpeaker{
+ color:#244d60!important;font-size:clamp(16px,2.5vw,23px)!important;
+ line-height:1.25!important;font-weight:900!important;
+}
+#storyOverlay #storyLine{
+ color:#293d48!important;font-size:clamp(15px,1.8vw,21px)!important;
+ line-height:1.65!important;font-weight:650!important;word-break:keep-all!important;
+}
+#storyOverlay .story-progress-track{
+ position:absolute!important;z-index:6!important;
+ right:clamp(22px,7vw,120px)!important;
+ bottom:calc(92px + env(safe-area-inset-bottom))!important;
+ width:min(57vw,740px)!important;height:3px!important;
+ background:#e8e5d7!important;
+}
+#storyOverlay #storyProgress{background:#62938e!important}
+#storyOverlay .story-actions{
+ position:absolute!important;z-index:6!important;
+ right:clamp(22px,7vw,120px)!important;
+ bottom:calc(24px + env(safe-area-inset-bottom))!important;
+ width:min(57vw,740px)!important;display:grid!important;
+ grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr)!important;
+ gap:10px!important;
+}
+#storyOverlay .story-actions button{
+ min-height:50px!important;height:50px!important;border-radius:3px!important;
+ font-size:14px!important;box-shadow:none!important;
+}
+#storyOverlay .story-actions .quiet-button{
+ background:#e7ece6!important;border:1px solid #7d999e!important;
+ color:#3d6172!important;
+}
+#storyOverlay .story-actions .primary-button{
+ background:#b16c88!important;color:#fff8ee!important;
+ border:1px solid #d7acba!important;
+}
+#storyOverlay .story-actions button:focus-visible{outline:3px solid #ffe1a6!important;outline-offset:2px!important}
+
+/* Mission map is a practical planning screen. More room for the actual preview,
+   with text/roster grouped together rather than floating in a tiny popup. */
+#missionOverlay{background:#182e3de9!important}
+#missionOverlay .mission-stage{
+ width:min(95vw,940px)!important;height:min(91dvh,690px)!important;
+ border-radius:3px!important;border-top:3px solid #7ca1a4!important;
+ padding:clamp(11px,2.2vw,22px)!important;
+ box-shadow:none!important;
+}
+#missionOverlay .mission-map-block{background:#c5d2ca!important;border-color:#859d9f!important}
+#missionOverlay .mission-details{gap:9px!important}
+#missionOverlay .mission-member{background:#edf1e9!important;border:1px solid #a6b7b5!important}
+#missionOverlay .mission-objective{font-size:clamp(14px,2vw,18px)!important}
+#missionOverlay .mission-heading{padding-bottom:6px!important;border-bottom:1px solid #c3ccc8!important}
+#missionOverlay .mission-actions button{border-radius:3px!important}
+
+/* Short battle speech is a message strip, not a second floating story modal. */
+.battle-dialogue{
+ box-shadow:none!important;border-radius:3px!important;
+ border:1px solid #91a3aa!important;border-left:3px solid #bd8493!important;
+ background:#f2f0e9f0!important;color:#293f4b!important;
+ backdrop-filter:none!important;
+}
+.battle-dialogue .battle-dialogue-copy strong{color:#365568!important}
+
+/* Tall screens prioritize character visibility above the lower dialogue. */
+@media (orientation:portrait){
+ #titleOverlay .title-backdrop .title-enemies,
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-final{
+  left:50%!important;top:55%!important;
+  width:148vw!important;max-width:none!important;
+ }
+ #titleOverlay .title-backdrop-filter{
+  background:linear-gradient(180deg,#e8f2f87a 0%,transparent 34%,transparent 58%,#24384b86 100%)!important;
+ }
+ #titleOverlay .title-logo-wrap{
+  left:50%!important;right:auto!important;
+  top:clamp(76px,14dvh,142px)!important;
+  transform:translateX(-50%)!important;width:min(90vw,460px)!important;
+ }
+ #titleOverlay .title-logo-image{max-height:21dvh!important}
+ #titleOverlay .title-bottom{
+  left:15px!important;right:15px!important;
+  width:auto!important;max-width:none!important;
+  bottom:calc(17px + env(safe-area-inset-bottom))!important;
+ }
+ #titleOverlay .title-enter{min-height:56px!important;height:56px!important}
+ #titleOverlay .title-skip{
+  bottom:calc(83px + env(safe-area-inset-bottom))!important;right:15px!important;
+ }
+ #titleOverlay .title-header{justify-content:flex-end!important}
+ #titleOverlay .title-issue{display:none!important}
+
+ #storyOverlay .story-portrait-wrap{
+  align-items:flex-start!important;justify-content:center!important;
+ }
+ #storyOverlay .story-portrait-wrap::before{
+  background:linear-gradient(180deg,#f5f7ed58 0%,transparent 52%,#1932417f 100%)!important;
+ }
+ #storyOverlay #storyPortrait{
+  width:min(88vw,455px)!important;height:67dvh!important;
+  max-height:none!important;
+  align-self:flex-start!important;
+  margin:clamp(30px,8dvh,75px) 0 0!important;
+  transform:scale(1.12)!important;transform-origin:center center!important;
+  object-position:center bottom!important;
+ }
+ #storyOverlay .story-topline{
+  left:16px!important;right:16px!important;
+  top:calc(15px + env(safe-area-inset-top))!important;font-size:10px!important;
+ }
+ #storyOverlay .story-text-box{
+  left:12px!important;right:12px!important;width:auto!important;
+  bottom:calc(91px + env(safe-area-inset-bottom))!important;
+  min-height:145px!important;max-height:30dvh!important;
+  padding:15px 17px!important;
+ }
+ #storyOverlay #storySpeaker{font-size:17px!important}
+ #storyOverlay #storyLine{font-size:clamp(13px,3.8vw,16px)!important;line-height:1.5!important}
+ #storyOverlay .story-progress-track{
+  left:12px!important;right:12px!important;width:auto!important;
+  bottom:calc(85px + env(safe-area-inset-bottom))!important;
+ }
+ #storyOverlay .story-actions{
+  left:12px!important;right:12px!important;width:auto!important;
+  bottom:calc(19px + env(safe-area-inset-bottom))!important;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)!important;
+  gap:7px!important;
+ }
+ #storyOverlay .story-actions button{min-height:48px!important;height:48px!important;font-size:12px!important}
+ #missionOverlay .mission-stage{
+  width:calc(100vw - 12px)!important;height:calc(100dvh - 12px)!important;
+  max-height:calc(100dvh - 12px)!important;padding:11px!important;
+ }
+}
+@media(orientation:landscape) and (max-height:470px){
+ #storyOverlay .story-topline{
+  top:calc(8px + env(safe-area-inset-top))!important;
+  left:18px!important;right:18px!important;
+  padding-bottom:5px!important;font-size:9px!important;
+ }
+ #storyOverlay #storyPortrait{
+  width:min(39vw,325px)!important;height:80dvh!important;
+  margin-left:3vw!important;margin-bottom:0!important;
+ }
+ #storyOverlay .story-text-box{
+  right:14px!important;width:57vw!important;
+  min-height:112px!important;max-height:51dvh!important;
+  bottom:calc(63px + env(safe-area-inset-bottom))!important;
+  padding:9px 13px!important;gap:5px!important;
+ }
+ #storyOverlay #storySpeaker{font-size:15px!important}
+ #storyOverlay #storyLine{font-size:clamp(12px,1.8vw,15px)!important;line-height:1.36!important}
+ #storyOverlay .story-progress-track{
+  right:14px!important;width:57vw!important;
+  bottom:calc(59px + env(safe-area-inset-bottom))!important;
+ }
+ #storyOverlay .story-actions{
+  right:14px!important;width:57vw!important;
+  bottom:calc(7px + env(safe-area-inset-bottom))!important;gap:6px!important;
+ }
+ #storyOverlay .story-actions button{height:43px!important;min-height:43px!important;font-size:11px!important}
+ #missionOverlay .mission-stage{height:min(96dvh,490px)!important}
+}
+@media(orientation:portrait) and (max-height:620px){
+ #storyOverlay #storyPortrait{height:60dvh!important;margin-top:29px!important}
+ #storyOverlay .story-text-box{min-height:119px!important;bottom:calc(79px + env(safe-area-inset-bottom))!important;padding:10px 12px!important;gap:4px!important}
+ #storyOverlay .story-progress-track{bottom:calc(75px + env(safe-area-inset-bottom))!important}
+ #storyOverlay .story-actions{bottom:calc(10px + env(safe-area-inset-bottom))!important}
+ #storyOverlay .story-actions button{height:45px!important;min-height:45px!important}
+ #titleOverlay .title-backdrop .title-characters,#titleOverlay .title-backdrop .title-enemies{
+  top:57%!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #storyOverlay .story-actions button,#titleOverlay .title-enter{transition:none!important}
+}
