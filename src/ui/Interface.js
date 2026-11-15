@@ -153,7 +153,9 @@ export class Interface {
    }
   }
   if(selected){
-   el('app').dataset.theme=selected.theme;this.syncMapArtwork(selected);
+   // Map selection changes only the preview. Global battlefield tints switch
+   // when the match begins; otherwise the entire lobby appears to turn blue.
+   this.syncMapArtwork(selected);
    const host=document.querySelector('.lobby-art-copy');
    if(host){
     let badge=el('mapAffinity');if(!badge){badge=document.createElement('div');badge.id='mapAffinity';badge.className='map-affinity';host.append(badge);}
