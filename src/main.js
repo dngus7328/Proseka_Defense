@@ -1,8 +1,8 @@
-import {Renderer} from './core/Renderer.js?v=1.20.0';
-import {Game} from './core/Game.js?v=1.20.0';
+import {Renderer} from './core/Renderer.js?v=1.21.0';
+import {Game} from './core/Game.js?v=1.21.0';
 import {loadSave,persistSave} from './core/Save.js';
 import {SoundEngine} from './core/Audio.js?v=1.20.0';
-import {Interface} from './ui/Interface.js?v=1.20.0';
+import {Interface} from './ui/Interface.js?v=1.21.0';
 import {DIFFICULTIES} from './data/enemies.js';
 
 const save=loadSave();
