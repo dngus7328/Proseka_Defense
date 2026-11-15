@@ -65,7 +65,8 @@ function portal(c,x,y,col,time,size=32){
  c.font='bold 19px Arial';c.textAlign='center';c.fillText('↶',0,-5);
  c.restore();
 }
-export function drawHeartStates(c,g,time,TILE=32){
+export function drawHeartStates(c,g,time,TILE=32,foreground=false){
+ if(foreground){drawEnemyHeartMarkers(c,g,TILE);return;}
  if(!g.heartStates?.length)return;
  const reduced=!!g.reduceMotion;
  for(const s of g.heartStates){
@@ -144,8 +145,9 @@ export function drawHeartStates(c,g,time,TILE=32){
   }
   c.restore();
  }
- // Status icons physically follow the slowed/frozen/exposed enemies, so a
- // player can verify which targets were affected after the initial flash.
+}
+export function drawEnemyHeartMarkers(c,g,TILE=32){
+ // Foreground icons follow enemy heads (not the ground under the sprite).
  for(const e of g.enemies){
   if(e.hp<=0||(!(e.stun>0)&&!(e.exposed>0)))continue;
   const p=xy(g.enemyPos(e),TILE);
