@@ -11,13 +11,13 @@ const COLOR={ensemble:'#b0c7e5',spotlight:'#f4d6a2',beat:'#eac08e',barrier:'#edd
  stage:'#eec1dd',armor:'#f1cbaa'};
 const LABELS={
  ensemble:{ko:'합주 연결 · 멤버 연사',ja:'演奏リンク・連射',en:'Ensemble Link · Rapid Attacks'},
- spotlight:{ko:'스포트라이트 · 이동 억제',ja:'スポットライト・減速',en:'Spotlight Zones · Snare'},
+ spotlight:{ko:'스포트라이트 · 적 감속',ja:'スポットライト・減速',en:'Spotlight Zones · Snare'},
  beat:{ko:'비트 브레이크 · 연속 경직',ja:'ビートブレイク・連続拘束',en:'Beat Break · Rhythmic Stagger'},
  barrier:{ko:'공연 장벽 · 경로 봉쇄',ja:'ショーの壁・ルート封鎖',en:'Showtime Gates · Route Block'},
  quiet:{ko:'정적 · 전체 정지와 위협 해제',ja:'静寂・敵停止と妨害解除',en:'Silence · Halt Enemies & Cancel Hazard'},
  portal:{ko:'세카이 전송 · 적 후퇴',ja:'セカイ転送・敵後退',en:'SEKAI Portals · Enemy Recall'},
  tether:{ko:'별의 속박 · 위험 적 묶기',ja:'星の束縛・危険敵を拘束',en:'Star Tether · Bind Threats'},
- stage:{ko:'무대 장치 · 속도 감소',ja:'舞台装置・敵の減速',en:'Stage Prop · Slow Zone'},
+ stage:{ko:'무대 장치 · 적 감속',ja:'舞台装置・敵の減速',en:'Stage Prop · Slow Zone'},
  armor:{ko:'비트 파괴 · 취약 상태',ja:'ビート破壊・弱体化',en:'Beat Break · Expose Armor'},
  rescue:{ko:'마음의 보호 · 방해 해제',ja:'想いの守護・妨害解除',en:'Rescue · Cleanse Disruption'},
  mirror:{ko:'연계 호흡 · 두 멤버 연사',ja:'連携・二人連射',en:'Mirrored Attack · Duo Tempo'}
