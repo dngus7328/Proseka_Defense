@@ -193,8 +193,14 @@ try{
   }
   const musicActive=await page.evaluate(()=>window.__sekaiTest.getUI().sound.music.mapId);
   assert.equal(musicActive,'roof',vp.name+' stage Suno music slot not selected');
-  assert.equal(await page.evaluate(()=>window.__sekaiTest.getUI().sound.music.audio),null,
-   vp.name+' must not play unapproved synthesized background music');
+  const musicScene=await page.evaluate(()=>{
+   const director=window.__sekaiTest.getUI().sound.music;
+   return {scene:director.currentScene,
+    src:director.audio?.currentSrc||director.audio?.src||''};
+  });
+  assert.equal(musicScene.scene,'roof',vp.name+' wrong SEKAI BGM route');
+  if(musicScene.src)assert(/\/(?:roof)\.(?:ogg|mp3)(?:\?|$)/.test(musicScene.src),
+   vp.name+' BGM source must match the selected SEKAI: '+musicScene.src);
 
   // Stage hazard, direct evade selection, click a safe tile, and verify reward.
   await page.evaluate(()=>{
