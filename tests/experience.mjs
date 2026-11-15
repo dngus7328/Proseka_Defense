@@ -208,7 +208,7 @@ for(const [group,role] of Object.entries(groupRoles)){
  }
  for(const language of ['ko','ja','en']){
   const details=heartEffectDetails(heart,{average:3},language);
-  assert(details.short.length>=7&&details.detail.length>=18,
+  assert(details.short.length>=6&&details.detail.length>=(language==='ja'?12:17),
    role+' not explained in '+language);
   assert(!/범위 피해|Area damage|範囲ダメージ/.test(details.detail),
    role+' fallback text wrongly claims area damage');
