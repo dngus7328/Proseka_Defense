@@ -57,6 +57,25 @@ for(const id of ['roof','city','closedwindow']){
 }
 {
  const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.summon();g.startWave(5);g.beginThreat();g.speed=2;
+ const before=g.interference.remaining;
+ g.update(.05);
+ assert(Math.abs(g.interference.remaining-(before-.05))<.001,
+  '2x combat must not shorten the warning to half its promised real time');
+}
+{
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.summon();g.startWave(5);
+ // An occupied board must never schedule a threat with no legal safe destination.
+ for(const tile of g.map.available){
+  if(g.canPlace(tile.x,tile.y))g.units.push({
+   ...g.units[0],uid:g.nextUnitId++,x:tile.x,y:tile.y
+  });
+ }
+ assert.equal(g.beginThreat(),false,'full board should not produce an unavoidable warning');
+}
+{
+ const g=new Game({mapId:'roof',difficulty:'normal'});
  const startFragments=g.fragments,startCrystals=g.crystals;
  assert(g.summon());
  assert.equal(g.fragments,startFragments-28,'summon must use fragments');
