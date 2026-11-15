@@ -216,12 +216,12 @@ export class Interface {
    if(this.settingsOrigin==='playing'&&this.game?.phase==='paused')this.game.togglePause();
    if(this.settingsOrigin==='pause'){this.showOverlay('pauseOverlay');return;}
    if(this.settingsOrigin==='lobby'){this.showOverlay('lobbyOverlay');return;}
-   if(this.settingsOrigin==='title'){this.showTitle();return;}
+   if(this.settingsOrigin==='title'){this.showOverlay('titleOverlay');return;}
   }else if(id==='heartsOverlay'){
    if(this.overlayOrigin==='playing'&&this.game?.phase==='paused')this.game.togglePause();
    if(this.overlayOrigin==='pause'){this.showOverlay('pauseOverlay');return;}
    if(this.overlayOrigin==='lobby'){this.showOverlay('lobbyOverlay');return;}
-   if(this.overlayOrigin==='title'){this.showTitle();return;}
+   if(this.overlayOrigin==='title'){this.showOverlay('titleOverlay');return;}
   }
   this.hideOverlays();
  }
