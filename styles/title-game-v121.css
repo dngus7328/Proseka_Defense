@@ -1,0 +1,229 @@
+/* v1.21: a finished-feeling 2D game title scene from the creator's
+   ORIGINAL aligned artwork. No copies, generated characters or sliced tiles.
+   Layout separates art/branding/actions rather than decorating empty space. */
+#titleOverlay .title-screen{
+ background:#8bbfec;
+ overflow:hidden;
+}
+#titleOverlay .title-backdrop{
+ background:linear-gradient(180deg,#84c3f4 0%,#d8dbee 64%,#f1d1cc 100%)!important;
+ overflow:hidden!important;
+}
+#titleOverlay .title-backdrop .title-bg{
+ position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:50% 49%!important;
+ filter:none!important;
+}
+#titleOverlay .title-backdrop .title-enemies,
+#titleOverlay .title-backdrop .title-characters,
+#titleOverlay .title-backdrop .title-final{
+ position:absolute!important;left:50%!important;top:50%!important;
+ width:min(100vw,calc(100dvh * 1.777))!important;
+ height:auto!important;aspect-ratio:1672/941!important;
+ object-fit:contain!important;object-position:center!important;
+ transform:translate(-50%,-50%)!important;
+ overflow:visible!important;
+}
+#titleOverlay .title-backdrop .title-final{
+ mask-image:none!important;-webkit-mask-image:none!important;
+}
+#titleOverlay .title-backdrop-filter{
+ pointer-events:none!important;z-index:6!important;
+ background:linear-gradient(180deg,#e9f5ff20 0%,transparent 26%,transparent 63%,#2d425054 100%)!important;
+}
+#titleOverlay .title-screen::after{
+ content:"";position:absolute;z-index:7;pointer-events:none;
+ left:0;right:0;bottom:0;height:17%;
+ background:linear-gradient(180deg,transparent,#2b38551e);
+}
+#titleOverlay .title-header{
+ position:absolute!important;z-index:16!important;
+ top:0;left:0;right:0;bottom:auto;
+ display:flex!important;align-items:center;justify-content:flex-end!important;
+ gap:14px;padding:calc(13px + env(safe-area-inset-top)) max(17px,env(safe-area-inset-right)) 0 max(17px,env(safe-area-inset-left))!important;
+ width:100%!important;
+}
+#titleOverlay .title-issue{
+ display:block;font-size:10px;font-weight:800;letter-spacing:.1em;
+ opacity:.72;color:#36566d;margin-right:auto;
+}
+#titleOverlay .title-header-actions{display:flex;gap:7px!important}
+#titleOverlay .title-small-control{
+ height:36px!important;min-height:36px!important;padding:6px 13px!important;
+ border:1.5px solid #a9c0c7!important;border-radius:5px!important;
+ border-bottom:3px solid #6b9dac!important;
+ background:#fcf9e8ed!important;color:#2a4c64!important;
+ box-shadow:0 3px 1px #45678020!important;
+ font-size:12px!important;font-weight:850!important;
+ backdrop-filter:none!important;
+}
+#titleOverlay .title-small-control:active{transform:translateY(1px)}
+#titleOverlay .title-logo-wrap{
+ position:absolute!important;z-index:12!important;
+ left:auto!important;right:clamp(28px,7.5vw,130px)!important;
+ top:clamp(82px,17dvh,165px)!important;
+ transform:none!important;width:min(43vw,535px)!important;
+ max-width:none!important;max-height:36dvh!important;
+ padding:0!important;margin:0!important;
+}
+#titleOverlay .title-logo-image{
+ width:100%!important;height:auto!important;
+ max-height:min(32dvh,270px)!important;
+ object-fit:contain!important;
+ filter:drop-shadow(0 2px 0 #fffcf1e5) drop-shadow(0 5px 2px #2a4f6b59)!important;
+}
+#titleOverlay .title-art-caption{display:none!important}
+#titleOverlay .title-bottom{
+ position:absolute!important;z-index:16!important;
+ left:auto!important;right:clamp(26px,8vw,140px)!important;
+ bottom:calc(34px + env(safe-area-inset-bottom))!important;
+ width:min(34vw,365px)!important;
+ max-width:none!important;transform:none!important;
+ padding:0!important;
+}
+#titleOverlay .title-enter{
+ position:relative;display:flex;align-items:center;justify-content:space-between!important;
+ width:100%!important;min-height:63px!important;height:63px!important;
+ padding:8px 20px!important;
+ border:2px solid #fff7dc!important;border-bottom:5px solid #805f64!important;
+ border-radius:7px!important;
+ color:#fffef1!important;
+ background:#ba6e88!important;
+ box-shadow:0 4px 0 #263d5c4a!important;
+ clip-path:none!important;
+ font-size:20px!important;font-weight:900!important;
+ text-shadow:0 1px 0 #98596a!important;
+ backdrop-filter:none!important;
+ transition:transform .14s ease,background .14s ease!important;
+}
+#titleOverlay .title-enter::before{
+ content:"♪";display:grid;place-items:center;
+ width:36px;height:36px;margin-right:11px;
+ border-radius:100%;background:#f9f0dc;color:#9c667f;
+ font-size:23px;line-height:1;flex-shrink:0;text-shadow:none;
+}
+#titleOverlay .title-enter span[data-i18n]{
+ flex:1;text-align:left;letter-spacing:.035em!important;
+}
+#titleOverlay .title-enter svg{width:22px!important;height:22px!important;stroke:#fffcdd!important}
+#titleOverlay .title-enter:hover{background:#c5798e!important}
+#titleOverlay .title-enter:active{background:#9f5d7c!important;transform:translateY(2px)!important}
+#titleOverlay .title-skip{
+ z-index:18;bottom:calc(113px + env(safe-area-inset-bottom))!important;
+ right:clamp(26px,8vw,140px)!important;
+ border:1px solid #91a8b5;background:#f9f7e4ef;color:#405e71;
+}
+#titleOverlay.title-play-intro .title-bottom{pointer-events:none}
+#titleOverlay.title-play-intro .title-backdrop.art-ready .title-enemies{
+ animation:v121EnemyArrive .65s ease-out .30s both!important;
+}
+#titleOverlay.title-play-intro .title-backdrop.art-ready .title-characters{
+ animation:v121CrowdArrive .75s cubic-bezier(.2,.78,.24,1) .85s both!important;
+}
+#titleOverlay.title-play-intro .title-backdrop.art-ready .title-final{
+ animation:v121CrowdArrive .72s cubic-bezier(.2,.78,.24,1) .85s both!important;
+}
+#titleOverlay.title-play-intro .title-logo-wrap{
+ animation:v121LogoArrive .65s cubic-bezier(.2,.78,.24,1) 1.65s both!important;
+}
+#titleOverlay.title-play-intro .title-header,
+#titleOverlay.title-play-intro .title-bottom{
+ animation:v121ControlsArrive .48s ease-out 2.1s both!important;
+}
+@keyframes v121EnemyArrive{
+ from{translate:0 -7px;opacity:0}to{translate:0 0;opacity:.86}
+}
+@keyframes v121CrowdArrive{
+ from{translate:0 18px;opacity:0}to{translate:0 0;opacity:1}
+}
+@keyframes v121LogoArrive{
+ from{translate:0 -18px;opacity:0}to{translate:0 0;opacity:1}
+}
+@keyframes v121ControlsArrive{
+ from{translate:0 10px;opacity:0}to{translate:0 0;opacity:1}
+}
+@media (orientation:portrait){
+ #titleOverlay .title-header{
+  padding:calc(11px + env(safe-area-inset-top)) 12px 0!important;
+  justify-content:flex-end!important;
+ }
+ #titleOverlay .title-issue{font-size:9px;letter-spacing:.015em}
+ #titleOverlay .title-small-control{
+  height:34px!important;min-height:34px!important;
+  font-size:11px!important;padding:5px 9px!important;
+ }
+ #titleOverlay .title-backdrop .title-bg{
+  object-position:50% 52%!important;
+ }
+ /* Entire original figure group is displayed exactly ONCE, intact and
+    centered; no halved copies or severed bodies to fill a tall screen. */
+ #titleOverlay .title-backdrop .title-enemies,
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-final{
+  width:100vw!important;top:55%!important;right:auto!important;bottom:auto!important;
+  object-fit:contain!important;
+ }
+ #titleOverlay .title-backdrop .title-final{display:none!important}
+ #titleOverlay .title-backdrop-filter{
+  background:linear-gradient(180deg,#e7f1fa91,transparent 32%,transparent 57%,#283c5755 100%)!important;
+ }
+ #titleOverlay .title-logo-wrap{
+  left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+  top:clamp(90px,13dvh,140px)!important;
+  width:min(90vw,425px)!important;
+  max-height:25dvh!important;
+ }
+ #titleOverlay .title-logo-image{max-height:clamp(105px,17dvh,157px)!important}
+ #titleOverlay .title-bottom{
+  left:15px!important;right:15px!important;
+  bottom:calc(18px + env(safe-area-inset-bottom))!important;
+  width:auto!important;max-width:none!important;transform:none!important;
+ }
+ #titleOverlay .title-enter{
+  min-height:58px!important;height:58px!important;
+  padding:8px 17px!important;font-size:18px!important;
+  background:#bf7690!important;
+ }
+ #titleOverlay .title-enter::before{width:32px;height:32px;font-size:20px;margin-right:13px}
+ #titleOverlay .title-skip{
+  right:17px!important;bottom:calc(91px + env(safe-area-inset-bottom))!important;
+ }
+}
+@media (orientation:portrait) and (max-height:690px){
+ #titleOverlay .title-logo-wrap{top:clamp(63px,11dvh,100px)!important}
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-enemies{top:56%!important}
+ #titleOverlay .title-bottom{bottom:calc(11px + env(safe-area-inset-bottom))!important}
+ #titleOverlay .title-enter{height:51px!important;min-height:51px!important}
+ #titleOverlay .title-skip{bottom:calc(72px + env(safe-area-inset-bottom))!important}
+}
+@media (orientation:landscape) and (max-height:470px){
+ #titleOverlay .title-header{
+  padding:calc(8px + env(safe-area-inset-top)) 12px 0!important;
+ }
+ #titleOverlay .title-small-control{height:30px!important;min-height:30px!important}
+ #titleOverlay .title-logo-wrap{
+  top:clamp(44px,16dvh,82px)!important;
+  right:4vw!important;width:min(44vw,370px)!important;
+ }
+ #titleOverlay .title-logo-image{max-height:28dvh!important}
+ #titleOverlay .title-bottom{
+  right:4vw!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;
+  width:min(39vw,320px)!important;
+ }
+ #titleOverlay .title-enter{
+  height:46px!important;min-height:46px!important;
+  font-size:16px!important;padding:4px 12px!important;
+ }
+ #titleOverlay .title-enter::before{height:27px;width:27px;font-size:17px}
+ #titleOverlay .title-skip{right:4vw!important;bottom:64px!important}
+}
+@media (prefers-reduced-motion:reduce){
+ #titleOverlay.title-play-intro .title-backdrop .title-layer,
+ #titleOverlay.title-play-intro .title-logo-wrap,
+ #titleOverlay.title-play-intro .title-bottom,
+ #titleOverlay.title-play-intro .title-header{
+  animation:none!important;translate:none!important;
+ }
+}
