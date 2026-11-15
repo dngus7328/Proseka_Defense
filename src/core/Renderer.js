@@ -486,6 +486,18 @@ export class Renderer {
    c.font='bold 12px Arial';c.textAlign='center';c.textBaseline='bottom';
    c.fillText('✦',0,-r-2);
    c.restore();
+   // Identify who is actually casting directly above the untouched sprite.
+   c.save();c.translate(Math.round(x),Math.round(y));
+   const casterName=CHARACTER_BY_ID[u.id]?.names?.[game.language||'ko']||u.id;
+   const plateWidth=Math.max(48,Math.min(88,30+casterName.length*11));
+   const plateTop=-size-20;
+   c.fillStyle='#213e52';c.fillRect(-plateWidth/2,plateTop,plateWidth,17);
+   c.strokeStyle='#fff0bd';c.lineWidth=1.5;
+   c.strokeRect(-plateWidth/2,plateTop,plateWidth,17);
+   c.fillStyle='#fff7de';c.textAlign='center';c.textBaseline='middle';
+   c.font='bold 11px Arial, sans-serif';
+   c.fillText(casterName,0,plateTop+8.5,plateWidth-5);
+   c.restore();
   }
   // Stacked stars make the exact rank identifiable at gameplay zoom.
   c.save();c.translate(Math.round(x),Math.round(y+15));
