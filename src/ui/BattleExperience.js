@@ -5,7 +5,7 @@ import {situationalLine,pairDiscoveryLine} from '../data/battleChatter.js';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 const el=id=>document.getElementById(id);
 const HINTS={
- silence:{ko:'표시된 멤버가 잠시 공격을 못 해. 대피로 옮겨서 피하자.',ja:'印のメンバーが攻撃不能に。移動で回避しよう。',en:'The marked member will stop attacking. Relocate to dodge.'},
+ silence:{ko:'표시된 곳 주변의 멤버가 공격을 못 해. 대피해서 보호하자.',ja:'印の周囲のメンバーが攻撃不能に。移動して回避しよう。',en:'Nearby members will stop attacking. Move the marked member to protect them.'},
  rush:{ko:'피격 시 적이 빠르게 움직여. 표시된 멤버를 옮기자.',ja:'被弾すると敵が加速。印のメンバーを移動して。',en:'A hit speeds up enemies. Move the marked member.'},
  drain:{ko:'피격 시 크리스탈과 공격 기회를 잃어. 이동하면 보상!',ja:'被弾でクリスタルを消費。移動で報酬！',en:'A hit drains crystals and attacks. Dodge to earn rewards.'}
 };
