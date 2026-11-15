@@ -1,7 +1,7 @@
 import {GROUPS,CHARACTER_BY_ID,SIGNATURES,attackValue,attackRange} from '../data/characters.js';
 import {MAPS} from '../data/maps.js';
-import {HEARTS,heartStrength} from '../data/hearts.js?v=1.19.0';
-import {heartEffectDetails,heartCasterDescription} from '../data/heartEffects.js';
+import {HEARTS,HEART_BY_ID,heartStrength} from '../data/hearts.js?v=1.21.0';
+import {heartEffectDetails,heartCasterDescription} from '../data/heartEffects.js?v=1.21.0';
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {getText,LANGUAGES} from '../data/locales.js';
@@ -345,16 +345,34 @@ export class Interface {
   document.body.classList.add('heart-active');
   this.setStatus(`${actorName} · ${details.short}`);
  }
- onHeartFire({heart,strength,actorId,affected}){
+ onHeartFire({heart,strength,actorId,affected,mechanic,duration}){
   if(!this.skillCutin||this.skillCutin.dataset.heart!==heart.id)return;
   this.skillCutin.classList.add('impact');
-  const details=heartEffectDetails(heart,strength,this.save.language);
-  const label=this.save.language==='ja'?`${affected||0}体に命中`:
-   this.save.language==='en'?`${affected||0} targets struck`:
-   `적 ${affected||0}명 타격`;
+  const lang=this.save.language,details=heartEffectDetails(heart,strength,lang);
+  const type=mechanic||details.mechanic;
+  const count=Number(affected)||0;
+  const messages={
+   ko:{ensemble:`연계 멤버 ${count}명 연사`,mirror:`연계 멤버 ${count}명 연사`,
+    rescue:'멤버 행동 불능 해제',spotlight:`조명 지대 ${count}곳 설치`,
+    stage:`감속 지대 ${count}곳 설치`,barrier:`경로 장벽 ${count}곳 설치`,
+    beat:'연속 경직 시작',quiet:'적 정지 · 이상현상 해제',
+    portal:`적 ${count}명 뒤로 전송`,tether:`적 ${count}명 속박`,
+    armor:`적 ${count}명 약화`},
+   ja:{ensemble:`${count}人の連射強化`,mirror:`${count}人の連射強化`,rescue:'妨害を解除',
+    spotlight:`スポットライト${count}カ所`,stage:`減速ゾーン${count}カ所`,
+    barrier:`ゲート${count}カ所設置`,beat:'連続スタン',quiet:'停止・妨害解除',
+    portal:`${count}体を転送`,tether:`${count}体を束縛`,armor:`${count}体を弱化`},
+   en:{ensemble:`Linked ${count} members`,mirror:`Linked ${count} members`,
+    rescue:'Debuffs cleared',spotlight:`${count} light zones`,stage:`${count} slow zones`,
+    barrier:`${count} stage gates`,beat:'Rhythmic stagger active',
+    quiet:'Enemies halted; hazard cancelled',portal:`Recalled ${count} enemies`,
+    tether:`Bound ${count} enemies`,armor:`Exposed ${count} enemies`}
+  };
+  const status=messages[lang]?.[type]||details.short;
   const body=this.skillCutin.querySelector('.skill-cutin-words');
-  if(body)body.textContent=`${label} · ${details.short}`;
-  this.setStatus(details.detail);
+  if(body)body.textContent=status;
+  this.skillCutin.title=`${this.skillCutin.title}\n${details.detail}`;
+  this.setStatus(`${details.title} · ${details.detail}`);
  }
  onHeartEnd(){
   // A 1.6-second animation is too quick to understand on a phone. Keep
@@ -442,9 +460,29 @@ export class Interface {
   const members=Object.values(CHARACTER_BY_ID).filter(c=>c.group===group);
   const owned=new Set(g.units.map(u=>u.id));
   const count=members.filter(c=>owned.has(c.id)).length;
-  const signature=group+'|'+members.map(c=>owned.has(c.id)?'1':'0').join('')+'|'+this.save.language;
+  const active=g.heartStates?.slice().sort((a,b)=>b.remaining-a.remaining)[0];
+  const signature=group+'|'+members.map(c=>owned.has(c.id)?'1':'0').join('')+'|'+this.save.language+
+    '|'+(active?active.id+Math.ceil(active.remaining):'');
   if(!force&&this.lastSkillSignature===signature)return;
   this.lastSkillSignature=signature;
+  const bar=el('skillCondition');
+  bar.classList.toggle('heart-active-status',!!active);
+  if(active){
+   const ability=HEART_BY_ID[active.heartId];
+   const details=ability?heartEffectDetails(ability,{average:1},this.save.language):null;
+   el('skillConditionName').textContent=details?.short||active.type;
+   el('skillConditionCount').textContent=Math.ceil(active.remaining)+'s';
+   bar.classList.remove('ready');
+   host.replaceChildren();
+   for(const id of active.actorIds.slice(0,4)){
+    const portrait=document.createElement('span');portrait.className='skill-member owned';
+    const im=document.createElement('img');im.src='./Assets/characters/'+id+'/front.png';im.alt='';
+    portrait.append(im);host.append(portrait);
+   }
+   bar.title=details?.detail||'';
+   return;
+  }
+  bar.removeAttribute('title');
   const title={ko:'세카이의 마음',ja:'セカイの想い',en:'SEKAI HEART'};
   el('skillConditionName').textContent=title[this.save.language]||title.ko;
   el('skillConditionCount').textContent=count===members.length?'READY':count+' / '+members.length;
