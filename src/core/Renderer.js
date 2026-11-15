@@ -286,6 +286,11 @@ export class Renderer {
   c.save();
   c.fillStyle='rgba(150,42,54,.14)';c.fillRect(x+1,y+1,TILE-2,TILE-2);
   c.strokeStyle=ink;c.lineWidth=3;c.strokeRect(x+2,y+2,TILE-4,TILE-4);
+  if(hazard.type!=='rush'){
+   c.setLineDash([4,7]);c.lineWidth=1.7;
+   c.beginPath();c.arc(x+TILE/2,y+TILE/2,1.65*TILE,0,Math.PI*2);c.stroke();
+   c.setLineDash([]);
+  }
   c.strokeStyle='#fff3df';c.lineWidth=2;
   const tick=this.reduceMotion||this.effectsLite?1:(.74+.26*Math.sin(time*8));
   c.globalAlpha=tick;
