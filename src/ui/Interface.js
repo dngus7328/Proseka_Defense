@@ -219,7 +219,7 @@ export class Interface {
   // The next price must be visible immediately after a tap, not on the
   // next scheduled HUD refresh.
   if(Number.isFinite(nextPrice))el('summonCost').textContent=String(nextPrice);
-  if(this.game)el('summonButton').disabled=this.game.crystals<this.game.cost;
+  if(this.game)el('summonButton').disabled=this.game.fragments<this.game.cost;
   const name=character.names[this.save.language];
   const bonus=source==='affinity'?(this.save.language==='ja'?'セカイボーナス':this.save.language==='en'?'SEKAI BONUS':'세카이 보정'):'';
   this.setStatus(`${name}${bonus?' · '+bonus:''}`);
@@ -317,7 +317,7 @@ export class Interface {
   el('crystalText').textContent=format(g.crystals);el('fragmentText').textContent=format(g.fragments);
   el('unitCount').textContent=String(g.units.length);el('unitCapacity').textContent=`/ ${g.map.available.length}`;el('maxStarCount').textContent=String(g.units.filter(u=>u.star===4).length);
   el('summonCost').textContent=String(g.cost);
-  el('summonButton').disabled=g.crystals<g.cost||g.phase!=='playing';
+  el('summonButton').disabled=g.fragments<g.cost||g.phase!=='playing';
   el('autoMergeButton').disabled=g.phase!=='playing'||!g.units.some(u=>u.star<4&&g.units.some(v=>u.uid!==v.uid&&v.id===u.id&&v.star===u.star));
 
   this.experience?.update();
@@ -408,14 +408,14 @@ export class Interface {
   const parent=el('upgradeGrid');parent.innerHTML='';
   for(const d of UPGRADE_DATA){
    const level=g.upgrades[d.id],price=upgradeCost(d.id,level);
-   const button=document.createElement('button');button.className='upgrade-card';button.disabled=price>g.fragments||g.phase!=='playing';
+   const button=document.createElement('button');button.className='upgrade-card';button.disabled=price>g.crystals||g.phase!=='playing';
    const top=document.createElement('div');top.className='upgrade-card-top';
    const icon=document.createElement('span');icon.textContent=d.icon;
    const lv=document.createElement('small');lv.textContent=`Lv ${level}/${d.max}`;top.append(icon,lv);
    const name=document.createElement('strong');name.className='upgrade-card-name';name.textContent=this.t(d.id);
    const bottom=document.createElement('div');bottom.className='upgrade-card-footer';
    const pips=document.createElement('span');pips.className='level-pips';for(let i=0;i<d.max;i++){const p=document.createElement('i');if(i<level)p.className='filled';pips.append(p);}
-   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./Assets/currency/wish-piece.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
+   const cost=document.createElement('span');cost.className='upgrade-cost';if(level===d.max){cost.textContent=this.t('max');}else{cost.innerHTML=`${price}<img class="cost-piece" src="./Assets/currency/crystal.png" alt="" aria-hidden="true"/>`;cost.setAttribute('aria-label',`${price} ${this.t('fragments')}`);}
    bottom.append(pips,cost);button.append(top,name,bottom);
    button.addEventListener('click',()=>g.upgrade(d.id));parent.append(button);
   }
