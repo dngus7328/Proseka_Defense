@@ -264,9 +264,17 @@ export class Interface {
  }
   onHeartSeen(id){
   if(this.save.discovered.includes(id))return;
-  this.save.discovered.push(id);persistSave(this.save);this.renderHearts();
-  this.toast(this.t('discovered'),true);
-  this.experience?.onPairDiscovered(id);
+  this.save.discovered.push(id);
+  persistSave(this.save);
+  el('heartCount').textContent=String(this.save.discovered.length);
+  if(this.overlayVisible('heartsOverlay'))this.renderHearts();
+  // Hundreds of valid duo discoveries should feel rewarding, not spam the HUD.
+  const now=this.game?.realTime||0;
+  if(this.lastHeartNotificationTime==null||now-this.lastHeartNotificationTime>7){
+   this.lastHeartNotificationTime=now;
+   this.toast(this.t('discovered'),true);
+   this.experience?.onPairDiscovered(id);
+  }
  }
  onHeartStart({heart,participants,strength,actorId}){
   const id=actorId||participants[0]?.id;
