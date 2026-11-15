@@ -1,6 +1,8 @@
 // Original top-down, seven-world SEKAI arenas.  No image tilesets.
 // World motifs follow the places where each unit actually performs, rehearses,
 // and meets. Paths, blocked scenery and placement rules come only from maps.js.
+// v1.26: the combat road is painted LAST, above background props, so scenery
+// cannot visually hide the enemy route. Readable empty square tiles mark pads.
 const TILE=32, TAU=Math.PI*2;
 const STYLES={
  school:{floor:'#b99a91',light:'#ebc7ad',edge:'#735d75',walk:'#765e73',walkEdge:'#554459',mark:'#edd7bf',accent:'#f8df9e'},
@@ -122,6 +124,20 @@ function base(c,m,p){
  }
  }
  c.strokeStyle=p.edge;c.lineWidth=4;c.strokeRect(2,2,w-4,h-4);
+}
+// Subtle buildable-tile outlines: readable placement geography without
+// a solid checkerboard or stickers on every square. Obstacles are excluded.
+function buildPads(c,m,p){
+ c.save();
+ for(const at of m.available){
+  const x=at.x*TILE,y=at.y*TILE;
+  c.globalAlpha=.115;
+  rect(c,x+2,y+2,TILE-4,TILE-4,p.mark);
+  c.globalAlpha=.28;
+  c.strokeStyle=p.edge;c.lineWidth=1;
+  c.strokeRect(x+3.5,y+3.5,TILE-7,TILE-7);
+ }
+ c.restore();
 }
 function route(c,m,p){
  const pts=m.path.map(t=>tileLandmark(t));
@@ -310,7 +326,7 @@ function cached(m){
   if(cv){
    const c=cv.getContext('2d');
    const p=STYLES[m.theme]||STYLES.school;
-   base(c,m,p);route(c,m,p);sceneProps(c,m,p);STATIC.set(m,cv);
+   base(c,m,p);buildPads(c,m,p);sceneProps(c,m,p);route(c,m,p);STATIC.set(m,cv);
   }
  }catch{cv=null;}
  return cv;
@@ -319,7 +335,7 @@ export function drawSekaiWorld(c,m,time=0,reduced=false){
  c.save();
  const p=STYLES[m.theme]||STYLES.school,layer=cached(m);
  if(layer)c.drawImage(layer,0,0);
- else{base(c,m,p);route(c,m,p);sceneProps(c,m,p);}
+ else{base(c,m,p);buildPads(c,m,p);sceneProps(c,m,p);route(c,m,p);}
  ambient(c,m,time,reduced);entrance(c,m,p,time);
  c.restore();
 }
