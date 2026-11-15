@@ -33,7 +33,7 @@ for(const map of MAPS){
  assert.deepEqual(events,['warning','hit']);
  const target=game.units.find(u=>u.uid===warning.uid);
  if(warning.type!=='rush')assert(target.jamTime>0,'interference must interrupt attacks');
- else assert(game.enemies[0].tempo>0,'rush must accelerate enemy');
+ else assert(game.enemies[0].surge>0,'rush must accelerate enemy');
 }
 for(const id of ['roof','city','closedwindow']){
  const game=new Game({mapId:id,difficulty:'normal'});
