@@ -1,9 +1,9 @@
 import {CHARACTER_BY_ID,CHARACTERS,SIGNATURES,STAR_SCALE} from '../data/characters.js';
 import {ENEMIES} from '../data/enemies.js';
 import {tileKey} from '../data/maps.js';
-import {drawSekaiWorld} from './SekaiMapArt.js?v=1.14.1';
+import {drawSekaiWorld} from './SekaiMapArtV2.js?v=1.23.0';
 import {drawEnemyArt} from './EnemyArt.js?v=1.17.0';
-import {drawHeartStates} from './HeartVFX.js?v=1.21.0';
+import {drawHeartStates,drawHeartCinematic} from './HeartVFXV2.js?v=1.23.0';
 const TILE=32;
 const DIRECTIONS=['front','front-left','back-left','back'];
 const hash=(x,y,n=0)=>((x*374761393+y*668265263+n*1442695041)>>>0)%100000;
@@ -258,13 +258,13 @@ export class Renderer {
   drawSekaiWorld(c,m,time,this.reduceMotion||this.effectsLite);
   // Field props and enemy slow/hold markers persist for exactly as long as
   // the matching ability, rather than vanishing after a generic flash.
-  drawHeartStates(c,game,time,TILE);
+  drawHeartStates(c,game,time,TILE,false,this.reduceMotion||this.effectsLite);
   this.drawPlacement(c,m,game);
   this.drawThreat(c,game,time);
   if(game.selected)this.drawRange(c,game.selected,game);
   const bodies=[...game.enemies.map(e=>({y:game.enemyPos(e).y,enemy:e})),...game.units.map(u=>({y:u.y,hero:u}))].sort((a,b)=>a.y-b.y);
   for(const item of bodies){if(item.enemy)this.drawEnemy(c,game,item.enemy,time);else this.drawHero(c,game,item.hero,time);}
-  drawHeartStates(c,game,time,TILE,true);
+  drawHeartStates(c,game,time,TILE,true,this.reduceMotion||this.effectsLite);
   this.drawEffects(c,game,time);
   this.drawHeartScene(c,game,time);
   if(game.phase==='ending'){
@@ -276,69 +276,7 @@ export class Renderer {
  }
  // Wide but time-limited heart attacks across the original upright map.
  drawHeartScene(c,game,time){
-  const scene=game.heartScene;if(!scene)return;
-  const p=Math.min(1,scene.elapsed/1.62),fired=scene.fired;
-  const fade=Math.min(1,p*8,(1-p)*7);if(fade<=0)return;
-  const w=game.map.w*TILE,h=game.map.h*TILE,style=scene.heart.style;
-  const color=CHARACTER_BY_ID[scene.actorId]?.hair||'#f3d99d';
-  c.save();c.globalAlpha=fade*.9;
-  if(!this.effectsLite){c.fillStyle='#1d283a38';c.fillRect(0,0,w,h);}
-  c.translate(w/2,h/2);c.strokeStyle=color;c.fillStyle=color;c.lineCap='round';
-  const t=this.reduceMotion?0:p;
-  if(style==='star'){
-   const nodes=[[-.72,-.65],[.72,-.65],[.85,.48],[-.73,.54],[0,0]];
-   c.lineWidth=3;c.beginPath();
-   nodes.forEach(([nx,ny],i)=>{const x=nx*w*.43,y=ny*h*.38;i?c.lineTo(x,y):c.moveTo(x,y)});
-   c.stroke();
-   for(let i=0;i<nodes.length;i++){
-    const [nx,ny]=nodes[i],x=nx*w*.43,y=ny*h*.38;
-    c.save();c.translate(x,y);c.rotate(t*1.4+i);c.beginPath();
-    for(let k=0;k<8;k++){const a=k*Math.PI/4,r=k%2?4:10;k?c.lineTo(Math.cos(a)*r,Math.sin(a)*r):c.moveTo(Math.cos(a)*r,Math.sin(a)*r);}
-    c.closePath();c.fill();c.restore();
-   }
-  }else if(style==='rain'){
-   for(let i=0;i<22;i++){
-    const x=(i-10.5)*w/24,y=-h*.7+((t*1.8+i*.17)%1.45)*h*1.2;
-    c.fillRect(x,y,3+(i%3),14+(i%4)*6);
-    if(i%3===0){c.globalAlpha=fade*.16;c.fillRect(x-4,-h/2,10,h);c.globalAlpha=fade*.85;}
-   }
-  }else if(style==='slash'){
-   for(let i=0;i<4;i++){
-    const off=(i-1.5)*34+(t-.5)*56;
-    c.lineWidth=8;c.beginPath();c.moveTo(-w*.65+off,h*.56);c.lineTo(w*.6+off,-h*.58);c.stroke();
-    c.lineWidth=2;c.strokeStyle='#fff5e3';c.stroke();c.strokeStyle=color;
-   }
-  }else if(style==='burst'){
-   for(let i=0;i<32;i++){
-    const a=i*2.399+(i%3)*.12,r=20+t*(50+(i%5)*15),x=Math.cos(a)*r,y=Math.sin(a)*r;
-    c.save();c.translate(x,y);c.rotate(i*.7+t*3);
-    c.fillRect(-3,-4,6+(i%3)*2,8+(i%4)*2);c.restore();
-   }
-   c.lineWidth=3;c.strokeRect(-w*.3*t-14,-h*.25*t-14,w*.6*t+28,h*.5*t+28);
-  }else if(style==='wave'){
-   c.lineWidth=3;
-   for(let i=0;i<5;i++){
-    const r=12+((t+i*.23)%1.3)*w*.35;
-    c.beginPath();c.ellipse(0,0,r,r*.55,0,0,Math.PI*2);c.stroke();
-   }
-   for(let i=0;i<5;i++){
-    c.globalAlpha=fade*.14;c.fillRect(-w/2,(i-2)*h*.14,w,7);
-   }
-  }else if(style==='orbit'){
-   c.lineWidth=3;
-   for(let i=0;i<6;i++){
-    const a=i*Math.PI/3+t*Math.PI*1.8,x=Math.cos(a)*w*.32,y=Math.sin(a)*h*.29;
-    c.beginPath();c.arc(x,y,10,0,Math.PI*2);c.stroke();
-    c.fillRect(x-3,y-3,6,6);c.beginPath();c.moveTo(0,0);c.lineTo(x*.82,y*.82);c.stroke();
-   }
-   c.beginPath();c.arc(0,0,Math.min(w,h)*.13+t*25,0,Math.PI*2);c.stroke();
-  }
-  if(fired){
-   const hit=Math.max(0,1-(scene.elapsed-.62)*3);
-   c.globalAlpha=hit*.26;c.fillStyle='#fff5db';
-   c.beginPath();c.ellipse(0,0,14+(1-hit)*w*.46,11+(1-hit)*h*.41,0,0,Math.PI*2);c.fill();
-  }
-  c.restore();
+  drawHeartCinematic(c,game,time,TILE,this.reduceMotion||this.effectsLite);
  }
  drawPlacement(c,m,game){
   const used=new Set(game.units.map(u=>tileKey(u.x,u.y)));
