@@ -90,7 +90,7 @@ export class Game {
  }
  summon(){
   if(this.phase!=='playing')return false;
-  if(this.crystals<this.cost){this.emit('onToast','needCrystals');return false;}
+  if(this.fragments<this.cost){this.emit('onToast','needFragments');return false;}
   const occupied=new Set(this.units.map(u=>tileKey(u.x,u.y)));
   const open=this.map.available.filter(p=>!occupied.has(tileKey(p.x,p.y)));
   if(!open.length){this.emit('onToast','boardFull');return false;}
@@ -99,7 +99,7 @@ export class Game {
   const center={x:this.map.w/2,y:this.map.h/2};
   const near=nearest(open,center).slice(0,Math.min(open.length,23));
   const cell=near[rnd(near.length)];
-  this.crystals-=price;
+  this.fragments-=price;
   const unit={uid:this.nextUnitId++,id:character.id,star:1,x:cell.x,y:cell.y,cooldown:Math.random()*.8,motion:0,pose:0,damage:0,facing:'front',mirrored:false,shots:0,entrance:.55,promotion:0};
   this.units.push(unit);this.summons++;this.addEffect('spawn',cell.x,cell.y,{color:character.hair,life:.48,star:1});
   this.emit('onSummon',{unit,character,source:this.lastSummonSource,affinity:this.map.affinityGroup,price,nextPrice:this.cost});
@@ -138,8 +138,8 @@ export class Game {
   const level=this.upgrades[id];if(level==null)return;
   const cost=upgradeCost(id,level);
   if(cost===Infinity)return;
-  if(cost>this.fragments){this.emit('onToast','needFragments');return;}
-  this.fragments-=cost;this.upgrades[id]++;this.emit('onSound','upgrade');this.emit('onChange');
+  if(cost>this.crystals){this.emit('onToast','needCrystals');return;}
+  this.crystals-=cost;this.upgrades[id]++;this.emit('onSound','upgrade');this.emit('onChange');
  }
  addEffect(type,x,y,props={}){this.effects.push({type,x,y,life:props.life??.35,initial:props.life??.35,...props});if(this.effects.length>150)this.effects.splice(0,this.effects.length-150);}
  dealDamage(enemy,amount,sourceId){
