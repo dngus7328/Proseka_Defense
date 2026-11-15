@@ -77,6 +77,10 @@ ui.bindGameHandlers({onStart:startGame,onExit:exitGame,onRetry:retry,onNext:next
   window.__sekaiTest={getGame:()=>game,getUI:()=>ui,startGame,finishRun};
  }
 ui.notice();
+// Browsers may keep Web Audio audible when the tab is backgrounded.
+document.addEventListener('visibilitychange',()=>{
+ sound.pauseMusic(document.visibilityState==='hidden'||game?.phase==='paused');
+});
 function frame(now){
  const rawDt=Math.max(0,(now-previous)/1000);
  previous=now;
