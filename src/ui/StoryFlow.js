@@ -48,13 +48,13 @@ export class StoryFlow {
   this.mode='intro';this.queue=getOpening(this.save.language);this.cursor=0;
   this.currentMission=null;this.renderDialogue();
  }
- startMission(config){
+ startMission(config,onDeploy=null){
   const map=MAP_BY_ID[config?.mapId];if(!map)return;
   const copy={...config};
   const key=map.id+':'+copy.difficulty;
   const firstWorld=!this.save.story.visitedSekai.includes(map.id);
   const firstDifficulty=!this.save.story.visitedMission.includes(key);
-  this.mode='mission';this.currentMission={config:copy,map,key,firstWorld,firstDifficulty};
+  this.mode='mission';this.currentMission={config:copy,map,key,firstWorld,firstDifficulty,onDeploy};
   this.queue=getMissionStory(map.id,copy.difficulty,firstWorld,firstDifficulty,this.save.language);
   this.cursor=0;this.started=false;
   if(this.queue.length)this.renderDialogue();else this.showBrief();
@@ -122,12 +122,12 @@ export class StoryFlow {
  deploy(){
   if(!this.currentMission||this.started)return;
   this.started=true;
-  const {map,key,config}=this.currentMission;
+  const {map,key,config,onDeploy}=this.currentMission;
   if(!this.save.story.visitedSekai.includes(map.id))this.save.story.visitedSekai.push(map.id);
   if(!this.save.story.visitedMission.includes(key))this.save.story.visitedMission.push(key);
   persistSave(this.save);
   this.reset();
-  this.ui.handlers.onStart?.(config);
+  if(onDeploy)onDeploy();else this.ui.handlers.onStart?.(config);
  }
  cancel(){
   if(this.mode==='intro'){this.reset();this.ui.showTitle();return;}
