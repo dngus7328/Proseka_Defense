@@ -1,0 +1,82 @@
+{
+  "main": {
+    "source": "브금_메인.mp3",
+    "seconds": 139.04,
+    "bytes": 1873251,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "title": {
+    "source": "브금_타이틀.mp3",
+    "seconds": 170.0,
+    "bytes": 2411257,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "boss": {
+    "source": "브금_보스.mp3",
+    "seconds": 179.44,
+    "bytes": 2302597,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "night": {
+    "source": "브금_니고(1).mp3",
+    "seconds": 100.0,
+    "bytes": 1454164,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "city": {
+    "source": "브금_비베스(1).mp3",
+    "seconds": 129.2,
+    "bytes": 1901610,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "stage": {
+    "source": "브금_모모점(1).mp3",
+    "seconds": 114.4,
+    "bytes": 1812158,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "wonderland": {
+    "source": "브금_원더쇼(1).mp3",
+    "seconds": 78.0,
+    "bytes": 1197939,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "roof": {
+    "source": "브금_레오니(1).mp3",
+    "seconds": 102.2,
+    "bytes": 1560089,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "closedwindow": {
+    "source": "브금_닫힌창.mp3",
+    "seconds": 116.63,
+    "bytes": 1974790,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  },
+  "openwindow": {
+    "source": "브금_열린.mp3",
+    "seconds": 165.83,
+    "bytes": 3304385,
+    "channels": 2,
+    "sample_rate": 48000,
+    "loop_crossfade_seconds": 3.2
+  }
+}
