@@ -3,6 +3,7 @@ import {MAPS} from '../src/data/maps.js';
 import {HEARTS} from '../src/data/hearts.js';
 import {drawSekaiWorld} from '../src/core/SekaiMapArtV2.js';
 import {drawHeartStates,drawHeartCinematic} from '../src/core/HeartVFXV2.js';
+import {drawHeartSpectacle} from '../src/core/HeartVFXSpectacle.js';
 import {mechanicForHeart} from '../src/core/HeartAbilities.js';
 
 // Lightweight Canvas2D spy: the browser's real canvas is also checked by the
@@ -58,12 +59,18 @@ for(const type of ['ensemble','spotlight','beat','barrier','quiet','portal','tet
  drawHeartStates(ctx,game,5,32,false,false);
  drawHeartStates(ctx,game,5,32,true,false);
  drawHeartCinematic(ctx,game,5,32,false);
+ drawHeartSpectacle(ctx,game,5,32,false);
  assert(render.ops>30,type+' VFX seems absent');
  assert(render.text.length>=2,type+' needs a readable skill/actor cue');
  assert(render.text.some(text=>text.includes('이치카')),type+' caster not named');
  const lite=spy();
  drawHeartStates(lite.ctx,game,5,32,false,true);
  drawHeartCinematic(lite.ctx,game,5,32,true);
+ drawHeartSpectacle(lite.ctx,game,5,32,true);
  assert(lite.state.ops>10,type+' reduced motion must still show the skill');
+ // The windup has no mechanical state yet: it must still have a caster cue.
+ game.heartStates=[];game.heartScene.elapsed=.32;
+ const windup=spy();drawHeartSpectacle(windup.ctx,game,5,32,false);
+ assert(windup.state.stroked>2&&windup.state.filled>5,type+' needs a readable pre-cast spectacle');
 }
 console.log('OK — seven original SEKAI environments and eleven visible, live Heart mechanics');
