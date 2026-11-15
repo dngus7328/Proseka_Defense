@@ -107,7 +107,7 @@ export function activateHeartAbility(g,heart,participants,strength){
    // not a generic full-map explosion. Rescue also removes interruption.
    for(const hero of g.units){
     if(type!=='ensemble'&&!state.unitIds.includes(hero.uid))continue;
-    if(type==='ensemble'&&!group&&!state.unitIds.includes(hero.uid))continue;
+    if(type==='ensemble'&&!state.unitIds.includes(hero.uid))continue;
     hero.cooldown=Math.min(hero.cooldown||.4,.18);
     if(type==='rescue')hero.jamTime=0;
     affected++;
@@ -222,14 +222,15 @@ export function heartAfterMovement(g,e,before){
  if(e.hp<=0)return;
  const len=g.map.path.length;
  for(const s of g.heartStates){
-  if(s.type!=='barrier'||!s.gates)continue;
+  if(!s.gates)continue;
   for(const gate of s.gates){
    const index=gate.index;
-   // Obstacles block once per enemy per gate per activation; a later loop
-   // around the path does not trap the same enemy indefinitely.
-   if(before<index&&e.progress>=index &&
+   const crossAt=Math.floor(before/len)*len+index;
+   // Obstacles block once per enemy per gate per activation, even if
+   // the enemy has completed a loop around the cyclic path.
+   if(before<crossAt&&e.progress>=crossAt &&
     !(e.heartGateHits?.[s.id]?.includes(index))){
-    e.progress=index-.01;
+    e.progress=crossAt-.01;
     e.stun=Math.max(e.stun||0,e.kind==='boss'?.72:1.35);
     if(!e.heartGateHits)e.heartGateHits={};
     if(!e.heartGateHits[s.id])e.heartGateHits[s.id]=[];
