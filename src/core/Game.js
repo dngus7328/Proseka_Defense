@@ -2,6 +2,7 @@ import {CHARACTERS,CHARACTER_BY_ID,GROUPS,SIGNATURES,attackValue,attackInterval,
 import {MAP_BY_ID,tileKey} from '../data/maps.js';
 import {HEARTS,getHeartParticipants,heartStrength} from '../data/hearts.js';
 import {ENEMIES,DIFFICULTIES,UPGRADE_DATA,upgradeCost,waveEnemies} from '../data/enemies.js';
+import {interferenceForMap,INTERFERENCE_WARNING_SECONDS} from '../data/interference.js';
 const rnd=(max)=>Math.floor(Math.random()*max);
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -17,6 +18,7 @@ export class Game {
   this.upgrades={attack:0,speed:0,ability:0,income:0};this.damageByMember={};this.nextUnitId=1;this.nextEnemyId=1;
   this.selectedId=null;this.moveMode=false;this.heartTimers={};this.heartPulse=0;this.spawnCursor=0;
   this.heartQueue=[];this.heartScene=null;this.heartCastCount=Object.create(null);
+  this.interference=null;this.threatCooldown=10;this.threatStats={avoided:0,hit:0};
   this.waveRoster=[];this.spawnStep=1;this.result=null;this.endReal=0;this.endFromSpeed=1;
   this.startWave(1);
  }
@@ -58,7 +60,12 @@ export class Game {
   if(this.phase!=='playing')return;
   const target=this.atTile(x,y);
   if(this.moveMode){
-   if(this.canPlace(x,y)&&this.selected){this.selected.x=x;this.selected.y=y;this.moveMode=false;this.addEffect('pop',x,y,{color:'#acecde'});this.emit('onToast','moved');this.emit('onChange');}
+   if(this.canPlace(x,y)&&this.selected){
+    this.selected.x=x;this.selected.y=y;this.moveMode=false;
+    this.addEffect('pop',x,y,{color:'#acecde'});
+    if(this.interference)this.updateThreat(0);
+    this.emit('onToast','moved');this.emit('onChange');
+   }
    else{this.moveMode=false;this.emit('onToast','cancel');}
    return;
   }
@@ -358,6 +365,54 @@ export class Game {
    this.emit('onHeartStart',{...pending,actorId,actorUid,strength:heartStrength(pending.participants)});
   }
  }
+ // A visible, avoidable hazard makes relocation a meaningful decision.
+ beginThreat(){
+  if(this.interference||this.wave<5||!this.units.length)return false;
+  const candidates=this.units.filter(u=>(u.jamTime||0)<=0)
+   .sort((a,b)=>b.star-a.star||a.uid-b.uid);
+  if(!candidates.length)return false;
+  const target=candidates[Math.floor(this.virtualTime*7)%Math.min(3,candidates.length)];
+  const rules=interferenceForMap(this.map.id);
+  this.interference={
+   uid:target.uid,id:target.id,x:target.x,y:target.y,type:rules.type,
+   color:rules.color,names:rules.names,duration:rules.duration,
+   remaining:INTERFERENCE_WARNING_SECONDS,total:INTERFERENCE_WARNING_SECONDS
+  };
+  this.emit('onThreatStart',{...this.interference});
+  return true;
+ }
+ updateThreat(dt){
+  const threat=this.interference;
+  if(!threat){
+   if(this.wave<5)return;
+   this.threatCooldown=Math.max(0,this.threatCooldown-dt);
+   if(this.threatCooldown<=0&&!this.beginThreat())this.threatCooldown=5;
+   return;
+  }
+  const target=this.units.find(u=>u.uid===threat.uid);
+  if(!target||target.x!==threat.x||target.y!==threat.y){
+   this.threatStats.avoided++;
+   this.crystals+=12;this.fragments+=8;
+   this.addEffect('threatAvoid',threat.x,threat.y,{life:.6,color:'#cce6cd'});
+   this.interference=null;this.threatCooldown=35;
+   this.emit('onThreatAvoid',{...threat,rewardCrystals:12,rewardFragments:8});
+   this.emit('onSound','merge');this.emit('onChange');
+   return;
+  }
+  threat.remaining=Math.max(0,threat.remaining-dt);
+  if(threat.remaining>0)return;
+  if(threat.type==='rush'){
+   for(const enemy of this.enemies)enemy.tempo=Math.max(enemy.tempo||0,threat.duration);
+  }else{
+   target.jamTime=Math.max(target.jamTime||0,threat.duration);
+   if(threat.type==='drain')this.crystals=Math.max(0,this.crystals-22);
+  }
+  this.addEffect('threatImpact',threat.x,threat.y,{life:.7,color:threat.color});
+  this.threatStats.hit++;
+  this.interference=null;this.threatCooldown=35;
+  this.emit('onThreatHit',{...threat});
+  this.emit('onSound','heavy');this.emit('onChange');
+ }
  update(realDt){
   if(this.phase==='ending'){
    this.endReal+=realDt;let t=clamp(this.endReal/1.5,0,1);
@@ -404,7 +459,10 @@ export class Game {
    this.addEffect('ring',center.x,center.y,{color:'#e4ba9f',radius:2.7,life:.44});
    this.emit('onSound','special');
   }
+  this.updateThreat(dt);
   for(const hero of this.units){
+   hero.jamTime=Math.max(0,(hero.jamTime||0)-dt);
+   if(hero.jamTime>0)continue;
    hero.cooldown-=dt;
    if(hero.cooldown<=0){
     const fired=this.attack(hero);
@@ -434,8 +492,9 @@ export class Game {
  end(status,reason=null){
   if(this.phase!=='playing')return;
   this.phase='ending';
-  this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.emit('onHeartEnd',{});
-  this.result={status,reason,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,damageByMember:{...this.damageByMember}};
+  this.heartQueue=[];this.heartScene=null;this.pendingHits=[];this.interference=null;
+  this.emit('onHeartEnd',{});this.emit('onThreatEnd',{});
+  this.result={status,reason,difficulty:this.difficulty,elapsed:this.realTime,virtualTime:this.virtualTime,wave:this.wave,threatStats:{...this.threatStats},damageByMember:{...this.damageByMember}};
   this.endReal=0;this.endFromSpeed=this.speed;this.endAnimSpeed=this.speed;
   this.emit('onEndStart',this.result);
  }
