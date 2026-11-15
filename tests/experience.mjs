@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {Game} from '../src/core/Game.js';
+import {HEARTS} from '../src/data/hearts.js';
+import {MusicDirector} from '../src/core/MusicDirector.js';
 import {MAPS} from '../src/data/maps.js';
 import {CHARACTER_BY_ID} from '../src/data/characters.js';
 import {INTERFERENCE_BY_MAP,INTERFERENCE_WARNING_SECONDS,interferenceForMap} from '../src/data/interference.js';
@@ -116,3 +118,55 @@ assert(interfaceSrc.includes('this.experience?.update()'),'experience controller
 assert(html.includes('<span id="summonCost">28</span> <img class="currency-inline" src="./Assets/currency/wish-piece.png"'),
  'summon must show fragment icon');
 console.log('OK — seven threats, manual counterplay, paused warning, economy, localized chatter, and responsive UI wiring');
+
+// Six heart styles must have real effects, not identical cosmetic area damage.
+for(const style of ['star','rain','slash','burst','wave','orbit']){
+ const heart=HEARTS.find(h=>h.style===style);
+ assert(heart,'missing heart '+style);
+ const g=new Game({mapId:'roof',difficulty:'normal'});
+ g.wave=12;
+ g.spawnEnemy('boss',6);
+ const enemy=g.enemies[0];
+ const oldHp=enemy.hp,oldPos=enemy.progress;
+ const beforeCrystals=g.crystals;
+ const participants=heart.required.map((id,i)=>({
+  uid:i+1000,id,star:3,x:i+1,y:6,cooldown:0,
+  jamTime:0
+ }));
+ g.units=participants;
+ g.fireHeart(heart,participants);
+ assert(g.effects.some(e=>e.type==='heart'&&e.style===style),
+  style+': no visible battlefield attack');
+ if(style==='wave')assert(enemy.slow>=2,style+': missing slow field');
+ if(style==='star')assert(enemy.slow>0,style+': missing gravity effect');
+ if(style==='rain')assert(g.crystals>beforeCrystals,style+': missing stage resources');
+ if(style==='burst')assert(enemy.progress<oldPos,style+': missing knockback');
+ if(style==='slash')assert(oldHp-enemy.hp>230,style+': no focused double strike');
+ if(style==='orbit')assert(g.counterTime>=4,style+': no team resonance buff');
+ assert(g.cameraShake>0,style+': attack lacks impact');
+}
+// A disabled audio device keeps combat working, but original map score and
+// the cinematic skill cue must both be reachable from SoundEngine.
+{
+ const director=new MusicDirector(()=>null,()=>.35);
+ director.start('roof');
+ assert.equal(director.mapId,'roof');
+ director.heartAnticipation('star');
+ director.heartCue('burst');
+ director.stop();
+ assert.equal(director.mapId,null);
+}
+{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const responsive=fs.readFileSync(path.join(root,'styles/gameplay-v118.css'),'utf8');
+ const cinema=fs.readFileSync(path.join(root,'styles/skill-cinema-v118.css'),'utf8');
+ const main=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
+ const audio=fs.readFileSync(path.join(root,'src/core/Audio.js'),'utf8');
+ assert(html.includes('gameplay-v118.css')&&html.includes('skill-cinema-v118.css'));
+ assert(responsive.includes('aspect-ratio:var(--map-aspect,11/12)'));
+ assert(responsive.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert(cinema.includes('skill-cutin.impact')&&cinema.includes('skill-cutin-lead'));
+ assert(main.includes('sound.startMusic(')&&main.includes('sound.endMusic('));
+ assert(audio.includes('heartCue('),'audio heart cue missing');
+}
+console.log('OK — distinct six-style heart mechanics, original music and responsive controls');

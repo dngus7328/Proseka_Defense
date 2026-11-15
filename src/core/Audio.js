@@ -1,15 +1,37 @@
+import {MusicDirector} from './MusicDirector.js?v=1.18.0';
 // Self-generated short SFX: no external music/voice/sound samples.
 // Distinct attack hits are rate-limited so dense defenses remain comfortable.
 export class SoundEngine {
- constructor(){this.context=null;this.volume=.35;this.lastImpact=-Infinity;this.lastSpecial=-Infinity;}
- setVolume(value){this.volume=Math.max(0,Math.min(1,value));}
+ constructor(){
+  this.context=null;this.volume=.35;this.lastImpact=-Infinity;this.lastSpecial=-Infinity;
+  this.music=new MusicDirector(()=>this.getContext(),()=>this.volume);
+ }
+ setVolume(value){
+  this.volume=Math.max(0,Math.min(1,value));
+  this.music.updateVolume();
+ }
+ getContext(){
+  try{
+   const A=window.AudioContext||window.webkitAudioContext;
+   if(!A)return null;
+   if(!this.context)this.context=new A();
+   if(this.context.state==='suspended')this.context.resume().catch(()=>{});
+   return this.context;
+  }catch{return null;}
+ }
+ startMusic(mapId){this.music.start(mapId);}
+ pauseMusic(value){this.music.pause(value);}
+ stopMusic(){this.music.stop();}
+ heartAnticipation(style){this.music.heartAnticipation(style);}
+ endMusic(won){this.music.stop();this.music.finish(won);}
  beep(kind='select'){
   if(this.volume<=0)return;
+  if(kind.startsWith('heart-')){
+   this.music.heartCue(kind.slice(6));
+   return;
+  }
   try{
-   const A=window.AudioContext||window.webkitAudioContext;if(!A)return;
-   if(!this.context)this.context=new A();
-   const ctx=this.context;
-   if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+   const ctx=this.getContext();if(!ctx)return;
    const time=ctx.currentTime;
    if(kind==='hit'||kind==='heavy'){
     if(time-this.lastImpact<(kind==='heavy'?.105:.085))return;

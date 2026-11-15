@@ -297,7 +297,26 @@ export class Game {
   const heartColor=GROUPS.find(g=>g.id===CHARACTER_BY_ID[participants[0]?.id]?.group)?.color||'#d0d4dc';
   const chosen=nearest(this.enemies.filter(e=>e.hp>0),{x:this.map.w/2,y:this.map.h/2});
   const maxTargets=heart.type==='group'?Math.min(chosen.length,10+Math.floor(strength.average*3)):Math.min(chosen.length,5+Math.floor(strength.average*2));
+  // Different skills change actual strategy, not only the color of a damage ring.
+  const impactScale=heart.type==='group'?1:.7;
+  if(heart.style==='wave'){
+   for(const enemy of this.enemies)enemy.slow=Math.max(enemy.slow,4.2*impactScale);
+  }else if(heart.style==='rain'){
+   this.crystals+=Math.round((13+strength.average*3)*impactScale);
+   this.fragments+=Math.round(8*impactScale);
+  }else if(heart.style==='orbit'){
+   this.counterTime=Math.max(this.counterTime,6*impactScale);
+  }else if(heart.style==='burst'){
+   for(const enemy of chosen.slice(0,maxTargets))
+    enemy.progress=Math.max(0,enemy.progress-1.65*impactScale);
+  }else if(heart.style==='star'){
+   for(const enemy of chosen.slice(0,maxTargets))
+    enemy.slow=Math.max(enemy.slow,1.6*impactScale);
+  }else if(heart.style==='slash'&&chosen[0]){
+   this.dealDamage(chosen[0],damage*2.1*impactScale,participants[0].id);
+  }
   for(const [index,e] of chosen.slice(0,maxTargets).entries()){
+   if(e.hp<=0)continue; // Slash may already have defeated this enemy.
    const ep=this.enemyPos(e);
    // Shared damage is credited exactly once, in fair equal shares across participants.
    const dealt=Math.min(e.hp,damage*(index>5?.82:1));
@@ -309,13 +328,15 @@ export class Game {
    });
   }
   this.addEffect('heart',this.map.w/2-.5,this.map.h/2-.5,{
-   life:.88,color:heartColor,style:heart.style,heartId:heart.id,
+   life:1.35,color:heartColor,style:heart.style,heartId:heart.id,
    full:strength.full,group:heart.type==='group'
   });
   if(strength.full)this.addEffect('heartCrest',this.map.w/2-.5,this.map.h/2-.5,{
    life:.68,color:'#ecd7a9',style:heart.style
   });
-  this.emit('onHeartFire',{heart,strength});this.emit('onSound',`heart-${heart.style}`);this.emit('onChange');
+  this.cameraShake=Math.max(this.cameraShake,heart.type==='group'?5.4:3.2);
+  this.emit('onHeartFire',{heart,strength,ability:heart.style});
+  this.emit('onSound',`heart-${heart.style}`);this.emit('onChange');
  }
  heartUpdate(dt,realDt){
   // Cinematic skill activation: introduce the caster, then apply the actual attack.

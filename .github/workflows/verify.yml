@@ -25,6 +25,8 @@ jobs:
           node --check src/ui/BattleExperience.js
           node --check src/data/interference.js
           node --check src/data/battleChatter.js
+          node --check src/core/Audio.js
+          node --check src/core/MusicDirector.js
   visual:
     runs-on: ubuntu-latest
     permissions:

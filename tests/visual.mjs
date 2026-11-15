@@ -65,11 +65,35 @@ try{
    const g=window.__sekaiTest.getGame();
    return {board:box('#gameCanvas'),controls:box('.main-actions'),resources:box('.resource-row'),map:[g.map.w,g.map.h],overflowX:document.documentElement.scrollWidth>innerWidth+2};
   });
+  // The first-summon dialogue cannot cover the wave counter / progress bar.
+  const overlap=await page.evaluate(()=>{
+   const dialogue=document.getElementById('battleDialogue');
+   const wave=document.querySelector('.wave-panel');
+   if(dialogue?.hidden||!wave)return false;
+   const a=dialogue.getBoundingClientRect(),b=wave.getBoundingClientRect();
+   return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+  });
+  assert(!overlap,vp.name+' character dialogue obscures the wave bar');
   assert(layout.board&&layout.board.w>110&&layout.board.h>110,vp.name+' canvas not visible');
   assert(Math.abs(layout.board.w/layout.board.h-layout.map[0]/layout.map[1])<.04,vp.name+' map aspect wrong');
   assert(layout.board.x>=-2&&layout.board.y>=-2&&layout.board.x+layout.board.w<=vp.width+2&&layout.board.y+layout.board.h<=vp.height+2,vp.name+' board clips viewport');
   assert(layout.controls&&layout.controls.w>100,vp.name+' missing buttons');
   assert(!layout.overflowX,vp.name+' horizontal scrolling caused by UI');
+  const visibleControls=await page.evaluate(()=>{
+   const ids=['summonButton','autoMergeButton','upgradeToggle','heartButton','speedButton','waveText','fragmentText','crystalText'];
+   return ids.map(id=>{
+    const el=document.getElementById(id),r=el.getBoundingClientRect();
+    return {id,x:r.x,y:r.y,width:r.width,height:r.height,font:parseFloat(getComputedStyle(el).fontSize)};
+   });
+  });
+  for(const e of visibleControls){
+   assert(e.x>=-2&&e.y>=-2&&e.x+e.width<=vp.width+2&&e.y+e.height<=vp.height+2,
+    vp.name+' clipped UI: '+e.id+JSON.stringify(e));
+   if(e.id==='summonButton'||e.id==='autoMergeButton'||e.id==='upgradeToggle'||e.id==='heartButton')
+    assert(e.height>=40&&e.width>=55,vp.name+' untappable UI: '+e.id);
+  }
+  const musicActive=await page.evaluate(()=>window.__sekaiTest.getUI().sound.music.mapId);
+  assert.equal(musicActive,'roof',vp.name+' stage BGM not started');
 
   // Stage hazard, direct evade selection, click a safe tile, and verify reward.
   await page.evaluate(()=>{
@@ -93,6 +117,33 @@ try{
   assert.equal(dodge.active,false,vp.name+' dangerous effect did not clear');
   await page.screenshot({path:path.join('artifacts',vp.name+'-dodge.png')});
 
+  // A real Game heart scene drives both the cut-in and map-wide attack art.
+  await page.evaluate(async()=>{
+   const {HEARTS}=await import('./src/data/hearts.js');
+   const g=window.__sekaiTest.getGame(),ui=window.__sekaiTest.getUI();
+   const heart=HEARTS.find(h=>h.style==='burst');
+   const actors=heart.required.map((id,i)=>({
+    uid:3000+i,id,star:3,x:1+i,y:8,cooldown:0,jamTime:0
+   }));
+   g.units.push(...actors);
+   g.spawnEnemy('boss',5);
+   g.heartScene={heart,participants:actors,actorId:actors[0].id,
+    actorUid:actors[0].uid,elapsed:0,fired:false};
+   ui.onHeartStart({heart,participants:actors,actorId:actors[0].id,
+    strength:{average:3,scale:1.96,full:false}});
+  });
+  await page.waitForFunction(()=>document.getElementById('skillCutin')?.classList.contains('visible'));
+  await page.waitForTimeout(250);
+  const skillSize=await page.locator('#skillCutin').boundingBox();
+  assert(skillSize&&skillSize.width>vp.width*.47&&skillSize.height>=140,
+   vp.name+' special attack cut-in remains tiny');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-skill-lead.png')});
+  await page.waitForTimeout(580);
+  assert(await page.locator('#skillCutin').evaluate(el=>el.classList.contains('impact')),
+   vp.name+' special attack impact missing');
+  await page.screenshot({path:path.join('artifacts',vp.name+'-skill-impact.png')});
+  await page.waitForTimeout(1050);
+
   // Use the actual game-end event to exercise populated result data and layout.
   await page.evaluate(()=>{
    const g=window.__sekaiTest.getGame();
@@ -111,7 +162,7 @@ try{
   await page.waitForTimeout(650);
   await page.screenshot({path:path.join('artifacts',vp.name+'-result.png')});
   assert.deepEqual(errors,[],vp.name+' script errors: '+errors.join(' | '));
-  summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:6});
+  summary.push({viewport:vp.name,width:vp.width,height:vp.height,layout,dodged:dodge.stats.avoided,screenshots:8});
   await context.close();
  }
 }finally{await browser.close();}
