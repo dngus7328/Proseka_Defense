@@ -1,74 +1,68 @@
-# 프로젝트 세카이 랜덤 디펜스 — Suno 오리지널 BGM 제작표 (v1.25)
+# 프로젝트 세카이 랜덤 디펜스 — Suno 전투 BGM 제작표 (v1.26)
 
-원작 프로젝트 세카이의 기존 곡 멜로디, 곡명, 작곡가, 공식 효과음은 프롬프트에서 참조하지 않는다. 모든 음악은 독립적인 게임 BGM이며 별도 승인 후 사용한다.
+## 방향 전면 수정
 
-## 공통 Suno 설정
+**세카이 분위기는 악기·화성의 개성이고, 음악의 중심은 타워디펜스 전투다.** 이전 시안의 학교 밴드 노래, 아이돌 무대곡, 몽환 피아노곡 같은 독립적인 테마송 지향은 삭제한다.
 
-**Custom → Instrumental 켜기**. Lyrics 칸은 비워 두기. 출력 목표 2분~3분, 약 4/4의 8마디 단위 반복 구조, 첫 2~4초 안에 리듬 시작. 전투 효과음·캐릭터 대사에 비해 BGM이 앞으로 튀지 않게 믹스 요청.
+- 실제 플레이: 멤버 소환 → 같은 멤버 합성 → 적이 폐회로를 계속 순환 → 웨이브 압박 상승 → 5웨이브마다 보스 → 마지막 방어. 1판 약 10분.
+- 음악이 담당할 역할: 반복 가능한 박자, 적이 몰리는 압박감, 소환과 공격 효과음 위에 얹히는 추진력. 첫 1~2초에 맥박을 제시하고, 8/16마디마다 타악기·베이스·짧은 동기 정도만 변주한다.
+- 피할 것: 전면적인 노래 멜로디, AB형 팝 벌스·후렴, 길게 끊어지는 분위기 전환, 연주자 솔로, 영화 예고편식 빌드업/드롭, 대사처럼 들리는 보컬, 비싸지 않은 전자음 비프, 무의미한 과밀 레이어, 잔잔하게만 흘러가는 앰비언트.
+- **모든 곡은 실제로 게임에서 반복되는 2~3분 구간을 만든다는 전제.** Suno가 분량·구간·매끄러운 루프를 정확히 보장하는 건 아니므로, 좋은 구간을 골라 별도로 오디오 편집한다.
+- Suno Custom에서 **Instrumental**을 켠다. Lyrics는 비운다. 볼륨은 전투 효과음을 덮지 않도록 일정하게 구성한다.
+- 곡 내부에 '보스 같은 압박 구간'을 넣는 것과 실제 보스 출현 시 BGM이 변하는 것은 다르다. 정확한 웨이브 동기화가 필요하면 훗날 전투용/보스용 2트랙을 분리하고 게임 코드에서 보스 전환을 구현해야 한다. 현재 맵당 BGM 한 슬롯뿐이다.
 
-**공통 금지:** vocals, lyrics, voice samples, spoken word, chanting, choir, vocal chops, loud synthetic beeps, endless risers, huge EDM drops, aggressive limiting. 실제 AI 음악에서는 생성 모델이 길이/루프를 확정하지 않으므로 최종 음원을 직접 잘라 반복 가능한 구간을 검수한다.
+## 공통 Suno Style — 타워디펜스 코어
 
-## 교실의 세카이 — roof.mp3
+> Instrumental tactical tower-defense battle BGM, driving repetitive combat groove, immediate pulse from the first beat, relentless bass ostinato, tightly programmed drums with a strong kick and snare, short tense staccato motifs, rising pressure through subtle rhythmic variations every 8 to 16 bars. Music for continuously spawning enemies, summoning allies, merging units and defending against boss waves. High energy without a pop-song chorus; melody stays concise and secondary to rhythm. Clear midrange space for combat UI sounds, steady perceived loudness, clean layered mix, loop-friendly structure. No vocals, no choir, no spoken words, no long intro, no solos, no giant EDM drop, no cinematic trailer climax, no beeping effects, no slow ambient interlude, no fade-out.
 
-상황: 석양의 교실, 합주, 조용한 긴장감. 약 154 BPM.
+아래 개별 프롬프트는 공통 원칙을 맵별로 구체화한 **완전한 독립 Style 입력**이다.
 
-Suno Style Prompt:
+## 01 교실의 세카이 — roof.mp3
 
-> Original instrumental JRPG defense music for a band rehearsal at sunset, 154 BPM, steady live drum kit, picked electric bass, two crisp rhythmic electric guitars, subtle overdrive, clean melodic guitar accents and soft warm piano. Nostalgic school band energy with light battle tension. Immediate 4/4 groove, evolving 8-bar phrases, controlled dry mix, compact instrumental hooks, no endless solos, no exaggerated drops, no singers, no choir, no voice samples. Around 2:30, arrangement suitable for an unobtrusive seamless-loop battle BGM.
+**전투 역할:** 경쾌하고 긴박한 초반 디펜스. 밴드의 악기 질감만 암시하고 밴드 '공연곡'으로 만들지 않는다. BPM 142.
 
-## 스테이지의 세카이 — stage.mp3
+> Original instrumental tower-defense battle loop, 142 BPM, tight live drums and repetitive driving electric-bass ostinato, rhythmic muted electric guitars and short urgent piano stabs, compact minor-key two-bar motif. Constant motion for endless incoming enemy waves, tactical urgency, short percussive rises every 8 bars, measured low-tom boss accents and immediate return to the core pulse. Light school-band instrument character but never a school rock song or concert performance, restrained guitar melody, controlled mids and crisp but not piercing treble. No vocal, no choir, no chorus, no long intro, no breakdown, no solo, no fade-out, loop-friendly.
 
-상황: 응원을 되찾는 아이돌 공연장. 약 136 BPM.
+## 02 스테이지의 세카이 — stage.mp3
 
-Suno Style Prompt:
+**전투 역할:** 활기찬 방어전과 점점 빨라지는 대응. 아이돌 팝이 아니라 바운스가 살아 있는 전투 루프. BPM 144.
 
-> Original instrumental upbeat idol-stage defense theme, 136 BPM, bouncy disco-pop groove, tight kick and snare, warm melodic bass, clean funk guitar, short keyboard stabs, light strings and handclap percussion. Bright determined performance atmosphere, short catchy instrumental motifs alternating with quieter accompaniment for game sound effects, clean controlled mix, 8-bar loops. No excessive supersaws, no electronic riser, no lyrical voice, no choir or vocal chops. About 2:30.
+> Original instrumental tactical tower defense music, 144 BPM, persistent dance-funk combat rhythm, round punchy kick, snappy snare, syncopated melodic bass, tight clean guitar chops, concise bright synth stabs and controlled percussion layers. Energetic tactical pressure under a lively stage atmosphere, rapid 8-bar rhythmic development and brief stronger enemy-wave accents. Minimal short melodic motifs, steady groove with no pop chorus or song vocals, no huge EDM drop, no long buildup, no break in pulse, no bright chime spam, no fade-out, clean loop-ready game BGM.
 
-## 스트리트의 세카이 — city.mp3
+## 03 스트리트의 세카이 — city.mp3
 
-상황: 라이브 하우스, 거리 음악, 대결. 약 108 BPM.
+**전투 역할:** 박자와 배치의 긴장. 브레이크비트·베이스가 메인이지만 힙합 감상곡이 되지 않도록 한다. BPM 136.
 
-Suno Style Prompt:
+> Original instrumental defense battle loop, 136 BPM, fast syncopated breakbeat drums, deep controlled bass ostinato, tight rhythmic Rhodes stabs, sparse brass accents and short dark synth patterns. Aggressive but clean live-house street battle energy. Continuous enemy-wave pressure, pulsing minor-key motif every two bars, rhythmic layers evolving without losing the beat, compact boss-wave drum fills and immediate return to the main groove. Music built for strategy gameplay rather than a hip-hop single; no rap, no vocals, no pop sections, no turntable voice samples, no excessive high hats, no giant drop, no fade-out.
 
-> Original instrumental urban battle groove, 108 BPM, syncopated breakbeat drums, tight round electric bass, Rhodes keyboard chords, muted guitar, sparse brass hits and lightly dusty live-house texture. Confident rhythmic urban energy, minor-key instrumental hook, no overcompression, immediate groove, strong beat without distracting lead, evolving 8-bar phrases. No rap, no spoken word, no vocals, no vocal chops, no trap hi-hat overload, no cheesy synthesizer sounds. 2:30, loopable arrangement.
+## 04 원더랜드의 세카이 — wonderland.mp3
 
-## 원더랜드의 세카이 — wonderland.mp3
+**전투 역할:** 놀이공원의 불규칙한 방해와 급박한 쇼 방어. 우스꽝스러운 효과음 대신 장난기 있는 전투 리듬. BPM 148.
 
-상황: 유쾌하지만 위기 있는 놀이공원 쇼. 약 140 BPM.
+> Original instrumental whimsical tower defense battle music, 148 BPM, brisk marching snare and kick, busy but controlled pizzicato bass ostinato, sharp accordion and clarinet stabs, short mallet and string phrases in tense minor harmony. Clockwork-like repeating combat pulse, unpredictable rhythmic accents that suggest incoming enemy waves, recurring 8-bar motif, sudden but very brief tactical tension spikes, immediately resuming the main groove. Playful, urgent and precise, not a theater song or circus performance. No voices, no choir, no cartoon sound effects, no giant orchestral climax, no long interlude, no ending flourish.
 
-Suno Style Prompt:
+## 05 아무도 없는 세카이 — night.mp3
 
-> Original instrumental theatrical amusement-park defense soundtrack, 140 BPM, playful accordion, clarinet phrases, pizzicato strings, toy percussion, lively upright bass, marching snare and a clear drum pulse. Whimsical musical theater adventure with a mischievous minor-key twist, regular 4/4 rhythm, short motifs with clear breathing space, expressive but tidy acoustic ensemble. No carnival sound-effect samples, no choir, no singing, no spoken words, no oversized cinematic climax. Around 2:30, looping game music.
+**전투 역할:** 차갑고 불안한 생존형 방어. 공허한 감성 피아노곡이 아니라 위협적인 저역 박동으로 전투를 유지. BPM 128.
 
-## 아무도 없는 세카이 — night.mp3
+> Original instrumental dark survival tower-defense battle loop, 128 BPM, restrained but relentless electronic percussion with precise kick and snare, repetitive low piano ostinato, deep warm sub-bass pulse, distant muted strings and sparse glassy accents. Empty, fragile and unsettling atmosphere over a clearly audible combat beat, repeating two-bar dissonant motif, intensifying rhythmic accents every 8 to 16 bars as enemy pressure increases. Subtle emotional tone without turning into sad ambient piano music. No soft ballad, no vocals, no choir, no long pauses, no artificial glitch beeps, no ambient-only passages, no fade-out.
 
-상황: 고요한 빈 공간, 불안과 감정. 약 96 BPM.
+## 06 닫힌 창의 세카이 — closedwindow.mp3
 
-Suno Style Prompt:
+**전투 역할:** 압도적인 적의 침입을 견디는 어두운 긴장전. BPM 134.
 
-> Original instrumental introspective defense music, 96 BPM, felt piano ostinato, warm electric piano, soft pulsing low bass, restrained electronic percussion, subtle bowed string harmonics and distant clean guitar. Fragile empty atmosphere, calm but uneasy progression, space between notes, gradual harmonic development, steady rhythm under the quiet surface, repeated 8-bar ideas. No vocals, no choir, no soaring emotional pop lead, no harsh glitch or high pitched beeps. About 2:35, loop-friendly.
+> Original instrumental tense tactical tower defense music, 134 BPM, unbroken mechanical drum and low-string pulse, syncopated dark analog bass, sparse short piano notes, clipped strings, restrained metallic percussion. Constrained closed-window atmosphere, ominous but disciplined minor harmony, repeated 2-bar combat motif and heavier accents as enemy waves intensify. Avoid drifting ambience; keep persistent forward momentum and room for game sound effects, short dramatic hits without stopping the groove, no vocals, no choir, no cinematic trailer impact sequence, no EDM drops, no piercing beeps, no fade-out, loop-oriented.
 
-## 닫힌 창의 세카이 — closedwindow.mp3
+## 07 열린 창의 세카이 — openwindow.mp3
 
-상황: 갇힌 공간과 창문의 불안, 낮은 긴장. 약 114 BPM.
+**전투 역할:** 밝은 희망을 품었지만 적과 싸우는 방어전. 따뜻함은 화성에서, 리듬은 계속 긴장감 있게. BPM 138.
 
-Suno Style Prompt:
+> Original instrumental hopeful but urgent tower defense battle loop, 138 BPM, precise driving kick and snare, warm elastic bass ostinato, rhythmic piano chords, bright clean-guitar pulses, short high-string counter-motifs, subtle marimba accents. Determined pressure from continuous approaching enemies, bright harmony over a tense repetitive combat rhythm, gradual percussive layering every 8 bars, concise boss-like accents followed by a smooth return to the main beat. Warm and courageous but never a soft uplifting pop track; no big sung chorus, no vocals, no choral pads, no lengthy buildup, no quiet bridge, no fade-out, loop-ready.
 
-> Original instrumental dark chamber-electronic battle loop, 114 BPM, layered low strings, sparse minor piano, soft analog bass pulses, firm unobtrusive drum groove, subtle glass mallet accents and repeating string figures. Closed window atmosphere, unsettled yet graceful tension, 4/4 meter, restrained evolving motifs, clean low-frequency separation, immediate groove. No cinematic impacts, no horror stingers, no synthetic beeping, no big EDM drops, no chanting, no singing. Around 2:30, seamless-loop-friendly.
+## 만드는 순서
 
-## 열린 창의 세카이 — openwindow.mp3
+1. **교실 맵**으로 먼저 2~3개 생성. 무엇보다 '타워디펜스 전투 BGM'처럼 들리는가를 우선 검수한다. 기타·피아노가 노래의 주인공이 되면 탈락.
+2. 재생을 계속 반복하면서 소환·합성·적 공격 SFX가 가려지지 않는지 확인한다. 대사가 나오는 구간에도 보컬처럼 들리는 질감을 피한다.
+3. 선택한 트랙에서 8/16마디 반복 단위를 맞추고 필요하면 짧은 크로스페이드로 편집한다. 실제 루프 테스트 후에만 Assets/music에 추가한다.
+4. **승인 전까지 src/data/musicTracks.js의 7개 슬롯은 null**로 유지한다.
 
-상황: 바람·빛·함께 나아가는 결심. 약 126 BPM.
-
-Suno Style Prompt:
-
-> Original instrumental hopeful chamber-pop game battle theme, 126 BPM, warm piano arpeggios, clean electric guitar, soft precise drum kit, melodic bass, gentle strings and marimba accents. Bright airy open-window atmosphere with cautious resolve, six small instrumental motifs gradually joining into a united groove, 8-bar repeating phrases with balanced dynamics, concise intro and no overblown ending. No singers, no choir, no voice samples, no exaggerated synth swells. Around 2:30, loopable video game BGM.
-
-## 제작·검수
-
-1. 먼저 교실의 세카이 2~3개 버전 생성.
-2. 멤버 피격·소환·필살기 효과음과 함께 듣고, 보컬 유사 소리/과도한 고역/무한 반복 피로 확인.
-3. 음원을 승인한 후에만 Assets/music 폴더에 저장.
-4. src/data/musicTracks.js의 해당 맵 항목을 파일 경로로 변경. 지금은 일곱 슬롯 모두 null로 유지한다.
-
-반복 편집은 오디오 파일의 드럼 박자를 기준으로 자르고 수십~수백 밀리초의 크로스페이드로 연결하되, 실제 재생 테스트를 통해 루프 이음새를 확인한다.
