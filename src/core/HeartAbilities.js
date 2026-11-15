@@ -43,17 +43,17 @@ export function heartAbilityDescription(heart,strength={average:1},lang='ko'){
  const seconds=dur(type==='ensemble'?7:type==='spotlight'?7:type==='beat'?5.2:type==='barrier'?6:
   type==='quiet'?3.5:type==='portal'?5.5:type==='tether'?2.6:type==='armor'?5:type==='rescue'?4:6);
  const sentence={
- ensemble:{ko:`참여 멤버들의 공격 간격이 ${seconds}초 동안 짧아져 연속 공격해.`,ja:`${seconds}秒間、参加メンバーの攻撃間隔が短縮。`,en:`Linked members attack more often for ${seconds}s.`},
- spotlight:{ko:`${seconds}초 동안 적 경로에 조명 구역을 설치해 지나가는 적의 속도를 크게 낮춰.`,ja:`${seconds}秒間、経路に減速スポットライトを設置。`,en:`Spotlights along the path slow crossing enemies for ${seconds}s.`},
- beat:{ko:`${seconds}초 동안 박자마다 적을 경직시키고 방어를 약화시켜.`,ja:`${seconds}秒間、ビートごとに敵を怯ませ防御を弱化。`,en:`Repeated beats stagger and expose enemies for ${seconds}s.`},
- barrier:{ko:`${seconds}초 동안 적 경로에 공연 장벽을 세워 통과하는 적을 멈춰.`,ja:`${seconds}秒間、道を塞ぐ舞台ゲートを設置。`,en:`Stage gates interrupt enemies trying to cross for ${seconds}s.`},
- quiet:{ko:`${seconds}초 동안 일반 적을 멈추고 보스는 감속시켜. 전장 이상현상과 아군 행동 불능도 해제해.`,ja:`${seconds}秒間、通常の敵を停止、ボスを減速。妨害も解除。`,en:`Stops normal enemies and slows bosses for ${seconds}s; cancels hazards and cleanses allies.`},
- portal:{ko:`앞서 나간 적들을 출발점 방향으로 돌려보내고 ${seconds}초 동안 전송문을 유지해.`,ja:`進んだ敵を入口へ戻し、${seconds}秒間転送門を維持。`,en:`Recalls front enemies toward spawn and keeps a portal for ${seconds}s.`},
- tether:{ko:`${seconds}초 동안 가장 위험한 적들의 움직임을 묶어.`,ja:`${seconds}秒間、先頭の敵を束縛。`,en:`Binds the leading enemies for ${seconds}s.`},
- stage:{ko:`${seconds}초 동안 적이 지나는 길목에 작은 조명 구역을 설치해.`,ja:`${seconds}秒間、敵の通り道に減速舞台を設置。`,en:`Places a slowing mini-stage for ${seconds}s.`},
- armor:{ko:`${seconds}초 동안 앞쪽 적들의 방어를 약화시켜 집중 공격을 유도해.`,ja:`${seconds}秒間、先頭の敵を弱体化させ集中攻撃。`,en:`Exposes leading enemies to stronger attacks for ${seconds}s.`},
- rescue:{ko:`두 멤버의 행동 불능을 해제하고 ${seconds}초간 공격 간격을 줄여.`,ja:`2人の妨害を解除し、${seconds}秒間攻撃速度上昇。`,en:`Cleanses both members and increases their attack speed for ${seconds}s.`},
- mirror:{ko:`${seconds}초 동안 두 멤버의 공격을 빠르게 연결해.`,ja:`${seconds}秒間、2人の攻撃を素早く連携。`,en:`Both members synchronize faster attacks for ${seconds}s.`}
+ ensemble:{ko:`참여 멤버들의 공격 간격이 ${seconds}초 동안 짧아져 연속 공격합니다.`,ja:`${seconds}秒間、参加メンバーの攻撃間隔が短縮。`,en:`Linked members attack more often for ${seconds}s.`},
+ spotlight:{ko:`${seconds}초 동안 적 경로에 조명 구역을 설치해 지나가는 적의 속도를 크게 낮춥니다.`,ja:`${seconds}秒間、経路に減速スポットライトを設置。`,en:`Spotlights along the path slow crossing enemies for ${seconds}s.`},
+ beat:{ko:`${seconds}초 동안 박자마다 적을 경직시키고 방어를 약화시킵니다.`,ja:`${seconds}秒間、ビートごとに敵を怯ませ防御を弱化。`,en:`Repeated beats stagger and expose enemies for ${seconds}s.`},
+ barrier:{ko:`${seconds}초 동안 적 경로에 공연 장벽을 세워 통과하는 적을 멈춥니다.`,ja:`${seconds}秒間、道を塞ぐ舞台ゲートを設置。`,en:`Stage gates interrupt enemies trying to cross for ${seconds}s.`},
+ quiet:{ko:`${seconds}초 동안 일반 적을 멈추고 보스는 감속시킵니다. 전장 이상현상과 아군 행동 불능도 해제합니다.`,ja:`${seconds}秒間、通常の敵を停止、ボスを減速。妨害も解除。`,en:`Stops normal enemies and slows bosses for ${seconds}s; cancels hazards and cleanses allies.`},
+ portal:{ko:`앞서 나간 적들을 출발점 방향으로 돌려보내고 ${seconds}초 동안 전송문을 유지합니다.`,ja:`進んだ敵を入口へ戻し、${seconds}秒間転送門を維持。`,en:`Recalls front enemies toward spawn and keeps a portal for ${seconds}s.`},
+ tether:{ko:`${seconds}초 동안 가장 위험한 적들의 움직임을 묶습니다.`,ja:`${seconds}秒間、先頭の敵を束縛。`,en:`Binds the leading enemies for ${seconds}s.`},
+ stage:{ko:`${seconds}초 동안 적이 지나는 길목에 작은 감속 조명 구역을 설치합니다.`,ja:`${seconds}秒間、敵の通り道に減速舞台を設置。`,en:`Places a slowing mini-stage for ${seconds}s.`},
+ armor:{ko:`${seconds}초 동안 앞쪽 적들의 방어를 약화시켜 추가 피해를 받도록 합니다.`,ja:`${seconds}秒間、先頭の敵を弱体化させ集中攻撃。`,en:`Exposes leading enemies to stronger attacks for ${seconds}s.`},
+ rescue:{ko:`두 멤버의 행동 불능을 해제하고 ${seconds}초간 공격 간격을 단축합니다.`,ja:`2人の妨害を解除し、${seconds}秒間攻撃速度上昇。`,en:`Cleanses both members and increases their attack speed for ${seconds}s.`},
+ mirror:{ko:`${seconds}초 동안 두 멤버의 공격 간격을 단축합니다.`,ja:`${seconds}秒間、2人の攻撃を素早く連携。`,en:`Both members synchronize faster attacks for ${seconds}s.`}
  };
  return {mechanic:type,label:heartAbilityName(heart,lang),
   description:(sentence[type]||sentence.tether)[lang]||(sentence[type]||sentence.tether).ko,
