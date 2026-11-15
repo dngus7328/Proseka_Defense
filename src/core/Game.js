@@ -468,7 +468,8 @@ export class Game {
    this.addEffect('ring',center.x,center.y,{color:'#e4ba9f',radius:2.7,life:.44});
    this.emit('onSound','special');
   }
-  this.updateThreat(dt);
+  // Keep an honest five-second warning even at double battle speed.
+  this.updateThreat(Math.max(0,realDt));
   for(const hero of this.units){
    hero.jamTime=Math.max(0,(hero.jamTime||0)-dt);
    if(hero.jamTime>0)continue;
