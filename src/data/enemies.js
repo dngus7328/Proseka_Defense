@@ -11,7 +11,7 @@ export const DIFFICULTIES=[
  {id:'normal',hp:0.85,speed:.98,count:.88,boss:1,reward:1.12},
  {id:'advanced',hp:1.28,speed:1.06,count:1.08,boss:1.24,reward:1.07},
  {id:'expert',hp:1.85,speed:1.16,count:1.23,boss:1.51,reward:1.1},
- {id:'extreme',hp:2.7,speed:1.26,count:1.38,boss:1.92,reward:1.12},
+ {id:'extreme',hp:2.4,speed:1.26,count:1.33,boss:1.75,reward:1.12},
  {id:'endless',hp:2.85,speed:1.27,count:1.42,boss:2.02,reward:1.12}
 ];
 export const UPGRADE_DATA=[
