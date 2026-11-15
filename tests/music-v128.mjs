@@ -2,15 +2,17 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {BGM_TRACKS,bgmForMap,bgmForScene,MUSIC_CREDITS} from '../src/data/musicTracks.js';
 import {MusicDirector} from '../src/core/MusicDirector.js';
-const eight=['title','lobby','boss','roof','stage','city','wonderland','night'];
+const eight=['title','lobby','boss','roof','stage','city','wonderland','night','closedwindow','openwindow'];
 for(const key of eight){
  const info=BGM_TRACKS[key];
  assert(info?.ogg.endsWith('/'+(key==='lobby'?'main':key)+'.ogg'));
  assert(info?.mp3.endsWith('/'+(key==='lobby'?'main':key)+'.mp3'));
 }
-assert.equal(Object.keys(MUSIC_CREDITS).length,8);
-assert.deepEqual(bgmForMap('closedwindow'),bgmForScene('lobby'));
-assert.deepEqual(bgmForMap('openwindow'),bgmForScene('lobby'));
+assert.equal(Object.keys(MUSIC_CREDITS).length,10);
+assert.notDeepEqual(bgmForMap('closedwindow'),bgmForScene('lobby'));
+assert(bgmForMap('closedwindow').ogg.endsWith('closedwindow.ogg'));
+assert.notDeepEqual(bgmForMap('openwindow'),bgmForScene('lobby'));
+assert(bgmForMap('openwindow').ogg.endsWith('openwindow.ogg'));
 let instances=[];
 class FakeAudio{
  constructor(){this.paused=true;this.volume=1;this.currentTime=0;this.listeners={};this.dataset={};instances.push(this);}
@@ -58,5 +60,7 @@ assert(main.includes('sound.setBossActive(game.enemies.some'));
 assert(ui.includes("this.sound.playScene('title')"));
 assert(ui.includes("this.sound.playScene('lobby')"));
 assert(html.includes('id="musicVolumeRange"'));
+assert(html.includes('id="musicVolumeValue"'));
+assert(html.includes('id="effectVolumeValue"'));
 assert(html.includes('game-polish-v128.css'));
-console.log('OK — 8 submitted tracks mapped; gapless sources, title/lobby/SEKAI/boss switching and volume control wired');
+console.log('OK — 10 submitted tracks mapped; gapless sources, title/lobby/SEKAI/boss switching and volume control wired');

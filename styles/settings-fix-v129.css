@@ -1,0 +1,120 @@
+/* v1.29 — settings must read as an intentional in-game screen,
+   not a translucent window exposing unrelated battle gameplay. */
+#settingsOverlay{
+ background:#122837d9!important;
+ z-index:115!important;
+ padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))!important;
+}
+#settingsOverlay .settings-dialog{
+ width:min(94vw,540px)!important;
+ max-width:540px!important;
+ max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ padding:19px clamp(15px,3vw,24px) 17px!important;
+ border:1px solid #819ba2!important;
+ border-top:4px solid #b77b94!important;
+ border-radius:4px!important;
+ box-shadow:0 12px 42px #0d263a64!important;
+ background:#f5f2e9!important;
+ color:#263c4a!important;
+ overscroll-behavior:contain!important;
+}
+#settingsOverlay .dialog-head{
+ align-items:center!important;margin-bottom:12px!important;
+ padding-bottom:11px!important;border-bottom:1px solid #b8c6c4!important;
+}
+#settingsOverlay .dialog-head h2{
+ font-size:clamp(21px,3.5vw,27px)!important;
+ font-weight:850!important;
+}
+#settingsOverlay .setting-list{margin:0 0 15px!important;gap:3px!important}
+#settingsOverlay .setting-row{
+ min-height:51px!important;gap:12px!important;
+ padding:6px 8px!important;
+ border:0!important;border-bottom:1px solid #d2d9d4!important;
+ font-weight:750!important;
+ font-size:13px!important;
+}
+#settingsOverlay .setting-row>label{
+ flex:1 1 auto!important;
+ white-space:normal!important;word-break:keep-all!important;
+}
+#settingsOverlay .setting-row-audio{
+ min-height:61px!important;
+ padding:8px 9px!important;
+ background:#e7ece8!important;
+ border:1px solid #b6c9c6!important;
+ border-radius:3px!important;
+ color:#244b5b!important;
+}
+#settingsOverlay .setting-row-audio:first-of-type{
+ background:#e6edf0!important;
+ border-color:#8daeb6!important;
+}
+#settingsOverlay .settings-volume-control{
+ display:flex!important;
+ align-items:center!important;justify-content:space-between!important;
+ gap:9px!important;
+ width:58%!important;max-width:280px!important;min-width:126px!important;
+}
+#settingsOverlay .settings-volume-control input[type="range"]{
+ display:block!important;flex:1 1 auto!important;
+ width:100%!important;min-width:64px!important;
+ height:28px!important;margin:0!important;
+ accent-color:#648da0!important;
+ opacity:1!important;
+}
+#settingsOverlay .settings-volume-control output{
+ display:inline-block!important;
+ flex:0 0 39px!important;
+ color:#2c5362!important;text-align:right!important;
+ font-family:"Rajdhani","Noto Sans KR",sans-serif!important;
+ font-weight:800!important;font-size:16px!important;
+ font-variant-numeric:tabular-nums!important;
+}
+#settingsOverlay .setting-row select{
+ background:#f8f7f0!important;color:#283f4b!important;
+ border:1px solid #9cb0ae!important;border-radius:2px!important;
+ min-height:34px!important;
+}
+#settingsOverlay .settings-dialog>.primary-button{
+ width:100%!important;min-height:42px!important;
+ border-radius:3px!important;
+}
+/* A small-screen user must see both audio rows before scrolling. */
+@media (orientation:portrait) and (max-width:430px){
+ #settingsOverlay{padding:8px!important}
+ #settingsOverlay .settings-dialog{
+  width:100%!important;max-height:calc(100dvh - 16px)!important;
+  padding:13px 12px 11px!important;
+ }
+ #settingsOverlay .dialog-head{margin-bottom:7px!important;padding-bottom:7px!important}
+ #settingsOverlay .setting-row{min-height:43px!important;padding:5px 6px!important;font-size:12px!important}
+ #settingsOverlay .setting-row-audio{min-height:55px!important}
+ #settingsOverlay .settings-volume-control{width:59%!important;gap:5px!important}
+ #settingsOverlay .settings-volume-control output{flex-basis:34px!important;font-size:14px!important}
+ #settingsOverlay .setting-list{margin-bottom:9px!important}
+}
+/* Two-column settings layout on short landscape phone screens, with no
+   hiding of either music or effect volume control. */
+@media (orientation:landscape) and (max-height:470px){
+ #settingsOverlay{padding:6px!important}
+ #settingsOverlay .settings-dialog{
+  width:min(95vw,660px)!important;max-width:660px!important;
+  max-height:calc(100dvh - 12px)!important;
+  padding:9px 13px 10px!important;
+ }
+ #settingsOverlay .dialog-head{margin-bottom:6px!important;padding-bottom:5px!important}
+ #settingsOverlay .dialog-head h2{font-size:19px!important}
+ #settingsOverlay .setting-list{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  column-gap:9px!important;row-gap:2px!important;margin-bottom:8px!important;
+ }
+ #settingsOverlay .setting-row{min-height:41px!important;font-size:11px!important;padding:3px 7px!important}
+ #settingsOverlay .setting-row-audio{min-height:48px!important}
+ #settingsOverlay .settings-volume-control{min-width:92px!important;width:61%!important;gap:4px!important}
+ #settingsOverlay .settings-volume-control output{flex-basis:32px!important;font-size:13px!important}
+ #settingsOverlay .settings-dialog>.primary-button{min-height:35px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #settingsOverlay .settings-volume-control input[type="range"]{transition:none!important}
+}
