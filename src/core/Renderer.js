@@ -256,6 +256,7 @@ export class Renderer {
   if(game.cameraShake>0&&!this.reduceMotion&&!this.effectsLite){const q=game.cameraShake;const j=Math.sin(time*129)*q;c.translate(j,Math.cos(time*151)*q*.65);}
   drawSekaiWorld(c,m,time,this.reduceMotion||this.effectsLite);
   this.drawPlacement(c,m,game);
+  this.drawThreat(c,game,time);
   if(game.selected)this.drawRange(c,game.selected,game);
   const bodies=[...game.enemies.map(e=>({y:game.enemyPos(e).y,enemy:e})),...game.units.map(u=>({y:u.y,hero:u}))].sort((a,b)=>a.y-b.y);
   for(const item of bodies){if(item.enemy)this.drawEnemy(c,game,item.enemy,time);else this.drawHero(c,game,item.hero,time);}
@@ -277,6 +278,28 @@ export class Renderer {
     c.strokeStyle='#ecffe8d4';c.lineWidth=1;c.strokeRect(sx+4.5,sy+4.5,23,23);
    }
   }
+ }
+ drawThreat(c,game,time){
+  const hazard=game.interference;if(!hazard)return;
+  const x=hazard.x*TILE,y=hazard.y*TILE,p=1-hazard.remaining/hazard.total;
+  const ink=hazard.color||'#ce8375';
+  c.save();
+  c.fillStyle='rgba(150,42,54,.14)';c.fillRect(x+1,y+1,TILE-2,TILE-2);
+  c.strokeStyle=ink;c.lineWidth=3;c.strokeRect(x+2,y+2,TILE-4,TILE-4);
+  c.strokeStyle='#fff3df';c.lineWidth=2;
+  const tick=this.reduceMotion||this.effectsLite?1:(.74+.26*Math.sin(time*8));
+  c.globalAlpha=tick;
+  for(const [px,py,dx,dy] of [[x,y,-1,-1],[x+TILE,y,1,-1],[x,y+TILE,-1,1],[x+TILE,y+TILE,1,1]]){
+   c.beginPath();c.moveTo(px-dx*7,py);c.lineTo(px,py);c.lineTo(px,py-dy*7);c.stroke();
+  }
+  c.globalAlpha=1;
+  // This countdown is tied to simulation time and remains legible in lite mode.
+  c.fillStyle='#293c4d';c.fillRect(x+2,y-6,TILE-4,5);
+  c.fillStyle=ink;c.fillRect(x+3,y-5,(TILE-6)*Math.max(0,1-p),3);
+  c.font='bold 13px Arial';c.textAlign='center';c.textBaseline='bottom';
+  c.strokeStyle='#2b3b4b';c.lineWidth=3;c.strokeText('!',x+TILE/2,y-10);
+  c.fillStyle='#fff7dc';c.fillText('!',x+TILE/2,y-10);
+  c.restore();
  }
  drawRange(c,u,game){
   const r=(CHARACTER_BY_ID[u.id].range+.11*(u.star-1))*TILE;
@@ -364,6 +387,15 @@ export class Renderer {
    c.fillRect(5+impact*6,9,5,2);
    c.restore();
   }
+  // A disabled member does not attack; show that state without recoloring the PNG.
+  if((u.jamTime||0)>0){
+   c.save();c.translate(Math.round(x),Math.round(y));
+   c.fillStyle='#30465bc2';c.fillRect(-17,17,34,11);
+   c.fillStyle='#fff6df';c.font='bold 10px Arial';
+   c.textAlign='center';c.textBaseline='middle';
+   c.fillText('×  '+Math.ceil(u.jamTime)+'s',0,22);
+   c.restore();
+  }
   // Highlight the exact casting unit, using an unobtrusive tile locator.
   if(game.heartScene?.actorUid===u.uid){
    const p=Math.min(1,Math.max(0,game.heartScene.elapsed/.62));
@@ -404,7 +436,15 @@ export class Renderer {
    const t=e.initial?e.life/e.initial:0;
    const x=(e.x+.5)*TILE,y=(e.y+.5)*TILE,age=1-t;
    c.save();c.globalAlpha=Math.max(0,Math.min(1,t));c.strokeStyle=e.color||'#e7f3e7';c.fillStyle=e.color||'#e7f3e7';
-   if(e.type==='projectile'){
+   if(e.type==='threatImpact'||e.type==='threatAvoid'){
+    const r=(1-t)*29+5;
+    c.lineWidth=e.type==='threatImpact'?3:2;
+    c.strokeRect(x-r,y-r,r*2,r*2);
+    for(let i=0;i<4;i++){
+     const a=i*Math.PI/2;
+     c.fillRect(x+Math.cos(a)*r-3,y+Math.sin(a)*r-3,6,6);
+    }
+   }else if(e.type==='projectile'){
     const endX=(e.tx+.5)*TILE,endY=(e.ty+.5)*TILE;
     const travel=Math.max(0,Math.min(1,age));
     const px=lerp(x,endX,travel),py=lerp(y,endY,travel);
