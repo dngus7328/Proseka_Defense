@@ -338,6 +338,11 @@ button:focus-visible{outline:3px solid #f5cf7a!important;outline-offset:2px!impo
  .battle-header,.wave-panel,.board-frame{
   width:min(calc(100vw - 606px),calc((100dvh - 128px)*var(--map-ratio,.916667)))!important;
   max-width:660px!important;
+  /* Legacy landscape CSS still assigned these elements to grid column 2.
+     As flex children here they must explicitly align to center. */
+  align-self:center!important;
+  grid-column:auto!important;grid-row:auto!important;
+  margin-left:0!important;margin-right:0!important;
  }
  .battle-header{
   position:relative!important;z-index:8!important;
