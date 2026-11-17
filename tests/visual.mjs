@@ -255,8 +255,15 @@ try{
   assert((await page.locator('.heart-guide').textContent()).includes('자동으로 발동합니다'),
    vp.name+' Hearts catalog did not receive formal gameplay instructions');
 
-  // A landscape roster must show actionable information rather than empty space.
-  if(vp.width>vp.height){
+  // Desktop now has a dedicated command panel. Compact landscape keeps the
+  // existing roster/tactics strip where there is no room for a sidebar.
+  if(vp.name==='desktop'){
+   const tactical=await page.locator('.command-deck-alert').boundingBox();
+   assert(tactical&&tactical.width>220&&tactical.height>45,
+    vp.name+' new command status area missing');
+   assert((await page.locator('#deckSituation').textContent()).trim().length>13);
+   assert(await page.locator('#commandWorldCrest').evaluate(e=>e.naturalWidth>0));
+  }else if(vp.width>vp.height){
    const tactics=await page.locator('#teamTactics').boundingBox();
    assert(tactics&&tactics.width>120&&tactics.height>55,vp.name+' tactics panel missing');
    assert((await page.locator('#teamTacticsDescription').textContent()).trim().length>10);
