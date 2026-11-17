@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="./styles/system-copy-v127.css?v=1.27.0"/>
   <link rel="stylesheet" href="./styles/game-polish-v128.css?v=1.28.0"/>
   <link rel="stylesheet" href="./styles/settings-fix-v129.css?v=1.29.0"/>
-  <link rel="stylesheet" href="./styles/layout-v130.css?v=1.30.0"/>
+  <link rel="stylesheet" href="./styles/world-first-v131.css?v=1.31.0"/>
 </head>
 <body>
   <div class="app" id="app">
@@ -74,7 +74,7 @@
       <aside class="sidepanel" aria-label="전투 조작과 현재 전황">
         <div class="command-deck-head">
           <div class="command-deck-heading">
-            <span class="command-deck-kicker">FIELD COMMAND / 01</span>
+            <span class="command-deck-kicker">SEKAI DEFENSE</span>
             <strong id="commandWorldName">교실의 세카이</strong>
             <span id="commandDifficulty">일반 · WAVE 01</span>
           </div>
@@ -82,7 +82,7 @@
         </div>
         <div class="resource-row"><div class="resource-card"><span class="resource-icon coin currency-crystal" aria-hidden="true"><img src="./Assets/currency/crystal.png" alt=""/></span><div><span class="mini-label" data-i18n="crystals">크리스탈</span><strong id="crystalText">100</strong></div></div><div class="resource-card"><span class="resource-icon upgrade currency-fragment" aria-hidden="true"><img src="./Assets/currency/wish-piece.png" alt=""/></span><div><span class="mini-label" data-i18n="fragments">마음의 조각</span><strong id="fragmentText">60</strong></div></div></div>
         <div class="field-summary" id="fieldSummary" aria-label="배치 현황"><img id="statusWorldIcon" src="./Assets/ui/roof.png" alt=""/><span class="field-summary-name" data-i18n="placedUnits">배치</span><strong id="unitCount">0</strong><small id="unitCapacity">/ 0</small><i></i><span class="field-star">★ 4</span><strong id="maxStarCount">0</strong></div>
-        <section class="selection-panel" id="selectionPanel"><div class="selection-empty" id="selectionEmpty"><div class="empty-glyph"><span>✦</span></div><div><small class="selection-empty-kicker">MEMBER INFO</small><strong data-i18n="selectCharacter">캐릭터 선택</strong><p class="selection-empty-tip" data-i18n="selectCharacterGuide">전장에서 멤버를 선택하면 공격력·범위와 이동·합성 메뉴를 확인할 수 있습니다.</p></div></div><div class="selection-content" id="selectionContent" hidden><div class="selected-hero"><div class="hero-portrait" id="heroPortrait" aria-hidden="true"></div><div class="hero-detail"><strong id="heroName">—</strong><span id="heroMeta">—</span></div><button class="clear-selection" id="clearSelection" aria-label="선택 해제">×</button></div><div class="hero-stats"><div><small data-i18n="atk">공격</small><strong id="heroAttack">—</strong></div><div><small data-i18n="range">범위</small><strong id="heroRange">—</strong></div><div><small data-i18n="damage">대미지</small><strong id="heroDamage">—</strong></div></div><div class="hero-actions"><button class="minor-button" id="moveButton" data-i18n="move">이동</button><button class="minor-button primary-outline" id="mergeButton" data-i18n="merge">합성</button></div></div></section>
+        <section class="selection-panel" id="selectionPanel"><div class="selection-empty" id="selectionEmpty"><div class="empty-glyph"><span>✦</span></div><div><small class="selection-empty-kicker" data-i18n="memberRoster">출전 멤버</small><strong data-i18n="selectCharacter">캐릭터 선택</strong><p class="selection-empty-tip" data-i18n="selectCharacterGuide">전장에서 멤버를 선택하면 공격력·범위와 이동·합성 메뉴를 확인할 수 있습니다.</p><div class="reserve-preview" id="reservePreview" aria-label="세카이 출전 멤버"></div></div></div><div class="selection-content" id="selectionContent" hidden><div class="selected-hero"><div class="hero-portrait" id="heroPortrait" aria-hidden="true"></div><div class="hero-detail"><strong id="heroName">—</strong><span id="heroMeta">—</span></div><button class="clear-selection" id="clearSelection" aria-label="선택 해제">×</button></div><div class="hero-stats"><div><small data-i18n="atk">공격</small><strong id="heroAttack">—</strong></div><div><small data-i18n="range">범위</small><strong id="heroRange">—</strong></div><div><small data-i18n="damage">대미지</small><strong id="heroDamage">—</strong></div></div><div class="hero-actions"><button class="minor-button" id="moveButton" data-i18n="move">이동</button><button class="minor-button primary-outline" id="mergeButton" data-i18n="merge">합성</button></div></div></section>
         <div class="command-deck-alert" role="status" aria-live="off">
            <span class="deck-alert-mark" aria-hidden="true"></span>
            <div><strong data-i18n="defenseStatus">방어 상황</strong><small id="deckSituation">멤버를 소환하여 방어를 시작해 주세요.</small></div>
@@ -134,7 +134,7 @@
       <button type="button" class="title-skip" id="titleSkipIntro" data-i18n="skip">건너뛰기</button>
       <div class="title-bottom">
         <div class="title-copy">
-          <span class="title-copy-kicker">THE SEKAI DEFENSE PROJECT</span>
+          <span class="title-copy-kicker">PROJECT SEKAI · FAN GAME</span>
           <p data-i18n="titlePremise">세카이에 나타난 이상현상을 막고, 각 세카이의 마음을 모아야 합니다.</p>
         </div>
         <div class="title-credit" aria-hidden="true"><span>✦</span></div><button id="titleEnter" class="title-enter" type="button"><span data-i18n="enterGame">입장</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg></button></div>
@@ -222,6 +222,6 @@
       </div>
       <div class="result-insight" id="resultInsight" aria-live="polite"></div>
       <div class="result-summary"><div class="result-table-head"><strong data-i18n="damageByMember">멤버별 대미지</strong><span>DMG</span></div><div class="damage-list" id="damageList"></div></div><div class="result-actions"><button id="resultExit" class="quiet-button" data-i18n="exit">나가기</button><button id="resultRetry" class="quiet-button" data-i18n="retry">다시하기</button><button id="resultNext" class="primary-button" data-i18n="next">다음으로</button></div></div></div>
-  <script type="module" src="./src/main.js?v=1.30.0"></script>
+  <script type="module" src="./src/main.js?v=1.31.0"></script>
 </body>
 </html>
