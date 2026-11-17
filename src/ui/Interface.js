@@ -446,6 +446,8 @@ export class Interface {
 
  update(force=false){
   const g=this.game;if(!g){el('headerMode').textContent='STANDBY';return;}
+  el('app').classList.toggle('has-deployed-members',g.units.length>0);
+  el('app').classList.toggle('battle-warning',g.enemies.length>=g.capacity*.8);
   el('headerMode').textContent=g.difficulty.toUpperCase();
   el('mapTitle').textContent=`${g.map.order} / ${g.map.names[this.save.language]}`;
   el('modeTitle').textContent=this.t(g.difficulty).toUpperCase();
@@ -492,6 +494,8 @@ export class Interface {
 
  updateTeamStrip(force=false){
   const g=this.game,host=el('teamStripSlots');if(!g||!host)return;
+  // Do not render an empty decorative roster in the play field.
+  el('teamStrip').hidden=g.units.length===0;
   const shown=g.units.slice(-7).reverse();
   const signature=shown.map(u=>u.uid+'.'+u.star).join('|')+'|'+this.save.language+'|'+g.selectedId;
   if(!force&&signature===this.lastTeamSignature)return;
