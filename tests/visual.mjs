@@ -221,14 +221,16 @@ try{
     vp.name+' live command panel lacks gameplay data: '+JSON.stringify(structuralBattle));
   }
 
+  // The previous isolated location plaque was retired. The new right-side
+  // command header now carries the world crest and localized world name.
   if(vp.name==='desktop'){
-   const ambient=await page.evaluate(()=>{
-    const e=document.querySelector('.world-decoration'),r=e?.getBoundingClientRect(),c=e&&getComputedStyle(e);
-    return {cssMatch:matchMedia('(min-width:1280px) and (min-height:620px) and (orientation:landscape)').matches,display:c?.display,opacity:c?.opacity,z:c?.zIndex,
-     bounds:r?{x:r.x,y:r.y,width:r.width,height:r.height}:null,html:e?.outerHTML.slice(0,350)};
-   });
-   assert(ambient.cssMatch&&ambient.display!=='none'&&ambient.bounds?.width>120&&ambient.bounds.x>=0,
-    'Desktop must display a real SEKAI location plaque in otherwise empty space: '+JSON.stringify(ambient));
+   const command=await page.evaluate(()=>({
+    crest:document.getElementById('commandWorldCrest').naturalWidth,
+    name:document.getElementById('commandWorldName').textContent,
+    panel:getComputedStyle(document.querySelector('.command-deck-head')).display
+   }));
+   assert(command.crest>0&&command.name.includes('세카이')&&command.panel!=='none',
+    'Desktop command header must replace the obsolete floating plaque: '+JSON.stringify(command));
   }
 
   // The upgrade sheet must explain the mechanics, not just show labels and prices.
