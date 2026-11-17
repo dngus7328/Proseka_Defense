@@ -1,0 +1,2512 @@
+/* BUNDLED CSS — ORDER PRESERVED from index.html, v1.34 — DO NOT HAND EDIT. */
+
+/* ===== SOURCE styles/heart-skills-v121.css ===== */
+/* v1.21: gameplay status feedback connected to real Heart state. */
+#skillCondition.heart-active-status{
+ position:relative;
+ background:#f8edda!important;color:#2a475e!important;
+ border:1px solid #8c9db5!important;border-bottom:3px solid #caa17e!important;
+ box-shadow:0 2px 0 #31435721!important;
+ border-radius:5px!important;
+ padding:4px 9px!important;
+}
+#skillCondition.heart-active-status .skill-condition-name{
+ font-size:clamp(10px,2.4vw,13px)!important;
+ font-weight:900!important;color:#314b62!important;
+ white-space:nowrap;text-overflow:ellipsis;overflow:hidden;
+ min-width:0;flex:1!important;
+}
+#skillCondition.heart-active-status .skill-condition-avatars{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;gap:2px!important;
+}
+#skillCondition.heart-active-status .skill-member{
+ height:26px!important;width:26px!important;min-width:26px!important;
+ background:#f4f0df!important;border-radius:4px!important;
+ border:1px solid #b7ac9e!important;
+}
+#skillCondition.heart-active-status .skill-member img{
+ width:100%!important;height:100%!important;object-fit:contain!important;
+}
+#skillCondition.heart-active-status #skillConditionCount{
+ flex:0 0 auto!important;
+ min-width:30px!important;text-align:right!important;
+ font-size:clamp(12px,2.7vw,15px)!important;
+ color:#895e6d!important;font-variant-numeric:tabular-nums;
+}
+.team-tactics:has(.team-tactics-head){
+ transition:background .18s ease;
+}
+.team-tactics p{word-break:keep-all}
+#titleOverlay .title-enter:focus-visible{
+ outline:3px solid #f8f8c5!important;outline-offset:4px!important;
+}
+@media (orientation:portrait) and (max-height:725px){
+ /* The caster banner remains in the top safe-area and the map stays full sized.
+    This uses existing v1.18 short-screen logic rather than shrinking the field. */
+ #titleOverlay .title-enter{min-width:0!important}
+}
+@media (prefers-reduced-motion:reduce){
+ #titleOverlay .title-enter{transition:none!important}
+}
+
+/* ===== END styles/heart-skills-v121.css ===== */
+
+/* ===== SOURCE styles/sekai-rosters-v122.css ===== */
+/* v1.22 — the two window worlds explicitly feature all six singers.
+   Keep the original character PNGs intact, never crop or copy a singer. */
+#lobbyOverlay .lobby-team-preview.six-singers{
+ gap:1px!important;justify-content:center!important;
+ align-items:flex-end!important;padding:0 4px!important;
+}
+#lobbyOverlay .lobby-team-preview.six-singers img{
+ flex:0 1 auto!important;
+ width:min(15.5%,75px)!important;
+ height:min(100%,125px)!important;
+ min-width:0!important;max-width:75px!important;
+ margin-left:0!important;object-fit:contain!important;
+ object-position:center bottom!important;
+}
+#lobbyOverlay .lobby-team-preview.six-singers img:nth-child(5){translate:0 -2px}
+#lobbyOverlay .lobby-team-preview.six-singers img:nth-child(6){translate:0 4px}
+.team-heart-members[data-member-count="6"]{
+ display:grid!important;
+ grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ justify-items:center!important;align-items:center!important;
+ gap:3px!important;min-width:0!important;
+}
+.team-heart-members[data-member-count="6"] .team-heart-member{
+ width:100%!important;height:auto!important;
+ max-width:37px!important;min-width:0!important;
+ aspect-ratio:1!important;
+}
+#skillConditionAvatars[data-member-count="6"]{
+ gap:2px!important;justify-content:center!important;
+ min-width:0!important;overflow:hidden!important;
+}
+#skillConditionAvatars[data-member-count="6"] .skill-member{
+ width:clamp(20px,6.1vw,29px)!important;
+ height:clamp(20px,6.1vw,29px)!important;
+ flex:0 1 clamp(20px,6.1vw,29px)!important;
+}
+@media (orientation:portrait) and (max-width:365px){
+ #lobbyOverlay .lobby-team-preview.six-singers img{
+  width:15.9%!important;height:min(100%,111px)!important;
+ }
+ #skillConditionAvatars[data-member-count="6"] .skill-member{
+  width:21px!important;height:21px!important;flex-basis:21px!important;
+ }
+}
+@media (orientation:landscape) and (max-height:390px){
+ #lobbyOverlay .lobby-team-preview.six-singers img{
+  width:min(15%,64px)!important;height:min(100%,92px)!important;
+ }
+ .team-heart-members[data-member-count="6"] .team-heart-member{
+  max-width:30px!important;
+ }
+}
+
+/* ===== END styles/sekai-rosters-v122.css ===== */
+
+/* ===== SOURCE styles/title-game-v121.css ===== */
+/* v1.21: a finished-feeling 2D game title scene from the creator's
+   ORIGINAL aligned artwork. No copies, generated characters or sliced tiles.
+   Layout separates art/branding/actions rather than decorating empty space. */
+#titleOverlay .title-screen{
+ background:#8bbfec;
+ overflow:hidden;
+}
+#titleOverlay .title-backdrop{
+ background:linear-gradient(180deg,#84c3f4 0%,#d8dbee 64%,#f1d1cc 100%)!important;
+ overflow:hidden!important;
+}
+#titleOverlay .title-backdrop .title-bg{
+ position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:50% 49%!important;
+ filter:none!important;
+}
+#titleOverlay .title-backdrop .title-enemies,
+#titleOverlay .title-backdrop .title-characters,
+#titleOverlay .title-backdrop .title-final{
+ position:absolute!important;left:50%!important;top:50%!important;
+ width:min(100vw,calc(100dvh * 1.777))!important;
+ height:auto!important;aspect-ratio:1672/941!important;
+ object-fit:contain!important;object-position:center!important;
+ transform:translate(-50%,-50%)!important;
+ overflow:visible!important;
+}
+#titleOverlay .title-backdrop .title-final{
+ mask-image:none!important;-webkit-mask-image:none!important;
+}
+#titleOverlay .title-backdrop-filter{
+ pointer-events:none!important;z-index:6!important;
+ background:linear-gradient(180deg,#e9f5ff20 0%,transparent 26%,transparent 63%,#2d425054 100%)!important;
+}
+#titleOverlay .title-screen::after{
+ content:"";position:absolute;z-index:7;pointer-events:none;
+ left:0;right:0;bottom:0;height:17%;
+ background:linear-gradient(180deg,transparent,#2b38551e);
+}
+#titleOverlay .title-header{
+ position:absolute!important;z-index:16!important;
+ top:0;left:0;right:0;bottom:auto;
+ display:flex!important;align-items:center;justify-content:flex-end!important;
+ gap:14px;padding:calc(13px + env(safe-area-inset-top)) max(17px,env(safe-area-inset-right)) 0 max(17px,env(safe-area-inset-left))!important;
+ width:100%!important;
+}
+#titleOverlay .title-issue{
+ display:block;font-size:10px;font-weight:800;letter-spacing:.1em;
+ opacity:.72;color:#36566d;margin-right:auto;
+}
+#titleOverlay .title-header-actions{display:flex;gap:7px!important}
+#titleOverlay .title-small-control{
+ height:36px!important;min-height:36px!important;padding:6px 13px!important;
+ border:1.5px solid #a9c0c7!important;border-radius:5px!important;
+ border-bottom:3px solid #6b9dac!important;
+ background:#fcf9e8ed!important;color:#2a4c64!important;
+ box-shadow:0 3px 1px #45678020!important;
+ font-size:12px!important;font-weight:850!important;
+ backdrop-filter:none!important;
+}
+#titleOverlay .title-small-control:active{transform:translateY(1px)}
+#titleOverlay .title-logo-wrap{
+ position:absolute!important;z-index:12!important;
+ left:auto!important;right:clamp(28px,7.5vw,130px)!important;
+ top:clamp(82px,17dvh,165px)!important;
+ transform:none!important;width:min(43vw,535px)!important;
+ max-width:none!important;max-height:36dvh!important;
+ padding:0!important;margin:0!important;
+}
+#titleOverlay .title-logo-image{
+ width:100%!important;height:auto!important;
+ max-height:min(32dvh,270px)!important;
+ object-fit:contain!important;
+ filter:drop-shadow(0 2px 0 #fffcf1e5) drop-shadow(0 5px 2px #2a4f6b59)!important;
+}
+#titleOverlay .title-art-caption{display:none!important}
+#titleOverlay .title-bottom{
+ position:absolute!important;z-index:16!important;
+ left:auto!important;right:clamp(26px,8vw,140px)!important;
+ bottom:calc(34px + env(safe-area-inset-bottom))!important;
+ width:min(34vw,365px)!important;
+ max-width:none!important;transform:none!important;
+ padding:0!important;
+}
+#titleOverlay .title-enter{
+ position:relative;display:flex;align-items:center;justify-content:space-between!important;
+ width:100%!important;min-height:63px!important;height:63px!important;
+ padding:8px 20px!important;
+ border:2px solid #fff7dc!important;border-bottom:5px solid #805f64!important;
+ border-radius:7px!important;
+ color:#fffef1!important;
+ background:#ba6e88!important;
+ box-shadow:0 4px 0 #263d5c4a!important;
+ clip-path:none!important;
+ font-size:20px!important;font-weight:900!important;
+ text-shadow:0 1px 0 #98596a!important;
+ backdrop-filter:none!important;
+ transition:transform .14s ease,background .14s ease!important;
+}
+#titleOverlay .title-enter::before{
+ content:"♪";display:grid;place-items:center;
+ width:36px;height:36px;margin-right:11px;
+ border-radius:100%;background:#f9f0dc;color:#9c667f;
+ font-size:23px;line-height:1;flex-shrink:0;text-shadow:none;
+}
+#titleOverlay .title-enter span[data-i18n]{
+ flex:1;text-align:left;letter-spacing:.035em!important;
+}
+#titleOverlay .title-enter svg{width:22px!important;height:22px!important;stroke:#fffcdd!important}
+#titleOverlay .title-enter:hover{background:#c5798e!important}
+#titleOverlay .title-enter:active{background:#9f5d7c!important;transform:translateY(2px)!important}
+#titleOverlay .title-skip{
+ z-index:18;bottom:calc(113px + env(safe-area-inset-bottom))!important;
+ right:clamp(26px,8vw,140px)!important;
+ border:1px solid #91a8b5;background:#f9f7e4ef;color:#405e71;
+}
+#titleOverlay.title-play-intro .title-bottom{pointer-events:none}
+#titleOverlay.title-play-intro .title-backdrop.art-ready .title-enemies{
+ animation:v121EnemyArrive .65s ease-out .30s both!important;
+}
+#titleOverlay.title-play-intro .title-backdrop.art-ready .title-characters{
+ animation:v121CrowdArrive .75s cubic-bezier(.2,.78,.24,1) .85s both!important;
+}
+#titleOverlay.title-play-intro .title-backdrop.art-ready .title-final{
+ animation:v121CrowdArrive .72s cubic-bezier(.2,.78,.24,1) .85s both!important;
+}
+#titleOverlay.title-play-intro .title-logo-wrap{
+ animation:v121LogoArrive .65s cubic-bezier(.2,.78,.24,1) 1.65s both!important;
+}
+#titleOverlay.title-play-intro .title-header,
+#titleOverlay.title-play-intro .title-bottom{
+ animation:v121ControlsArrive .48s ease-out 2.1s both!important;
+}
+@keyframes v121EnemyArrive{
+ from{translate:0 -7px;opacity:0}to{translate:0 0;opacity:.86}
+}
+@keyframes v121CrowdArrive{
+ from{translate:0 18px;opacity:0}to{translate:0 0;opacity:1}
+}
+@keyframes v121LogoArrive{
+ from{translate:0 -18px;opacity:0}to{translate:0 0;opacity:1}
+}
+@keyframes v121ControlsArrive{
+ from{translate:0 10px;opacity:0}to{translate:0 0;opacity:1}
+}
+@media (orientation:portrait){
+ #titleOverlay .title-header{
+  padding:calc(11px + env(safe-area-inset-top)) 12px 0!important;
+  justify-content:flex-end!important;
+ }
+ #titleOverlay .title-issue{font-size:9px;letter-spacing:.015em}
+ #titleOverlay .title-small-control{
+  height:34px!important;min-height:34px!important;
+  font-size:11px!important;padding:5px 9px!important;
+ }
+ #titleOverlay .title-backdrop .title-bg{
+  object-position:50% 52%!important;
+ }
+ /* Entire original figure group is displayed exactly ONCE, intact and
+    centered; no halved copies or severed bodies to fill a tall screen. */
+ #titleOverlay .title-backdrop .title-enemies,
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-final{
+  width:100vw!important;top:50.5%!important;right:auto!important;bottom:auto!important;
+  object-fit:contain!important;
+ }
+ #titleOverlay .title-backdrop .title-final{display:none!important}
+ #titleOverlay .title-backdrop-filter{
+  background:linear-gradient(180deg,#e7f1fa91,transparent 32%,transparent 57%,#283c5755 100%)!important;
+ }
+ #titleOverlay .title-logo-wrap{
+  left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+  top:clamp(90px,13dvh,140px)!important;
+  width:min(90vw,425px)!important;
+  max-height:25dvh!important;
+ }
+ #titleOverlay .title-logo-image{max-height:clamp(105px,17dvh,157px)!important}
+ #titleOverlay .title-bottom{
+  left:15px!important;right:15px!important;
+  bottom:calc(18px + env(safe-area-inset-bottom))!important;
+  width:auto!important;max-width:none!important;transform:none!important;
+ }
+ #titleOverlay .title-enter{
+  min-height:58px!important;height:58px!important;
+  padding:8px 17px!important;font-size:18px!important;
+  background:#bf7690!important;
+ }
+ #titleOverlay .title-enter::before{width:32px;height:32px;font-size:20px;margin-right:13px}
+ #titleOverlay .title-skip{
+  right:17px!important;bottom:calc(91px + env(safe-area-inset-bottom))!important;
+ }
+}
+@media (orientation:portrait) and (max-height:690px){
+ #titleOverlay .title-logo-wrap{top:clamp(63px,11dvh,100px)!important}
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-enemies{top:52%!important}
+ #titleOverlay .title-bottom{bottom:calc(11px + env(safe-area-inset-bottom))!important}
+ #titleOverlay .title-enter{height:51px!important;min-height:51px!important}
+ #titleOverlay .title-skip{bottom:calc(72px + env(safe-area-inset-bottom))!important}
+}
+@media (orientation:landscape) and (max-height:470px){
+ #titleOverlay .title-header{
+  padding:calc(8px + env(safe-area-inset-top)) 12px 0!important;
+ }
+ #titleOverlay .title-small-control{height:30px!important;min-height:30px!important}
+ #titleOverlay .title-logo-wrap{
+  top:clamp(44px,16dvh,82px)!important;
+  right:4vw!important;width:min(44vw,370px)!important;
+ }
+ #titleOverlay .title-logo-image{max-height:28dvh!important}
+ #titleOverlay .title-bottom{
+  right:4vw!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;
+  width:min(39vw,320px)!important;
+ }
+ #titleOverlay .title-enter{
+  height:46px!important;min-height:46px!important;
+  font-size:16px!important;padding:4px 12px!important;
+ }
+ #titleOverlay .title-enter::before{height:27px;width:27px;font-size:17px}
+ #titleOverlay .title-skip{right:4vw!important;bottom:64px!important}
+}
+@media (prefers-reduced-motion:reduce){
+ #titleOverlay.title-play-intro .title-backdrop .title-layer,
+ #titleOverlay.title-play-intro .title-logo-wrap,
+ #titleOverlay.title-play-intro .title-bottom,
+ #titleOverlay.title-play-intro .title-header{
+  animation:none!important;translate:none!important;
+ }
+}
+
+/* ===== END styles/title-game-v121.css ===== */
+
+/* ===== SOURCE styles/heart-world-v123.css ===== */
+/* v1.23 — clarity without a full-screen modal or glossy neon effects.
+   The cinematic is drawn on the game canvas; the HUD stays accessible. */
+#skillCondition.heart-active-status{
+ border:2px solid #d8b57f!important;
+ border-left-width:5px!important;
+ background:#fff0d8!important;
+ box-shadow:0 3px 0 #273e5040!important;
+}
+#skillCondition.heart-active-status .skill-condition-name{
+ font-weight:950!important;
+ color:#253c50!important;
+ line-height:1.25!important;
+ letter-spacing:-.012em!important;
+}
+#skillCondition.heart-active-status #skillConditionCount{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-width:43px!important;
+ font-weight:900!important;
+ color:#442e43!important;
+ background:#f8d59f!important;
+ border:1px solid #b48b7a!important;
+ border-radius:4px!important;
+ padding:3px 5px!important;
+}
+#skillCondition.heart-active-status .skill-caster{
+ outline:2px solid #bb7e77!important;
+ outline-offset:-2px!important;
+ background:#fff7d7!important;
+ position:relative;z-index:2;
+}
+#skillCondition.heart-active-status .skill-caster::after{
+ content:'★';position:absolute;right:-3px;top:-7px;
+ font-size:11px;line-height:1;color:#915b50;
+ text-shadow:0 1px #fff5df;
+}
+.skill-cutin.visible .skill-cutin-panel{
+ background:#293f54!important;
+ border-left-color:var(--skill-accent,#f1d29d)!important;
+ border-bottom-color:#eccd9d!important;
+}
+.skill-cutin.visible .skill-cutin-speaker{color:#fff1c9!important}
+.skill-cutin.visible .skill-cutin-type{color:#fcf0de!important}
+.skill-cutin.visible .skill-cutin-words{color:#ffffff!important}
+.skill-cutin.impact .skill-cutin-panel{
+ border-left-color:#fff1a8!important;
+ background:#42586b!important;
+}
+@media (max-width:420px){
+ #skillCondition.heart-active-status{padding:4px 6px!important}
+ #skillCondition.heart-active-status .skill-condition-name{
+  font-size:10px!important;
+ }
+ #skillCondition.heart-active-status .skill-condition-avatars{
+  gap:1px!important;
+ }
+ #skillCondition.heart-active-status .skill-member{
+  width:22px!important;min-width:22px!important;height:22px!important;
+ }
+ #skillCondition.heart-active-status #skillConditionCount{
+  min-width:35px!important;padding:2px 3px!important;font-size:11px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .skill-cutin.visible .skill-cutin-panel{animation:none!important;transition:none!important}
+}
+
+/* ===== END styles/heart-world-v123.css ===== */
+
+/* ===== SOURCE styles/heart-collection-v124.css ===== */
+/* v1.24. The complete 331-row catalog must remain scrollable inside the
+   viewport. It cannot be clipped by a separately scrolling parent dialog. */
+#heartsOverlay{padding:12px 9px max(12px,env(safe-area-inset-bottom));}
+#heartsOverlay .collection-dialog,
+#heartsOverlay .dialog.collection-dialog{
+ display:flex!important;
+ flex-direction:column!important;
+ width:min(96vw,720px)!important;
+ height:min(92dvh,820px)!important;
+ max-height:min(92dvh,820px)!important;
+ overflow:hidden!important;
+ margin:auto!important;
+ padding:18px 17px 14px!important;
+}
+#heartsOverlay .dialog-head{flex:none;align-items:center;margin-bottom:8px}
+#heartsOverlay .collection-count{flex:none;margin:0 0 2px;font-weight:900;font-size:16px;color:#314f5f}
+#heartsOverlay .heart-list-summary{flex:none;margin:0 0 9px;font-weight:750;font-size:12px;color:#546e7b}
+#heartsOverlay .heart-list{
+ flex:1 1 auto!important;
+ min-height:0!important;
+ height:auto!important;
+ max-height:none!important;
+ overflow-x:hidden!important;
+ overflow-y:auto!important;
+ overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;
+ touch-action:pan-y;
+ display:grid;
+ grid-auto-rows:max-content;
+ align-content:start;
+ gap:6px;
+ padding:2px 6px 14px 2px;
+ scrollbar-gutter:stable;
+}
+#heartsOverlay .heart-item{min-height:80px;flex:none}
+#heartsOverlay .heart-number{
+ display:block;
+ color:#647a82;
+ font-size:10px;
+ font-weight:800;
+ letter-spacing:.05em;
+}
+#heartsOverlay .heart-item.locked{
+ min-height:65px;
+ opacity:1;
+ background:#e3e6e2;
+ border-left:4px solid #9aa8a9;
+}
+#heartsOverlay .heart-item.locked .heart-roster img{
+ filter:grayscale(1);
+ opacity:.67;
+}
+#heartsOverlay .heart-item.locked .heart-info strong{color:#566771;font-weight:850}
+#heartsOverlay .heart-item.locked .heart-info small{color:#61747d}
+#heartsOverlay .heart-item.locked .heart-roster img{width:31px;height:31px}
+#heartsOverlay .heart-item.locked .heart-roster{gap:3px}
+@media(max-width:500px){
+ #heartsOverlay{padding:0!important;align-items:flex-end!important}
+ #heartsOverlay .collection-dialog,
+ #heartsOverlay .dialog.collection-dialog{
+  width:100%!important;
+  height:calc(96dvh - env(safe-area-inset-top))!important;
+  max-height:calc(96dvh - env(safe-area-inset-top))!important;
+  margin:0!important;
+  padding:13px 11px calc(10px + env(safe-area-inset-bottom))!important;
+  border-radius:11px 11px 0 0!important;
+ }
+ #heartsOverlay .heart-list{padding-right:3px}
+ #heartsOverlay .heart-item{gap:7px;padding:7px}
+}
+@media (orientation:landscape) and (max-height:500px){
+ #heartsOverlay .collection-dialog,
+ #heartsOverlay .dialog.collection-dialog{
+  height:calc(100dvh - 12px)!important;
+  max-height:calc(100dvh - 12px)!important;
+  padding-top:8px!important;
+ }
+ #heartsOverlay .dialog-head{margin-bottom:3px}
+ #heartsOverlay .heart-list-summary{margin-bottom:3px}
+}
+/* Toasts are higher than generic overlays (120 vs 100): keep them from
+   covering the catalog's title and discovered count while it is open. */
+body:has(#heartsOverlay.visible) .toast-stack{visibility:hidden!important}
+
+/* ===== END styles/heart-collection-v124.css ===== */
+
+/* ===== SOURCE styles/interface-v125.css ===== */
+/* v1.25 — flat arcade controls, coherent button hierarchy.
+   Scaffolding and tap targets unchanged; original art is untouched. */
+:root{
+ --ui-ink:#2b4050;
+ --ui-muted:#68808a;
+ --ui-paper:#f4f1e9;
+ --ui-white:#faf8f1;
+ --ui-border:#9aabae;
+ --ui-gold:#e9c98f;
+ --ui-gold-hover:#f1d9a7;
+ --ui-aqua:#91b3ab;
+ --ui-radius:6px;
+}
+:is(
+ .summon-action,.square-action,.primary-button,.quiet-button,
+ .choice-button,.map-choice,.title-enter,.title-small-control,
+ .lobby-back,.icon-button,.minor-button,.clear-selection,
+ .upgrade-card,.danger-evade,.close-dialog,
+ .team-unit
+){
+ border-radius:var(--ui-radius)!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ filter:none;
+ transform:none;
+ transition:background-color .12s ease,border-color .12s ease,color .12s ease!important;
+ outline-offset:2px;
+}
+:is(.summon-action,.square-action,.primary-button,.quiet-button,.title-enter,
+ .choice-button,.map-choice,.title-small-control,.lobby-back,
+ .upgrade-card,.icon-button,.minor-button,.danger-evade)::before{
+ box-shadow:none!important;
+}
+.summon-action:before{display:none!important}
+button:not(:disabled):focus-visible{
+ outline:2px solid #317486!important;
+ outline-offset:2px!important;
+}
+/* Single, restrained button rhythm. Primary is the only gold surface. */
+:is(.summon-action,.primary-button,.title-enter,#startButton,#missionDeploy){
+ background:var(--ui-gold)!important;
+ color:var(--ui-ink)!important;
+ border:1.5px solid #a7895d!important;
+ border-bottom-width:2px!important;
+}
+:is(.summon-action,.primary-button,.title-enter,#startButton,#missionDeploy):hover:not(:disabled){
+ background:var(--ui-gold-hover)!important;
+}
+:is(.summon-action,.primary-button,.title-enter,#startButton,#missionDeploy):active:not(:disabled){
+ background:#d7b67e!important;
+ border-color:#96784e!important;
+ transform:translateY(1px)!important;
+}
+.summon-text small{border-radius:3px!important;background:none!important;padding:0!important;color:#6d5c4b!important}
+.summon-text strong{font-weight:900!important;letter-spacing:-.035em!important;color:var(--ui-ink)!important}
+.summon-symbol,.summon-symbol svg{color:#806a50!important}
+.summon-arrow{opacity:.65}
+.square-action{
+ background:var(--ui-white)!important;
+ color:var(--ui-ink)!important;
+ border:1.5px solid var(--ui-border)!important;
+ border-bottom-width:2px!important;
+ gap:5px!important;
+}
+.square-action:hover:not(:disabled){background:#e8ede9!important;border-color:#7f9c9f!important}
+.square-action:active:not(:disabled){background:#dbe4df!important;transform:translateY(1px)!important}
+.square-action>span{color:#597d82!important}
+.square-action.upgrade-trigger>span{color:#8f7a5c!important}
+#heartButton>span{color:#ac7d90!important}
+#heartButton svg{fill:none!important}
+.square-action strong{
+ color:var(--ui-ink)!important;
+ font-weight:850!important;
+ font-size:clamp(10px,2.9vw,13px)!important;
+ letter-spacing:-.035em!important;
+ line-height:1.18!important;
+ word-break:keep-all!important;
+}
+.square-action small{color:#865b70!important;font-weight:850!important}
+:is(.quiet-button,.minor-button,.close-dialog,.lobby-back,.icon-button,.title-small-control){
+ background:#f4f2eb!important;
+ border:1.5px solid var(--ui-border)!important;
+ color:var(--ui-ink)!important;
+}
+:is(.quiet-button,.minor-button,.close-dialog,.lobby-back,.icon-button,.title-small-control):hover:not(:disabled){
+ background:#e5ece8!important;
+ border-color:#758f94!important;
+}
+:is(.quiet-button,.minor-button,.close-dialog,.lobby-back,.icon-button,.title-small-control):active:not(:disabled){
+ background:#dce5e1!important;
+ transform:translateY(1px)!important;
+}
+.choice-button,.map-choice{
+ border:1.5px solid var(--ui-border)!important;
+ background:#f7f5ee!important;
+ color:#3e5563!important;
+}
+:is(.choice-button,.map-choice):hover:not(:disabled){
+ background:#edece5!important;
+ border-color:#698a8e!important;
+}
+:is(.choice-button,.map-choice).active{
+ background:#e6f0e9!important;
+ border:2px solid #4d8a87!important;
+ color:#203e49!important;
+}
+:is(.choice-button,.map-choice).active:before{display:none!important}
+.map-choice .map-thumb{border-radius:3px!important}
+.upgrade-card{
+ border:1px solid var(--ui-border)!important;
+ border-left:3px solid #77a7a5!important;
+ background:#f7f5ed!important;
+ color:var(--ui-ink)!important;
+}
+.upgrade-card:disabled{opacity:.6}
+.upgrade-card:hover:not(:disabled){background:#e8efea!important}
+.upgrade-card .upgrade-card-name{font-weight:850!important}
+.upgrade-card .level-pips i.filled{background:#649b91!important}
+.team-unit{border:1px solid #9eafab!important}
+.team-unit.selected{border-color:#477e7a!important;background:#dceae3!important}
+.selection-panel{
+ border:1.5px solid #96abaa!important;
+ background:#f7f5ee!important;
+ box-shadow:0 3px 11px #182f4122!important;
+ border-radius:var(--ui-radius)!important;
+}
+.selection-panel .hero-portrait{border-radius:4px!important}
+.resource-row{box-shadow:none!important}
+.resource-card strong{text-shadow:none!important}
+.resource-card{border-radius:0!important}
+.battle-header,.wave-panel{
+ border-radius:3px 3px 0 0!important;
+ box-shadow:none!important;
+}
+.battle-header{border-bottom-width:2px!important}
+.wave-panel{border-radius:0!important}
+.main-actions{
+ background:var(--ui-paper)!important;
+ box-shadow:none!important;
+ border-top:1px solid #91a7aa!important;
+}
+/* Playfield remains larger and more prominent than its buttons. */
+.board-frame{
+ border-radius:3px!important;
+ box-shadow:none!important;
+ outline:none!important;
+}
+.board-frame:before,.board-frame:after{box-shadow:none!important}
+.dialog:not(.lobby-dialog):not(.result-dialog){
+ border:1.5px solid #95aab0!important;
+ border-top:4px solid #779e9b!important;
+ background:#f8f5ed!important;
+ border-radius:8px!important;
+ box-shadow:0 12px 32px #0c223455!important;
+}
+.dialog h2{font-weight:900!important;letter-spacing:-.035em!important}
+.setting-row select{border-radius:var(--ui-radius)!important;background:#f6f5ee!important}
+/* Flat title navigation; art is supplied by the creator and not redrawn. */
+#titleOverlay .title-small-control{
+ border:1px solid #7895a2!important;
+ background:#f7f4eaee!important;
+ color:#294755!important;
+ border-radius:4px!important;
+}
+#titleOverlay .title-enter{
+ clip-path:none!important;
+ border-radius:5px!important;
+ box-shadow:none!important;
+}
+#titleOverlay .title-enter svg{color:#294755}
+/* Preserve safe-area spacing and the game's existing portrait/landscape
+   grid; do not reflow or shrink the actual button hit targets. */
+@media(orientation:portrait) and (max-width:360px){
+ .square-action strong{font-size:10px!important}
+ .square-action>span,.square-action svg{width:22px;height:22px}
+}
+@media(orientation:landscape){
+ .square-action strong{font-size:clamp(9px,1.6vw,12px)!important}
+ .main-actions{border-left:1px solid #91a7aa!important}
+}
+@media(prefers-reduced-motion:reduce){
+ :is(.summon-action,.square-action,.primary-button,.quiet-button,.choice-button,
+  .map-choice,.title-enter,.upgrade-card){transition:none!important}
+}
+
+/* ===== END styles/interface-v125.css ===== */
+
+/* ===== SOURCE styles/story-route-v125.css ===== */
+/* v1.25 — short story dialogue, authored mission brief and debrief.
+   Real unmodified sprite portraits, typography and deliberately plain panels. */
+#storyOverlay,#missionOverlay{
+ align-items:center;
+ justify-content:center;
+ padding:clamp(4px,2vw,16px);
+ background:#0c1d2be8;
+}
+.story-stage,.mission-stage{
+ box-sizing:border-box;
+ position:relative;
+ width:min(100%,650px);
+ min-width:0;
+ max-height:calc(100dvh - 16px);
+ height:min(94dvh,720px);
+ color:#29404e;
+ background:#f5f2e9;
+ border:1px solid #8fa7a7;
+ border-top:4px solid #83a9a4;
+ border-radius:5px;
+ box-shadow:0 12px 42px #05111b80;
+ overflow:hidden;
+}
+.story-stage{
+ display:grid;
+ grid-template-rows:auto minmax(76px,1fr) auto 3px auto;
+ gap:10px;
+ padding:clamp(11px,2.3vw,20px);
+}
+.story-topline{
+ display:flex;justify-content:space-between;align-items:center;gap:12px;
+ color:#506a78;font-size:11px;font-weight:900;letter-spacing:.12em;
+}
+.story-portrait-wrap{
+ position:relative;
+ min-height:0;
+ overflow:hidden;
+ display:grid;
+ place-items:end center;
+ background:#dce6df;
+ border:1px solid #b9cbc6;
+}
+.story-portrait-wrap::before{
+ content:"";position:absolute;left:5%;right:5%;top:30%;
+ border-top:1px solid #a3bcb8;
+}
+.story-portrait-wrap::after{
+ content:"";position:absolute;left:-8%;right:-8%;bottom:14%;
+ border-top:3px solid #ffffffa3;
+ transform:rotate(-8deg);
+}
+.story-stage-line{
+ position:absolute;left:22%;right:22%;top:12%;height:58%;
+ border-left:3px solid #b7ccc3;
+ border-right:3px solid #b7ccc3;
+ transform:skewX(-13deg);
+ opacity:.48;
+}
+#storyPortrait{
+ position:relative;
+ z-index:2;
+ max-height:100%;
+ max-width:min(70%,250px);
+ height:auto;
+ width:auto;
+ object-fit:contain;
+ object-position:center bottom;
+ image-rendering:auto;
+ filter:none;
+ transform:none;
+}
+.story-text-box{
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+ min-height:95px;
+ padding:11px 14px;
+ border:1px solid #aabdc1;
+ border-left:4px solid #6b9596;
+ background:#fcfaf4;
+}
+#storySpeaker{
+ font-size:16px;font-weight:900;letter-spacing:-.025em;color:#2c5061;
+}
+#storyLine{
+ margin:0;line-height:1.5;font-size:clamp(13px,2.4vw,16px);
+ color:#354e5c;word-break:keep-all;
+}
+.story-progress-track{width:100%;height:3px;background:#c9d6d0;overflow:hidden}
+#storyProgress{height:100%;display:block;width:33%;background:#689c96;transition:width .17s ease}
+.story-actions,.mission-actions{
+ display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);
+ gap:8px;min-width:0;
+}
+.story-actions button,.mission-actions button{
+ height:45px!important;min-height:45px!important;
+ font-size:13px!important;font-weight:850!important;
+ white-space:nowrap;
+}
+#storyOverlay[data-chapter='intro'] .story-portrait-wrap{background:#d8e3e7}
+#storyOverlay[data-chapter='intro'] .story-text-box{border-left-color:#8a9db9}
+/* Deployment reads like a real mission board: world preview and team roster. */
+.mission-stage{
+ display:grid;
+ grid-template-rows:auto minmax(90px, .75fr) minmax(0,1fr) auto;
+ gap:10px;
+ padding:15px;
+}
+.mission-heading{
+ min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;
+ align-items:center;column-gap:10px;row-gap:2px;
+}
+#missionKicker{grid-column:1 / 3;color:#557684;font-size:10px;font-weight:950;letter-spacing:.13em}
+#missionWorldName{
+ grid-column:1;min-width:0;
+ margin:0;font-size:clamp(20px,4vw,26px);
+ color:#253f50;font-weight:950;letter-spacing:-.05em;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+#missionDifficulty{
+ grid-column:2;grid-row:2;padding:4px 9px;
+ border:1px solid #8fa9a5;background:#e2ece6;
+ border-radius:3px;color:#365a60;font-size:11px;
+}
+.mission-map-block{
+ position:relative;min-width:0;min-height:0;overflow:hidden;
+ background:#e4e5df;
+ border:1px solid #a3b9b8;
+}
+#missionMap{display:block;width:100%;height:100%;object-fit:contain;image-rendering:auto}
+#missionWorldCrest{
+ position:absolute;right:8px;top:8px;
+ width:45px;height:45px;object-fit:contain;
+ padding:4px;
+ background:#f5f1e8d9;border:1px solid #afbdba;
+}
+.mission-details{
+ min-height:0;min-width:0;
+ display:flex;flex-direction:column;gap:7px;
+ overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:thin;padding:2px 3px 4px;
+}
+.mission-section-label{
+ color:#527881;font-size:10px;letter-spacing:.1em;font-weight:950;
+ text-transform:uppercase;
+}
+.mission-objective{
+ margin:0;font-size:clamp(12px,2.2vw,15px);font-weight:850;
+ line-height:1.4;word-break:keep-all;color:#294455;
+}
+.mission-goal{margin:0;color:#637884;font-size:11px;line-height:1.42;word-break:keep-all}
+.mission-roster{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;overscroll-behavior-x:contain;padding:1px 0 4px}
+.mission-member{
+ flex:0 0 clamp(42px,10vw,56px);min-width:0;
+ display:grid;grid-template-rows:44px auto;justify-items:center;gap:2px;
+ background:#eceee6;border:1px solid #b8c5bf;padding:3px 2px;
+}
+.mission-member img{height:42px;width:100%;object-fit:contain;image-rendering:auto}
+.mission-member span{
+ width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ font-size:10px;color:#446070;font-weight:800;text-align:center;
+}
+.mission-hint{margin:0;padding:6px 8px;background:#e7ede7;border-left:3px solid #92b6a9;
+ color:#5b747c;font-size:11px;line-height:1.4;word-break:keep-all}
+/* Mission clear is a debrief, not a neon scoreboard. */
+#resultOverlay{background:#10202e!important}
+#resultOverlay .result-dialog{
+ width:min(100%,880px)!important;
+ max-height:100dvh!important;
+ height:100dvh!important;
+ margin:auto!important;
+ background:#182f40!important;
+ color:#f8f3e8!important;
+ box-shadow:none!important;
+ border:0!important;
+ border-radius:0!important;
+ overflow:hidden!important;
+ display:flex!important;
+ flex-direction:column!important;
+ gap:6px!important;
+ padding:calc(17px + env(safe-area-inset-top)) 16px calc(12px + env(safe-area-inset-bottom))!important;
+}
+#resultOverlay .result-context{
+ display:flex;align-items:center;justify-content:space-between;gap:9px;
+ border-bottom:1px solid #476372;padding-bottom:6px;min-width:0;flex:none;
+}
+#resultChapter{color:#bdcfcf;font-size:10px;font-weight:900;letter-spacing:.07em;white-space:nowrap}
+#resultWorldTitle{
+ color:#f3e8ce;font-size:clamp(12px,3.1vw,16px);
+ font-weight:900;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+#resultOverlay .result-art{
+ height:80px!important;min-height:0;flex:none;
+ margin:0 auto;position:relative;width:min(100%,220px);
+ background:none!important;
+}
+#resultOverlay .result-art .result-bars{display:none!important}
+#resultOverlay .result-art #resultSymbol{
+ position:absolute;top:4px;left:calc(50% - 70px);font-size:21px;
+ color:#f0d79a!important;
+}
+#resultOverlay .result-hero-art{
+ display:block;position:absolute;inset:auto 0 0 0;
+ margin:auto!important;width:auto!important;max-width:160px!important;
+ height:100%!important;object-fit:contain!important;object-position:center bottom!important;
+ filter:none!important;
+}
+#resultOverlay .result-dialog h2{
+ color:#f4e5bb!important;
+ font-size:clamp(34px,7vw,46px)!important;
+ font-weight:950!important;
+ line-height:1.05!important;
+ letter-spacing:-.035em!important;
+ text-align:center!important;
+ margin:0!important;flex:none;
+}
+#resultOverlay .result-dialog:not(.victory) h2{color:#e3c7c6!important}
+#resultOverlay .result-time{
+ display:flex;gap:9px;align-items:baseline;justify-content:center;
+ flex:none;margin:0!important;
+}
+#resultOverlay .result-time span{font-size:10px;color:#afc1c7;letter-spacing:.08em}
+#resultOverlay .result-time strong{font-size:17px;color:#f9f4e9;font-weight:900}
+#resultOverlay .result-status-text{
+ color:#bcd0cf;font-size:11px;text-align:center;margin:0;flex:none;
+}
+#resultOverlay .result-story{
+ flex:none;min-width:0;min-height:79px;
+ display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;
+ align-items:center;
+ padding:8px;
+ background:#263d4d;border-left:3px solid #d6bd87;
+}
+#resultOverlay .result-story img{
+ display:block;width:60px;height:64px;
+ object-fit:contain;image-rendering:auto;
+ background:#405566;
+}
+#resultOverlay .result-story-copy{
+ min-width:0;display:flex;flex-direction:column;gap:3px;
+}
+#resultOverlay #resultStoryLabel{color:#d9c696;font-size:9px;font-weight:900;letter-spacing:.06em}
+#resultOverlay #resultStorySpeaker{color:#f8efe0;font-size:12px;font-weight:900}
+#resultOverlay #resultStoryLine{
+ margin:0;color:#dce3e1;font-size:12px;line-height:1.45;word-break:keep-all;
+}
+#resultOverlay .result-insight{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:5px;flex:none;min-width:0;
+ margin:0!important;padding:0!important;
+}
+#resultOverlay .result-insight>div{
+ min-width:0;display:flex;flex-direction:column;justify-content:center;
+ gap:4px;padding:7px 5px;
+ border:1px solid #45616c;background:#233c4c;
+ text-align:center;
+}
+#resultOverlay .result-insight>div small{font-size:9px;color:#b0c4c6}
+#resultOverlay .result-insight>div strong{font-size:clamp(13px,3vw,20px);color:#f5ebd4}
+#resultOverlay #resultAdvice{
+ flex:none;margin:0;
+ padding:2px 1px;color:#c2d0d0;
+ font-size:10px;line-height:1.3;text-align:center;
+}
+#resultOverlay .result-summary{
+ flex:1 1 auto!important;min-height:50px!important;
+ overflow:hidden!important;
+ border-top:1px solid #536978!important;
+ margin-top:2px!important;
+ display:flex!important;flex-direction:column!important;
+}
+#resultOverlay .result-table-head{
+ flex:none;font-size:10px;padding:7px 1px;color:#b4c8c9;
+}
+#resultOverlay .damage-list{
+ flex:1;min-height:0;overflow-y:auto;
+ scrollbar-width:thin;
+}
+#resultOverlay .damage-row{
+ display:grid!important;grid-template-columns:24px 32px minmax(0,1fr) auto!important;
+ gap:3px 7px!important;
+ align-items:center;min-height:45px;padding:5px 2px!important;
+ border-bottom:1px solid #47616e!important;
+}
+#resultOverlay .damage-rank{grid-column:1;grid-row:1;color:#dbc99d}
+#resultOverlay .damage-avatar{
+ grid-column:2;grid-row:1;height:32px;width:32px;object-fit:contain;
+}
+#resultOverlay .damage-name{
+ grid-column:3;grid-row:1;min-width:0;color:#eef0e9;font-size:11px!important;
+}
+#resultOverlay .damage-name small{font-size:9px;color:#a9c0c4}
+#resultOverlay .damage-number{grid-column:4;grid-row:1;font-size:12px!important;color:#f4e7cd}
+#resultOverlay .damage-bar{grid-column:3 / 5;grid-row:2;height:3px;background:#425765}
+#resultOverlay .damage-bar span{display:block;background:#d6b77d;height:3px}
+#resultOverlay .result-actions{
+ flex:none;display:grid!important;
+ grid-template-columns:1fr 1fr 1.4fr!important;
+ gap:7px;padding-top:7px!important;
+ border-top:1px solid #485f6c;
+}
+#resultOverlay .result-actions button{height:42px!important;min-height:42px!important;font-size:12px!important}
+#resultOverlay .result-actions .quiet-button{
+ background:#284356!important;border:1px solid #718995!important;color:#edf0ea!important;
+}
+#resultOverlay .result-actions .quiet-button:hover{background:#34556b!important}
+#resultOverlay .result-actions .primary-button{
+ color:#2a3f4a!important;
+}
+/* Small portrait phones still show the story and results; damage list scrolls. */
+@media(orientation:portrait) and (max-height:700px){
+ .story-stage{height:calc(100dvh - 6px);gap:7px;padding:10px}
+ .story-text-box{min-height:83px;padding:8px 10px}
+ #storyLine{font-size:12px;line-height:1.42}
+ .mission-stage{height:calc(100dvh - 6px);gap:7px;padding:10px}
+ .mission-member{grid-template-rows:32px auto;flex-basis:43px}
+ .mission-member img{height:31px}
+ #resultOverlay .result-dialog{gap:4px!important;padding-top:calc(7px + env(safe-area-inset-top))!important}
+ #resultOverlay .result-art{height:41px!important}
+ #resultOverlay .result-dialog h2{font-size:31px!important}
+ #resultOverlay .result-story{min-height:64px;grid-template-columns:47px 1fr;gap:7px;padding:6px}
+ #resultOverlay .result-story img{height:48px;width:47px}
+ #resultOverlay .result-insight>div{padding:4px 2px}
+ #resultOverlay .result-story-copy p{font-size:11px!important;line-height:1.31!important}
+ #resultOverlay .result-actions button{height:38px!important;min-height:38px!important}
+}
+/* Landscape story and briefing are true two-pane scenes, not squeezed columns. */
+@media(orientation:landscape){
+ .story-stage{
+  width:min(94vw,760px);
+  height:min(96dvh,430px);
+  grid-template-columns:minmax(160px,.83fr) minmax(0,1.17fr);
+  grid-template-rows:auto minmax(0,1fr) 3px auto;
+  column-gap:15px;
+ }
+ .story-topline{grid-column:1 / 3}
+ .story-portrait-wrap{grid-column:1;grid-row:2 / 5}
+ .story-text-box{grid-column:2;grid-row:2;align-self:stretch;justify-content:center}
+ .story-progress-track{grid-column:2;grid-row:3}
+ .story-actions{grid-column:2;grid-row:4}
+ .mission-stage{
+  width:min(94vw,850px);height:min(96dvh,490px);
+  grid-template-columns:minmax(150px,.85fr) minmax(0,1.15fr);
+  grid-template-rows:auto minmax(0,1fr) auto;
+  column-gap:13px;row-gap:6px;padding:9px 12px;
+ }
+ .mission-heading{grid-column:1 / 3;grid-row:1}
+ .mission-map-block{grid-column:1;grid-row:2}
+ .mission-details{grid-column:2;grid-row:2;padding:3px 2px}
+ .mission-actions{grid-column:1 / 3;grid-row:3}
+ .mission-member{grid-template-rows:29px auto;flex-basis:43px}
+ .mission-member img{height:28px}
+ #resultOverlay .result-dialog{
+  width:min(100%,980px)!important;height:100dvh!important;max-height:100dvh!important;
+  padding:calc(9px + env(safe-area-inset-top)) 14px calc(7px + env(safe-area-inset-bottom))!important;
+  display:grid!important;
+  grid-template-columns:minmax(200px,.82fr) minmax(0,1.18fr)!important;
+  grid-template-rows:22px 42px 25px minmax(0,1fr) 44px!important;
+  column-gap:12px!important;row-gap:3px!important;
+ }
+ #resultOverlay .result-context{grid-column:1;grid-row:1}
+ #resultOverlay .result-art{grid-column:1;grid-row:2;height:42px!important;width:55px!important;margin:0!important;justify-self:start}
+ #resultOverlay .result-art #resultSymbol{font-size:18px;left:0}
+ #resultOverlay .result-hero-art{max-width:60px!important}
+ #resultOverlay .result-dialog h2{
+  grid-column:1;grid-row:2;align-self:center;
+  padding-left:66px;text-align:left!important;
+  font-size:33px!important;
+ }
+ #resultOverlay .result-time{grid-column:1;grid-row:3;justify-content:flex-start}
+ #resultOverlay .result-status-text{display:none}
+ #resultOverlay .result-story{grid-column:1;grid-row:4;align-self:stretch;min-height:0;max-height:none}
+ #resultOverlay .result-insight{grid-column:2;grid-row:1 / 3;align-self:stretch;gap:5px}
+ #resultOverlay .result-insight>div{padding:3px 2px}
+ #resultOverlay #resultAdvice{display:none}
+ #resultOverlay .result-summary{grid-column:2;grid-row:3 / 5;min-height:0!important;margin:0!important}
+ #resultOverlay .result-actions{grid-column:1 / 3;grid-row:5}
+ #resultOverlay .result-story-copy{gap:5px}
+}
+
+/* Browser-capture refinement: show actual SEKAI architecture behind the
+   scene, and keep original 2-head sprites large enough to identify. */
+.story-portrait-wrap{isolation:isolate}
+#storyWorldBackdrop{
+ position:absolute;inset:0;z-index:0;
+ width:100%;height:100%;
+ object-fit:cover;opacity:.23;
+ image-rendering:auto;
+ filter:saturate(.75) contrast(.95);
+ pointer-events:none;
+}
+.story-portrait-wrap::before,.story-portrait-wrap::after{z-index:1}
+.story-stage-line{z-index:1}
+#storyPortrait{
+ transform:scale(1.8)!important;
+ transform-origin:center bottom!important;
+ max-height:100%;max-width:min(75%,280px);
+ z-index:2;
+}
+#resultOverlay .result-story{
+ position:relative;
+ isolation:isolate;
+ background:#233a4b;
+}
+#resultWorldBackdrop{
+ position:absolute;z-index:0;inset:0;
+ width:100%;height:100%;opacity:.34;
+ object-fit:cover;filter:saturate(.7) contrast(.95);
+ pointer-events:none;
+}
+#resultOverlay .result-story img,
+#resultOverlay .result-story-copy{position:relative;z-index:2}
+@media(orientation:landscape){
+ #storyPortrait{transform:scale(1.55)!important}
+ #resultOverlay .result-story{
+  display:flex!important;
+  flex-direction:row;
+  justify-content:flex-start;
+  align-items:flex-end!important;
+  padding:10px!important;
+  gap:8px!important;
+ }
+ #resultOverlay .result-story img{
+  width:clamp(92px,12vw,135px)!important;
+  min-width:92px;
+  height:clamp(130px,35dvh,235px)!important;
+  background:none!important;
+  object-fit:contain;
+  object-position:bottom center;
+  align-self:flex-end;
+ }
+ #resultOverlay .result-story-copy{
+  align-self:flex-end;
+  flex:1;
+  min-width:0;
+  margin-bottom:4px;
+  padding:9px;
+  background:#1c3447e0;
+  border:1px solid #8b9fa240;
+ }
+ #resultOverlay #resultStoryLine{font-size:clamp(11px,1.45vw,14px)}
+}
+@media(orientation:landscape) and (max-height:390px){
+ #resultOverlay .result-story img{height:clamp(95px,28dvh,135px)!important;min-width:70px}
+ #resultOverlay .result-story-copy{padding:5px}
+ #resultOverlay #resultStoryLine{font-size:11px}
+}
+
+/* Readability on bright map tiles, including 320px portrait layouts. */
+#resultOverlay .result-story-copy{
+ background:#1f3648ee!important;
+ border:1px solid #788e924d;
+ padding:6px 8px!important;
+}
+#resultOverlay #resultStoryLine{color:#f3f1e9!important}
+#resultOverlay .result-dialog.victory .result-story{
+ border-left-color:#acd1ba!important;
+}
+#resultOverlay .result-dialog.victory #resultStoryLabel{color:#cde1be!important}
+
+/* ===== END styles/story-route-v125.css ===== */
+
+/* ===== SOURCE styles/presentation-v126.css ===== */
+/* v1.26 — Title composition, readable battle geography and visual-novel dialogue.
+   Original title character artwork and all character PNGs are used intact.
+   No image copies, generated illustrations, shiny frames or neon decoration. */
+
+/* TITLE — keep the artist's original group once; build one clear logo/action lane. */
+#titleOverlay .title-screen{background:#a5c9dc!important}
+#titleOverlay .title-backdrop{background:#a5c9dc!important}
+#titleOverlay .title-backdrop .title-bg{
+ object-fit:cover!important;object-position:50% 52%!important;
+ filter:saturate(.94)!important;
+}
+#titleOverlay .title-backdrop .title-enemies,
+#titleOverlay .title-backdrop .title-characters,
+#titleOverlay .title-backdrop .title-final{
+ left:49%!important;top:53%!important;
+ width:min(107vw,calc(100dvh * 1.92))!important;
+ max-width:none!important;transform:translate(-50%,-50%)!important;
+}
+#titleOverlay .title-backdrop-filter{
+ display:block!important;z-index:6!important;
+ background:
+  linear-gradient(90deg,transparent 0%,transparent 51%,#e9edf01f 74%,#e9edf052 100%),
+  linear-gradient(180deg,#d9edf53b 0%,transparent 28%,transparent 72%,#1c344866 100%)!important;
+ backdrop-filter:none!important;
+}
+#titleOverlay .title-screen::after{
+ pointer-events:none!important;height:8%!important;
+ background:linear-gradient(180deg,transparent,#1e324338)!important;
+}
+#titleOverlay .title-header{
+ padding:calc(15px + env(safe-area-inset-top)) clamp(13px,2vw,32px) 0!important;
+ justify-content:space-between!important;align-items:flex-start!important;
+}
+#titleOverlay .title-issue{
+ display:block!important;max-width:190px;
+ font-weight:800!important;line-height:1.5!important;
+ font-size:10px!important;color:#24465d!important;opacity:.82!important;
+}
+#titleOverlay .title-header-actions{gap:7px!important}
+#titleOverlay .title-small-control{
+ background:#f5f4ebee!important;border:1px solid #91acb4!important;
+ border-radius:3px!important;box-shadow:none!important;
+ color:#345566!important;font-weight:850!important;
+ border-bottom-width:1px!important;
+}
+#titleOverlay .title-logo-wrap{
+ left:auto!important;right:clamp(20px,5.5vw,100px)!important;
+ top:clamp(98px,18.5dvh,170px)!important;
+ transform:none!important;width:min(37vw,505px)!important;
+ max-height:34dvh!important;
+}
+#titleOverlay .title-logo-image{
+ max-height:30dvh!important;
+ filter:drop-shadow(0 2px 0 #f7faf1e8) drop-shadow(0 3px 3px #20394c32)!important;
+}
+#titleOverlay .title-bottom{
+ left:auto!important;right:clamp(22px,5.8vw,104px)!important;
+ bottom:calc(clamp(28px,7.2dvh,72px) + env(safe-area-inset-bottom))!important;
+ width:min(34vw,420px)!important;max-width:calc(100vw - 30px)!important;
+ transform:none!important;
+}
+#titleOverlay .title-enter{
+ width:100%!important;min-height:58px!important;height:58px!important;
+ background:#bd7086!important;
+ border:1px solid #e9d8da!important;border-bottom:3px solid #865368!important;
+ border-radius:4px!important;box-shadow:0 3px 0 #233d4a24!important;
+ color:#fffaf3!important;text-shadow:none!important;
+ font-size:clamp(17px,2vw,20px)!important;letter-spacing:.01em!important;
+ padding:8px 18px!important;
+}
+#titleOverlay .title-enter::before{
+ content:"♪";width:32px;height:32px;font-size:20px;
+ background:#f4ebde;color:#a95c77;border-radius:3px;
+}
+#titleOverlay .title-enter:hover{background:#aa607a!important}
+#titleOverlay .title-enter:focus-visible,
+#titleOverlay .title-small-control:focus-visible{
+ outline:3px solid #ffe3aa!important;outline-offset:3px!important;
+}
+#titleOverlay .title-skip{
+ right:clamp(22px,5.8vw,104px)!important;
+ bottom:calc(clamp(96px,15dvh,140px) + env(safe-area-inset-bottom))!important;
+ background:#f7f5ed!important;border-radius:3px!important;
+ box-shadow:none!important;
+}
+
+/* STORY — this is a scene with an illustrated character and a bottom dialogue,
+   not a small beige information modal floating in the center. */
+#storyOverlay{
+ inset:0!important;padding:0!important;
+ background:#172b3c!important;align-items:stretch!important;justify-content:stretch!important;
+}
+#storyOverlay .story-stage{
+ position:relative!important;display:block!important;
+ width:100vw!important;max-width:none!important;min-width:0!important;
+ height:100dvh!important;max-height:100dvh!important;
+ padding:0!important;margin:0!important;
+ overflow:hidden!important;border:0!important;border-radius:0!important;
+ background:#aebfbd!important;box-shadow:none!important;
+ color:#243e4d!important;
+}
+#storyOverlay .story-portrait-wrap{
+ position:absolute!important;inset:0!important;display:flex!important;
+ align-items:flex-end!important;justify-content:flex-start!important;
+ overflow:hidden!important;margin:0!important;
+ border:0!important;border-radius:0!important;
+ background:linear-gradient(135deg,#9cbbc1,#d9e0d8)!important;
+ isolation:isolate;
+}
+#storyOverlay[data-sekai="roof"] .story-portrait-wrap{background:linear-gradient(120deg,#97758a,#e6c5ae)!important}
+#storyOverlay[data-sekai="stage"] .story-portrait-wrap{background:linear-gradient(120deg,#9b78a8,#e9d0da)!important}
+#storyOverlay[data-sekai="city"] .story-portrait-wrap{background:linear-gradient(120deg,#817b8d,#dfc6b3)!important}
+#storyOverlay[data-sekai="wonderland"] .story-portrait-wrap{background:linear-gradient(120deg,#b18da6,#f6ddc3)!important}
+#storyOverlay[data-sekai="night"] .story-portrait-wrap{background:linear-gradient(120deg,#a4a7b9,#e4e4e7)!important}
+#storyOverlay[data-sekai="closedwindow"] .story-portrait-wrap{background:linear-gradient(120deg,#4b4e67,#95849c)!important}
+#storyOverlay[data-sekai="openwindow"] .story-portrait-wrap{background:linear-gradient(120deg,#98b9c4,#f4e4d5)!important}
+#storyOverlay .story-portrait-wrap::before{
+ content:"";display:block!important;z-index:1!important;
+ position:absolute!important;inset:0!important;left:0!important;right:0!important;
+ top:0!important;bottom:0!important;
+ width:100%!important;height:100%!important;border:0!important;transform:none!important;
+ background:linear-gradient(90deg,#142e3d10 0%,transparent 49%,#eff4ef85 100%),
+  linear-gradient(0deg,#132b398a 0%,transparent 46%,#f8fbf331 100%)!important;
+ pointer-events:none;
+}
+#storyOverlay .story-portrait-wrap::after,
+#storyOverlay .story-stage-line{display:none!important}
+#storyOverlay #storyWorldBackdrop{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ opacity:.15!important;object-fit:cover!important;
+ filter:saturate(.75) contrast(.9)!important;
+ image-rendering:auto!important;z-index:0!important;
+}
+#storyOverlay #storyPortrait{
+ display:block!important;position:relative!important;z-index:2!important;
+ flex:none!important;align-self:flex-end!important;
+ width:min(42vw,500px)!important;max-width:none!important;
+ height:80dvh!important;max-height:none!important;
+ object-fit:contain!important;object-position:center bottom!important;
+ margin-left:clamp(8px,7vw,110px)!important;margin-bottom:1dvh!important;
+ transform:scale(1.24)!important;transform-origin:center bottom!important;
+ filter:none!important;
+}
+#storyOverlay .story-topline{
+ position:absolute!important;z-index:5!important;
+ top:calc(25px + env(safe-area-inset-top))!important;
+ left:clamp(18px,5vw,80px)!important;right:clamp(18px,5vw,80px)!important;
+ padding-bottom:11px!important;border-bottom:1px solid #fff7e66b!important;
+ color:#233f52!important;font-size:12px!important;
+ letter-spacing:.14em!important;font-weight:900!important;
+}
+#storyOverlay .story-text-box{
+ position:absolute!important;z-index:5!important;
+ right:clamp(22px,7vw,120px)!important;
+ bottom:calc(101px + env(safe-area-inset-bottom))!important;
+ width:min(57vw,740px)!important;box-sizing:border-box!important;
+ min-height:164px!important;max-height:36dvh!important;
+ padding:22px 26px!important;gap:10px!important;
+ justify-content:flex-start!important;
+ border:1px solid #8da4a7!important;border-left:5px solid #71939d!important;
+ border-radius:2px!important;background:#f8f6edf2!important;
+ box-shadow:0 6px 0 #1e37411d!important;
+ overflow-y:auto!important;
+}
+#storyOverlay #storySpeaker{
+ color:#244d60!important;font-size:clamp(16px,2.5vw,23px)!important;
+ line-height:1.25!important;font-weight:900!important;
+}
+#storyOverlay #storyLine{
+ color:#293d48!important;font-size:clamp(15px,1.8vw,21px)!important;
+ line-height:1.65!important;font-weight:650!important;word-break:keep-all!important;
+}
+#storyOverlay .story-progress-track{
+ position:absolute!important;z-index:6!important;
+ right:clamp(22px,7vw,120px)!important;
+ bottom:calc(92px + env(safe-area-inset-bottom))!important;
+ width:min(57vw,740px)!important;height:3px!important;
+ background:#e8e5d7!important;
+}
+#storyOverlay #storyProgress{background:#62938e!important}
+#storyOverlay .story-actions{
+ position:absolute!important;z-index:6!important;
+ right:clamp(22px,7vw,120px)!important;
+ bottom:calc(24px + env(safe-area-inset-bottom))!important;
+ width:min(57vw,740px)!important;display:grid!important;
+ grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr)!important;
+ gap:10px!important;
+}
+#storyOverlay .story-actions button{
+ min-height:50px!important;height:50px!important;border-radius:3px!important;
+ font-size:14px!important;box-shadow:none!important;
+}
+#storyOverlay .story-actions .quiet-button{
+ background:#e7ece6!important;border:1px solid #7d999e!important;
+ color:#3d6172!important;
+}
+#storyOverlay .story-actions .primary-button{
+ background:#b16c88!important;color:#fff8ee!important;
+ border:1px solid #d7acba!important;
+}
+#storyOverlay .story-actions button:focus-visible{outline:3px solid #ffe1a6!important;outline-offset:2px!important}
+
+/* Mission map is a practical planning screen. More room for the actual preview,
+   with text/roster grouped together rather than floating in a tiny popup. */
+#missionOverlay{background:#182e3de9!important}
+#missionOverlay .mission-stage{
+ width:min(95vw,940px)!important;height:min(91dvh,690px)!important;
+ border-radius:3px!important;border-top:3px solid #7ca1a4!important;
+ padding:clamp(11px,2.2vw,22px)!important;
+ box-shadow:none!important;
+}
+#missionOverlay .mission-map-block{background:#c5d2ca!important;border-color:#859d9f!important}
+#missionOverlay .mission-details{gap:9px!important}
+#missionOverlay .mission-member{background:#edf1e9!important;border:1px solid #a6b7b5!important}
+#missionOverlay .mission-objective{font-size:clamp(14px,2vw,18px)!important}
+#missionOverlay .mission-heading{padding-bottom:6px!important;border-bottom:1px solid #c3ccc8!important}
+#missionOverlay .mission-actions button{border-radius:3px!important}
+
+/* Short battle speech is a message strip, not a second floating story modal. */
+.battle-dialogue{
+ box-shadow:none!important;border-radius:3px!important;
+ border:1px solid #91a3aa!important;border-left:3px solid #bd8493!important;
+ background:#f2f0e9f0!important;color:#293f4b!important;
+ backdrop-filter:none!important;
+}
+.battle-dialogue .battle-dialogue-copy strong{color:#365568!important}
+
+/* Tall screens prioritize character visibility above the lower dialogue. */
+@media (orientation:portrait){
+ #titleOverlay .title-backdrop .title-enemies,
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-final{
+  left:50%!important;top:55%!important;
+  width:148vw!important;max-width:none!important;
+ }
+ #titleOverlay .title-backdrop-filter{
+  background:linear-gradient(180deg,#e8f2f87a 0%,transparent 34%,transparent 58%,#24384b86 100%)!important;
+ }
+ #titleOverlay .title-logo-wrap{
+  left:50%!important;right:auto!important;
+  top:clamp(76px,14dvh,142px)!important;
+  transform:translateX(-50%)!important;width:min(90vw,460px)!important;
+ }
+ #titleOverlay .title-logo-image{max-height:21dvh!important}
+ #titleOverlay .title-bottom{
+  left:15px!important;right:15px!important;
+  width:auto!important;max-width:none!important;
+  bottom:calc(17px + env(safe-area-inset-bottom))!important;
+ }
+ #titleOverlay .title-enter{min-height:56px!important;height:56px!important}
+ #titleOverlay .title-skip{
+  bottom:calc(83px + env(safe-area-inset-bottom))!important;right:15px!important;
+ }
+ #titleOverlay .title-header{justify-content:flex-end!important}
+ #titleOverlay .title-issue{display:none!important}
+
+ #storyOverlay .story-portrait-wrap{
+  align-items:flex-start!important;justify-content:center!important;
+ }
+ #storyOverlay .story-portrait-wrap::before{
+  background:linear-gradient(180deg,#f5f7ed58 0%,transparent 52%,#1932417f 100%)!important;
+ }
+ #storyOverlay #storyPortrait{
+  width:min(88vw,455px)!important;height:67dvh!important;
+  max-height:none!important;
+  align-self:flex-start!important;
+  margin:clamp(30px,8dvh,75px) 0 0!important;
+  transform:scale(1.12)!important;transform-origin:center center!important;
+  object-position:center bottom!important;
+ }
+ #storyOverlay .story-topline{
+  left:16px!important;right:16px!important;
+  top:calc(15px + env(safe-area-inset-top))!important;font-size:10px!important;
+ }
+ #storyOverlay .story-text-box{
+  left:12px!important;right:12px!important;width:auto!important;
+  bottom:calc(91px + env(safe-area-inset-bottom))!important;
+  min-height:145px!important;max-height:30dvh!important;
+  padding:15px 17px!important;
+ }
+ #storyOverlay #storySpeaker{font-size:17px!important}
+ #storyOverlay #storyLine{font-size:clamp(13px,3.8vw,16px)!important;line-height:1.5!important}
+ #storyOverlay .story-progress-track{
+  left:12px!important;right:12px!important;width:auto!important;
+  bottom:calc(85px + env(safe-area-inset-bottom))!important;
+ }
+ #storyOverlay .story-actions{
+  left:12px!important;right:12px!important;width:auto!important;
+  bottom:calc(19px + env(safe-area-inset-bottom))!important;
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)!important;
+  gap:7px!important;
+ }
+ #storyOverlay .story-actions button{min-height:48px!important;height:48px!important;font-size:12px!important}
+ #missionOverlay .mission-stage{
+  width:calc(100vw - 12px)!important;height:calc(100dvh - 12px)!important;
+  max-height:calc(100dvh - 12px)!important;padding:11px!important;
+ }
+}
+@media(orientation:landscape) and (max-height:470px){
+ #storyOverlay .story-topline{
+  top:calc(8px + env(safe-area-inset-top))!important;
+  left:18px!important;right:18px!important;
+  padding-bottom:5px!important;font-size:9px!important;
+ }
+ #storyOverlay #storyPortrait{
+  width:min(39vw,325px)!important;height:80dvh!important;
+  margin-left:3vw!important;margin-bottom:0!important;
+ }
+ #storyOverlay .story-text-box{
+  right:14px!important;width:57vw!important;
+  min-height:112px!important;max-height:51dvh!important;
+  bottom:calc(63px + env(safe-area-inset-bottom))!important;
+  padding:9px 13px!important;gap:5px!important;
+ }
+ #storyOverlay #storySpeaker{font-size:15px!important}
+ #storyOverlay #storyLine{font-size:clamp(12px,1.8vw,15px)!important;line-height:1.36!important}
+ #storyOverlay .story-progress-track{
+  right:14px!important;width:57vw!important;
+  bottom:calc(59px + env(safe-area-inset-bottom))!important;
+ }
+ #storyOverlay .story-actions{
+  right:14px!important;width:57vw!important;
+  bottom:calc(7px + env(safe-area-inset-bottom))!important;gap:6px!important;
+ }
+ #storyOverlay .story-actions button{height:43px!important;min-height:43px!important;font-size:11px!important}
+ #missionOverlay .mission-stage{height:min(96dvh,490px)!important}
+}
+@media(orientation:portrait) and (max-height:620px){
+ #storyOverlay #storyPortrait{height:60dvh!important;margin-top:29px!important}
+ #storyOverlay .story-text-box{min-height:119px!important;bottom:calc(79px + env(safe-area-inset-bottom))!important;padding:10px 12px!important;gap:4px!important}
+ #storyOverlay .story-progress-track{bottom:calc(75px + env(safe-area-inset-bottom))!important}
+ #storyOverlay .story-actions{bottom:calc(10px + env(safe-area-inset-bottom))!important}
+ #storyOverlay .story-actions button{height:45px!important;min-height:45px!important}
+ #titleOverlay .title-backdrop .title-characters,#titleOverlay .title-backdrop .title-enemies{
+  top:57%!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #storyOverlay .story-actions button,#titleOverlay .title-enter{transition:none!important}
+}
+
+/* ===== END styles/presentation-v126.css ===== */
+
+/* ===== SOURCE styles/system-copy-v127.css ===== */
+/* v1.27 — readable informational copy in the upgrade panel.
+   Text is a functional gameplay explanation, not a decorative caption. */
+.upgrade-grid{
+ grid-template-columns:1fr!important;
+ gap:7px!important;
+}
+.upgrade-card{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ min-height:0!important;gap:5px!important;
+ padding:10px 11px!important;text-align:left!important;
+}
+.upgrade-card-top{margin:0!important}
+.upgrade-card .upgrade-card-name{
+ display:block!important;font-size:13px!important;line-height:1.25!important;
+}
+.upgrade-card-description{
+ margin:0!important;color:#425a62!important;
+ font-size:11px!important;line-height:1.48!important;
+ font-weight:550!important;word-break:keep-all!important;
+}
+.upgrade-card-progress{
+ display:block!important;padding:5px 7px!important;
+ color:#28585b!important;background:#e8efe9!important;
+ border:1px solid #ccdbd5!important;border-radius:2px!important;
+ font-size:11px!important;font-weight:800!important;
+ line-height:1.35!important;word-break:keep-all!important;
+ overflow-wrap:anywhere!important;
+}
+.upgrade-card-footer{margin-top:3px!important}
+.upgrade-card:disabled{opacity:.78!important}
+.upgrade-card:disabled .upgrade-card-description{color:#52646b!important}
+#upgradeIntro,.heart-guide{
+ margin:4px 0 11px!important;
+ font-size:12px!important;line-height:1.55!important;
+ word-break:keep-all!important;
+ color:#496673!important;
+}
+#heartsOverlay .heart-guide{flex:none!important;margin:0 0 9px!important;font-size:11px!important}
+@media (orientation:landscape) and (max-height:440px){
+ .upgrade-card{padding:7px 9px!important;gap:3px!important}
+ .upgrade-card-description{font-size:10px!important;line-height:1.35!important}
+ .upgrade-card-progress{font-size:10px!important;padding:3px 5px!important}
+ #upgradeIntro{font-size:10px!important;margin:2px 0 5px!important}
+}
+
+/* ===== END styles/system-copy-v127.css ===== */
+
+/* ===== SOURCE styles/game-polish-v128.css ===== */
+/* v1.28 — typography & game-screen art direction.
+   One compact visual hierarchy: a themed world stage + readable tactical HUD.
+   Supplied portraits, title illustration, logos and 32px game map stay intact.
+   No simulated glossy cards, neon, random gradients, or new sprite collages. */
+:root{
+ font-family:"Noto Sans KR","Noto Sans JP","Apple SD Gothic Neo",system-ui,sans-serif!important;
+ --hud-font:"Rajdhani","Noto Sans KR",sans-serif;
+ --game-ink:#243c49;
+ --game-paper:#f4f1e9;
+}
+button,input,select{font-family:inherit!important}
+.mini-label,.dialog-overline,.mission-section-label,.story-topline,
+.lobby-label,.stage-id,.field-summary-name,.team-strip-caption,
+#statusLine,.result-time strong,.wave-head strong,
+#timerText,.resource-card strong,.skill-condition-count{
+ font-variant-numeric:tabular-nums;
+}
+#timerText,#waveText,#enemyCount,#crystalText,#fragmentText,
+#skillConditionCount,#unitCount,#maxStarCount,#summonCost{
+ font-family:var(--hud-font)!important;font-weight:700!important;
+ font-variant-numeric:tabular-nums!important;
+ letter-spacing:.015em!important;
+}
+/* Every world has its own matte palette. A real game environment should
+   identify the location before the player reads any labels. */
+.app{
+ --ambient-top:#b2b9b3;
+ --ambient-low:#7e9195;
+ --stage-border:#6b8c91;
+ --stage-shadow:#283944;
+ background:#aebbc0;
+}
+.app[data-theme="school"]{
+ --ambient-top:#e1c2ad;--ambient-low:#b290a2;
+ --stage-border:#795d7d;--stage-shadow:#4b425e;
+}
+.app[data-theme="stage"]{
+ --ambient-top:#e8c4d8;--ambient-low:#ad9bbd;
+ --stage-border:#7d608f;--stage-shadow:#51416d;
+}
+.app[data-theme="street"]{
+ --ambient-top:#d6b8a4;--ambient-low:#9599a4;
+ --stage-border:#615d79;--stage-shadow:#41455b;
+}
+.app[data-theme="wonderland"]{
+ --ambient-top:#f7ddc4;--ambient-low:#d3a6ba;
+ --stage-border:#b2819d;--stage-shadow:#76617f;
+}
+.app[data-theme="empty"]{
+ --ambient-top:#e5e5ec;--ambient-low:#adb3c2;
+ --stage-border:#9ea6b6;--stage-shadow:#697688;
+}
+.app[data-theme="closed"]{
+ --ambient-top:#9690a4;--ambient-low:#4c4b68;
+ --stage-border:#605970;--stage-shadow:#313244;
+}
+.app[data-theme="open"]{
+ --ambient-top:#eef1e9;--ambient-low:#b3d1d4;
+ --stage-border:#91b6bd;--stage-shadow:#668f9a;
+}
+/* Flat painted surfaces on either side of the map are part of its SEKAI.
+   The map itself remains full top-down and unobstructed. */
+.battle{
+ background:
+  repeating-linear-gradient(0deg,transparent 0,transparent 61px,#ffffff0d 61px,#ffffff0d 62px),
+  linear-gradient(155deg,var(--ambient-top),var(--ambient-low))!important;
+}
+.battle:before{
+ background:
+  radial-gradient(ellipse at 12% 14%,#ffffff36,transparent 53%),
+  linear-gradient(180deg,#ffffff12,transparent 28%,transparent 79%,#22374718)!important;
+}
+.battle:after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ width:min(78%,780px);height:min(64%,530px);
+ top:50%;left:50%;transform:translate(-50%,-48%);
+ border:1px solid #ffffff27;
+ outline:1px solid #1d35421c;outline-offset:10px;
+ background:repeating-linear-gradient(90deg,transparent 0,transparent 43px,#ffffff09 43px,#ffffff09 44px);
+}
+.app[data-theme="school"] .battle:after{
+ background:repeating-linear-gradient(90deg,#fff4d812 0,#fff4d812 1px,transparent 1px,transparent 74px);
+}
+.app[data-theme="stage"] .battle:after{
+ background:repeating-linear-gradient(90deg,transparent 0,transparent 84px,#ffffff1a 84px,#ffffff1a 87px);
+}
+.app[data-theme="street"] .battle:after{
+ background:repeating-linear-gradient(0deg,transparent 0,transparent 57px,#f4ece21c 57px,#f4ece21c 59px);
+}
+.app[data-theme="wonderland"] .battle:after{
+ border-radius:45% 45% 4px 4px;
+ border-color:#f6e7d780;
+}
+.app[data-theme="empty"] .battle:after{
+ border-color:#ffffff60;
+ background:linear-gradient(135deg,#fafafa10,transparent 70%);
+}
+.app[data-theme="closed"] .battle:after{
+ border:2px solid #c0b1c930;
+ background:linear-gradient(90deg,#d6d4df10,#242c4e0b);
+}
+.app[data-theme="open"] .battle:after{
+ border:3px double #f9f8ea70;
+ background:linear-gradient(90deg,#ffffff0c,transparent);
+}
+/* Board is the most important object; it should feel seated in the world. */
+.board-frame{
+ background:var(--ambient-low)!important;
+ border:2px solid var(--stage-shadow)!important;
+ border-radius:1px!important;
+ box-shadow:0 0 0 3px #f9f5ecad,0 0 0 5px var(--stage-border),0 12px 18px #102b3540!important;
+}
+.board-frame:before{box-shadow:inset 0 0 0 1px #fffcf04d!important}
+.battle-header,.wave-panel{
+ background:#20384add!important;
+ border:0!important;
+ border-radius:1px!important;
+ backdrop-filter:none!important;
+}
+.battle-header{border-bottom:2px solid var(--stage-border)!important}
+.wave-panel{border-top:2px solid var(--stage-border)!important}
+.stage-signal{background:#f0c98c!important;height:12px!important;width:3px!important}
+.stage-mode{background:#e0e6df!important;border-radius:2px!important}
+.wave-track{height:5px!important;border-radius:1px!important}
+.wave-track span{background:#e9bf8d!important;border-radius:1px!important}
+.speed-button{clip-path:none!important;border-radius:2px!important;background:#e9c88f!important}
+.board-float:not(:empty){border-radius:2px!important;border:1px solid #738994!important;box-shadow:none!important}
+/* Design system — dark structural rails, cream information surfaces,
+   one muted rose accent for call-to-action and no metallic fake bevel. */
+.masthead .icon-button{
+ border:1px solid #9eb5b6!important;box-shadow:none!important;border-radius:3px!important;
+ color:#f8f5eb!important;background:#263c4bdc!important;
+}
+.resource-row{background:#1e3344!important;border-color:#6c9297!important}
+.resource-card{border-color:#ffffff33!important}
+.main-actions{
+ background:#1c3140!important;border-top:2px solid #829b9a!important;
+ box-shadow:none!important;
+}
+.summon-action{
+ background:#e9ca97!important;border:1px solid #a58e6c!important;
+ border-radius:4px!important;clip-path:none!important;box-shadow:none!important;
+}
+.summon-action .summon-text strong{font-size:clamp(17px,3.5vw,22px)!important}
+.square-action{
+ background:#e8ebe4!important;color:#263c48!important;
+ border:1px solid #8fa8a8!important;border-radius:3px!important;
+}
+.square-action:disabled{opacity:.55!important}
+.selection-panel{
+ background:#f6f2e8!important;border:1px solid #7d999e!important;
+ box-shadow:0 4px 16px #162f3c2d!important;border-radius:3px!important;
+}
+.selection-panel .hero-stats{
+ border-color:#c3cfcc!important;
+}
+.team-tactics,.skill-condition,.field-summary{
+ box-shadow:none!important;backdrop-filter:none!important;
+}
+/* The lobby is a game preparation screen, not a showroom.
+   The original canvas scene remains behind its briefing and roster. */
+.lobby-dialog{background:#1c3242!important}
+.lobby-art{
+ background:linear-gradient(145deg,var(--ambient-top),var(--ambient-low))!important;
+}
+.lobby-art-mask{
+ background:linear-gradient(180deg,#243a4e19,transparent 24%,transparent 60%,#162d3cbd)!important;
+}
+.lobby-top,.lobby-bottom{
+ background:#1c3245!important;
+ border-color:#6c8990!important;
+}
+.lobby-content{
+ background:#233e50f1!important;border-color:#85a7a6!important;
+}
+.map-choice,.choice-button{
+ background:#f1f1e9!important;border-color:#899f9f!important;
+ border-radius:3px!important;box-shadow:none!important;
+}
+.map-choice.active,.choice-button.active{
+ background:#e5eee8!important;border:2px solid #6f9a98!important;
+}
+.map-thumb{border-radius:2px!important}
+.lobby-fan,.dialog-head h2{font-weight:900!important;letter-spacing:-.045em!important}
+#startButton,.primary-button,#missionDeploy{
+ border-radius:3px!important;box-shadow:none!important;
+}
+/* Story cards should obey the same font and line spacing as the mission UI. */
+#storyOverlay #storyLine{
+ font-weight:500!important;letter-spacing:-.025em!important;
+ line-height:1.7!important;
+}
+#storyOverlay #storySpeaker{letter-spacing:-.04em!important}
+#storyOverlay .story-text-box{
+ border-color:#a9b8b7!important;border-left-color:#c1859a!important;
+ background:#f8f5edf2!important;
+ box-shadow:0 6px 18px #1d314028!important;
+}
+#storyOverlay .story-actions button{font-weight:800!important}
+.mission-stage,.settings-dialog,.collection-dialog{
+ font-family:"Noto Sans KR","Noto Sans JP",system-ui,sans-serif!important;
+}
+.mission-goal,.mission-hint,#upgradeIntro,.heart-explanation,
+.heart-guide,.upgrade-card-description{
+ line-height:1.65!important;letter-spacing:-.015em!important;
+ word-break:keep-all!important;
+}
+.result-story-copy p{line-height:1.6!important}
+/* Setting sliders should look deliberate and respect native keyboard use. */
+.setting-row input[type="range"]{
+ accent-color:#718f98!important;height:24px!important;
+}
+.setting-row select{
+ background:#f6f4ec!important;border:1px solid #9daead!important;
+}
+/* The title scene retains supplied art but has a readable bottom action lane. */
+#titleOverlay .title-backdrop-filter{
+ background:
+  linear-gradient(180deg,#ffffff11 0%,transparent 28%,transparent 68%,#122d4252 100%),
+  linear-gradient(90deg,transparent 43%,#f2f0e515 100%)!important;
+}
+#titleOverlay .title-enter{
+ font-family:"Noto Sans KR",sans-serif!important;
+ background:#ba768e!important;border-color:#e5cdd4!important;
+ border-bottom-color:#985c72!important;
+ border-radius:3px!important;
+ box-shadow:0 4px 0 #34424b38!important;
+}
+#titleOverlay .title-small-control{
+ font-family:"Noto Sans KR",sans-serif!important;
+ font-size:12px!important;letter-spacing:-.025em!important;
+}
+/* Never hide story content or shrink HUD to microtext on narrow phones. */
+@media(max-width:700px){
+ .battle:after{width:91%;height:78%;outline-offset:4px}
+ .board-frame{box-shadow:0 0 0 2px #fff7e5a3,0 0 0 3px var(--stage-border)!important}
+ .battle-header,.wave-panel{backdrop-filter:none!important}
+ .resource-card strong{font-size:clamp(16px,5vw,22px)!important}
+ .lobby-content{background:#1f3649ed!important}
+ #storyOverlay #storyLine{line-height:1.5!important}
+}
+@media(orientation:landscape) and (max-height:470px){
+ .battle:after{height:90%;width:67%}
+ .board-frame{box-shadow:0 0 0 1px #fff9eba3,0 0 0 2px var(--stage-border)!important}
+ .lobby-content{background:#233d50f0!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .board-frame,.battle-header,.square-action{transition:none!important}
+}
+
+/* On a wide PC, the empty side of the arena becomes a real location plaque.
+   This uses the existing, map-specific crest and name, not duplicate sprites. */
+@media(min-width:1280px) and (min-height:620px) and (orientation:landscape){
+ .world-decoration{
+  position:absolute!important;z-index:1!important;
+  left:clamp(18px,3.8vw,62px)!important;top:50%!important;
+  transform:translateY(-50%)!important;
+  width:clamp(165px,14vw,204px)!important;
+  min-height:215px!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  gap:12px!important;
+  margin:0!important;padding:20px 14px!important;
+  background:#f7f2e5c9!important;
+  border:1px solid #fff9efb0!important;
+  border-left:5px solid var(--stage-border)!important;
+  border-radius:2px!important;box-shadow:none!important;
+  color:#284451!important;pointer-events:none!important;
+ }
+ .world-decoration img{
+  display:block!important;width:96px!important;height:96px!important;
+  max-width:100%!important;object-fit:contain!important;
+  margin:0!important;filter:none!important;
+ }
+ .world-decoration span{
+  display:block!important;font-family:var(--hud-font)!important;
+  color:#344f62!important;font-size:17px!important;
+  font-weight:700!important;letter-spacing:.1em!important;
+  line-height:1.1!important;text-align:center!important;
+  overflow-wrap:anywhere!important;
+ }
+ .world-decoration i{
+  display:block!important;width:50px!important;height:2px!important;
+  background:var(--stage-border)!important;opacity:.75!important;
+ }
+}
+/* No overflow or identity loss on narrow and small-screen layouts. */
+@media(max-width:1279px), (max-height:619px), (orientation:portrait){
+ .world-decoration{display:none!important}
+}
+
+/* ===== END styles/game-polish-v128.css ===== */
+
+/* ===== SOURCE styles/settings-fix-v129.css ===== */
+/* v1.29 — settings must read as an intentional in-game screen,
+   not a translucent window exposing unrelated battle gameplay. */
+#settingsOverlay{
+ background:#122837d9!important;
+ z-index:115!important;
+ padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))!important;
+}
+#settingsOverlay .settings-dialog{
+ width:min(94vw,540px)!important;
+ max-width:540px!important;
+ max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+ padding:19px clamp(15px,3vw,24px) 17px!important;
+ border:1px solid #819ba2!important;
+ border-top:4px solid #b77b94!important;
+ border-radius:4px!important;
+ box-shadow:0 12px 42px #0d263a64!important;
+ background:#f5f2e9!important;
+ color:#263c4a!important;
+ overscroll-behavior:contain!important;
+}
+#settingsOverlay .dialog-head{
+ align-items:center!important;margin-bottom:12px!important;
+ padding-bottom:11px!important;border-bottom:1px solid #b8c6c4!important;
+}
+#settingsOverlay .dialog-head h2{
+ font-size:clamp(21px,3.5vw,27px)!important;
+ font-weight:850!important;
+}
+#settingsOverlay .setting-list{margin:0 0 15px!important;gap:3px!important}
+#settingsOverlay .setting-row{
+ min-height:51px!important;gap:12px!important;
+ padding:6px 8px!important;
+ border:0!important;border-bottom:1px solid #d2d9d4!important;
+ font-weight:750!important;
+ font-size:13px!important;
+}
+#settingsOverlay .setting-row>label{
+ flex:1 1 auto!important;
+ white-space:normal!important;word-break:keep-all!important;
+}
+#settingsOverlay .setting-row-audio{
+ min-height:61px!important;
+ padding:8px 9px!important;
+ background:#e7ece8!important;
+ border:1px solid #b6c9c6!important;
+ border-radius:3px!important;
+ color:#244b5b!important;
+}
+#settingsOverlay .setting-row-audio:first-of-type{
+ background:#e6edf0!important;
+ border-color:#8daeb6!important;
+}
+#settingsOverlay .settings-volume-control{
+ display:flex!important;
+ align-items:center!important;justify-content:space-between!important;
+ gap:9px!important;
+ width:58%!important;max-width:280px!important;min-width:126px!important;
+}
+#settingsOverlay .settings-volume-control input[type="range"]{
+ display:block!important;flex:1 1 auto!important;
+ width:100%!important;min-width:64px!important;
+ height:28px!important;margin:0!important;
+ accent-color:#648da0!important;
+ opacity:1!important;
+}
+#settingsOverlay .settings-volume-control output{
+ display:inline-block!important;
+ flex:0 0 39px!important;
+ color:#2c5362!important;text-align:right!important;
+ font-family:"Rajdhani","Noto Sans KR",sans-serif!important;
+ font-weight:800!important;font-size:16px!important;
+ font-variant-numeric:tabular-nums!important;
+}
+#settingsOverlay .setting-row select{
+ background:#f8f7f0!important;color:#283f4b!important;
+ border:1px solid #9cb0ae!important;border-radius:2px!important;
+ min-height:34px!important;
+}
+#settingsOverlay .settings-dialog>.primary-button{
+ width:100%!important;min-height:42px!important;
+ border-radius:3px!important;
+}
+/* A small-screen user must see both audio rows before scrolling. */
+@media (orientation:portrait) and (max-width:430px){
+ #settingsOverlay{padding:8px!important}
+ #settingsOverlay .settings-dialog{
+  width:100%!important;max-height:calc(100dvh - 16px)!important;
+  padding:13px 12px 11px!important;
+ }
+ #settingsOverlay .dialog-head{margin-bottom:7px!important;padding-bottom:7px!important}
+ #settingsOverlay .setting-row{min-height:43px!important;padding:5px 6px!important;font-size:12px!important}
+ #settingsOverlay .setting-row-audio{min-height:55px!important}
+ #settingsOverlay .settings-volume-control{width:59%!important;gap:5px!important}
+ #settingsOverlay .settings-volume-control output{flex-basis:34px!important;font-size:14px!important}
+ #settingsOverlay .setting-list{margin-bottom:9px!important}
+}
+/* Two-column settings layout on short landscape phone screens, with no
+   hiding of either music or effect volume control. */
+@media (orientation:landscape) and (max-height:470px){
+ #settingsOverlay{padding:6px!important}
+ #settingsOverlay .settings-dialog{
+  width:min(95vw,660px)!important;max-width:660px!important;
+  max-height:calc(100dvh - 12px)!important;
+  padding:9px 13px 10px!important;
+ }
+ #settingsOverlay .dialog-head{margin-bottom:6px!important;padding-bottom:5px!important}
+ #settingsOverlay .dialog-head h2{font-size:19px!important}
+ #settingsOverlay .setting-list{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  column-gap:9px!important;row-gap:2px!important;margin-bottom:8px!important;
+ }
+ #settingsOverlay .setting-row{min-height:41px!important;font-size:11px!important;padding:3px 7px!important}
+ #settingsOverlay .setting-row-audio{min-height:48px!important}
+ #settingsOverlay .settings-volume-control{min-width:92px!important;width:61%!important;gap:4px!important}
+ #settingsOverlay .settings-volume-control output{flex-basis:32px!important;font-size:13px!important}
+ #settingsOverlay .settings-dialog>.primary-button{min-height:35px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #settingsOverlay .settings-volume-control input[type="range"]{transition:none!important}
+}
+
+/* ===== END styles/settings-fix-v129.css ===== */
+
+/* ===== SOURCE styles/play-first-v132.css ===== */
+/* SEKAI DEFENSE / Screen composition v1.32
+   Stop treating the battle as a dashboard.
+   Primary: game board and world. Secondary: waves, currency, summoning.
+   Tertiary: unit details (visible only when actively selected).
+   No fake metallic framing, light blooms, ornamental English or card stacks.
+*/
+:root{
+ --hud-text:#292a38;
+ --hud-paper:#f9f7f2;
+ --hud-accent:#b96986;
+ --hud-accent-darker:#95516e;
+ --hud-muted:#747380;
+ font-family:"Noto Sans KR","Apple SD Gothic Neo",sans-serif!important;
+}
+.app{--world-floor:#d6b6a2;--world-edge:#aa8e9a;--hud-accent:#b96986;--hud-accent-darker:#95516e}
+.app[data-theme="stage"]{--world-floor:#dcc6d9;--world-edge:#a28da9;--hud-accent:#b37fa8;--hud-accent-darker:#896488}
+.app[data-theme="street"]{--world-floor:#c8b5ac;--world-edge:#948392;--hud-accent:#b17f70;--hud-accent-darker:#805b5c}
+.app[data-theme="wonderland"]{--world-floor:#efceb9;--world-edge:#b790a9;--hud-accent:#c17a9c;--hud-accent-darker:#9a5c82}
+.app[data-theme="empty"]{--world-floor:#e6e6eb;--world-edge:#bbb9c5;--hud-accent:#8e92ab;--hud-accent-darker:#686c89}
+.app[data-theme="closed"]{--world-floor:#9a8d9d;--world-edge:#66566f;--hud-accent:#957290;--hud-accent-darker:#6c536f}
+.app[data-theme="open"]{--world-floor:#e5e9df;--world-edge:#9cbcc4;--hud-accent:#77aab6;--hud-accent-darker:#4d7f8e}
+.app{
+ background:var(--world-floor)!important;
+}
+.battle{
+ background:var(--world-floor)!important;
+}
+.battle:before{
+ background:
+  repeating-linear-gradient(0deg,transparent 0,transparent 63px,#51485a0b 63px,#51485a0b 64px),
+  repeating-linear-gradient(90deg,transparent 0,transparent 63px,#51485a0b 63px,#51485a0b 64px)!important;
+ opacity:.55!important;
+}
+.battle:after{display:none!important}
+.world-decoration,.board-grain,.board-corner,.footnote{display:none!important}
+#titleOverlay .title-art-caption,#titleOverlay .title-ellipse{display:none!important}
+#titleOverlay .title-main::before{display:none!important}
+#titleOverlay .title-backdrop-filter{
+ background:linear-gradient(180deg,#ffffff44 0%,transparent 31%,transparent 69%,#231b2e66 100%)!important;
+ filter:none!important;backdrop-filter:none!important;
+}
+#titleOverlay .title-backdrop .title-bg{object-position:center!important}
+#titleOverlay .title-backdrop .title-enemies,
+#titleOverlay .title-backdrop .title-characters,
+#titleOverlay .title-backdrop .title-final{
+ top:53%!important;left:50%!important;
+ width:min(112vw,calc(100dvh * 2.02))!important;
+ transform:translate(-50%,-50%)!important;
+}
+#titleOverlay .title-logo-wrap{
+ top:clamp(56px,9dvh,98px)!important;left:50%!important;
+ right:auto!important;transform:translateX(-50%)!important;
+ justify-items:center!important;width:min(49vw,620px)!important;
+}
+#titleOverlay .title-logo-image{
+ max-height:30dvh!important;
+ filter:drop-shadow(0 2px 3px #fffdf7aa)!important;
+}
+#titleOverlay .title-header{
+ padding:calc(14px + env(safe-area-inset-top)) 21px 0!important;
+}
+#titleOverlay .title-small-control{
+ background:#fbf9f3f0!important;
+ color:#554358!important;
+ border:1px solid #e1ced2!important;
+ box-shadow:none!important;border-radius:4px!important;
+}
+#titleOverlay .title-issue{display:none!important}
+#titleOverlay .title-bottom{
+ left:50%!important;right:auto!important;
+ bottom:calc(6.7dvh + env(safe-area-inset-bottom))!important;
+ transform:translateX(-50%)!important;
+ width:min(320px,80vw)!important;max-width:none!important;
+}
+#titleOverlay .title-copy,#titleOverlay .title-credit{display:none!important}
+#titleOverlay .title-skip{left:16px!important;right:auto!important;bottom:calc(16px + env(safe-area-inset-bottom))!important;background:#fbf8f2e6!important;color:#544759!important;border:1px solid #d6cbd0!important;border-radius:3px!important;box-shadow:none!important;font-size:12px!important}
+#titleOverlay .title-enter{
+ width:100%!important;
+ height:59px!important;min-height:59px!important;
+ background:#b96b87!important;color:#fffaf8!important;
+ border:2px solid #fffaf4!important;border-bottom:4px solid #87445f!important;
+ border-radius:5px!important;padding:9px 18px!important;
+ box-shadow:0 3px 11px #241b2b44!important;
+ font-size:21px!important;font-weight:900!important;
+}
+#titleOverlay .title-enter::before{display:none!important}
+#titleOverlay .title-enter svg{width:25px!important;height:25px!important}
+/* LOBBY: one world preview, one choice list and one departure button.
+   There is no need to repeat miniature maps for every world beside the preview. */
+#lobbyOverlay{background:#eae7e0!important}
+#lobbyOverlay .lobby-dialog{
+ background:var(--hud-paper)!important;color:var(--hud-text)!important;
+ border:0!important;box-shadow:none!important;
+}
+#lobbyOverlay .lobby-top{
+ background:#f9f7f1!important;color:#34313a!important;
+ border-bottom:1px solid #ddd7d6!important;
+}
+#lobbyOverlay .lobby-fan{font-size:16px!important;color:#4b4351!important;font-weight:900!important}
+#lobbyOverlay .lobby-back,
+#lobbyOverlay .lobby-top .icon-button{
+ background:#f1ece9!important;color:#625361!important;
+ border:1px solid #d7cbd0!important;box-shadow:none!important;border-radius:3px!important;
+}
+#lobbyOverlay .lobby-art{background:#e7dedb!important;border:0!important;overflow:hidden!important}
+#lobbyOverlay .lobby-art canvas{
+ image-rendering:pixelated!important;
+ filter:none!important;object-fit:contain!important;
+}
+#lobbyOverlay .lobby-art-mask{
+ background:linear-gradient(180deg,transparent 46%,#252034b7 100%)!important;
+}
+#lobbyOverlay .lobby-art-copy{
+ background:transparent!important;border:0!important;
+ gap:5px!important;padding:0!important;
+ left:clamp(17px,3vw,38px)!important;
+ bottom:clamp(20px,3vw,39px)!important;
+ color:#fff!important;
+ text-shadow:0 2px 8px #100f1b9b!important;
+}
+#lobbyOverlay .lobby-art-kicker,#lobbyOverlay .map-affinity{display:none!important}
+#lobbyOverlay #lobbyWorldName{
+ color:#fff!important;font-weight:900!important;
+ font-size:clamp(30px,3.8vw,49px)!important;letter-spacing:-.05em!important;
+}
+#lobbyOverlay #lobbyWorldIndex{
+ color:#fff5eb!important;font-family:"Noto Sans KR",sans-serif!important;
+ font-weight:750!important;letter-spacing:.05em!important;
+}
+#lobbyOverlay #lobbyCrest{
+ display:block!important;width:64px!important;height:64px!important;object-fit:contain!important;
+}
+#lobbyOverlay .lobby-content{
+ background:#f9f7f2!important;color:#302e3e!important;
+ border:0!important;
+}
+#lobbyOverlay .lobby-content-heading{display:none!important}
+#lobbyOverlay .lobby-block{gap:8px!important}
+#lobbyOverlay .block-label strong{color:#5b505b!important;font-size:13px!important;letter-spacing:0!important}
+#lobbyOverlay .block-rule{background:#ded4d3!important}
+#lobbyOverlay .choice-grid{gap:5px!important}
+#lobbyOverlay .choice-button{
+ background:#efebe7!important;color:#675b64!important;
+ border:1px solid #ddd5d4!important;border-radius:3px!important;box-shadow:none!important;
+ min-height:42px!important;font-weight:850!important;
+}
+#lobbyOverlay .choice-button.active{
+ border-color:#ad788f!important;
+ color:#69455a!important;background:#f6e6eb!important;
+ box-shadow:inset 0 -3px #b66f8c!important;
+}
+#lobbyOverlay .map-choices{
+ display:grid!important;grid-template-columns:1fr!important;gap:0!important;
+ padding:0!important;overflow-y:auto!important;overflow-x:hidden!important;
+}
+#lobbyOverlay .map-choice,
+#lobbyOverlay .map-choice.active{
+ display:flex!important;align-items:center!important;gap:7px!important;
+ width:100%!important;min-width:0!important;
+ height:48px!important;min-height:48px!important;
+ padding:9px 14px!important;flex:none!important;
+ background:transparent!important;box-shadow:none!important;
+ border:0!important;border-bottom:1px solid #e6ddda!important;
+ border-left:4px solid transparent!important;border-radius:0!important;
+ color:#746b70!important;text-align:left!important;
+}
+#lobbyOverlay .map-choice:hover:not(.active){background:#f3ede8!important}
+#lobbyOverlay .map-choice.active{
+ border-left-color:#b56e8b!important;
+ background:#f7e9ec!important;color:#553f54!important;
+}
+#lobbyOverlay .map-thumb,#lobbyOverlay .map-icon{display:none!important}
+#lobbyOverlay .map-choice strong{
+ display:block!important;grid-column:auto!important;grid-row:auto!important;
+ font-size:14px!important;line-height:1.5!important;font-weight:800!important;
+}
+#lobbyOverlay .lobby-bottom{
+ background:#f5f0e8!important;border:0!important;border-top:1px solid #e4dad6!important;
+ box-shadow:none!important;
+}
+#lobbyOverlay .lobby-dispatch-meta{display:none!important}
+#lobbyOverlay #startButton{
+ min-height:54px!important;background:#b7728d!important;color:#fff!important;
+ border:0!important;border-radius:3px!important;
+ box-shadow:none!important;font-size:18px!important;
+}
+
+/* MAP is the dominant layer. HUD has no ambient cards or large floating info. */
+.battle-header,.wave-panel{
+ background:#f8f6f0ee!important;color:#35313c!important;
+ box-shadow:none!important;border:0!important;
+ border-radius:0!important;
+}
+.battle-header{border-bottom:1px solid #877988!important}
+.wave-panel{border-top:1px solid #cbc5bf!important}
+.battle-hud,.stage-id{color:#484354!important}
+#mapTitle,.wave-head strong{color:#36313c!important}
+.stage-signal,.muted-dot{display:none!important}
+.stage-mode{
+ font-size:10px!important;background:#e7e0e3!important;color:#77566b!important;
+ padding:3px 7px!important;border-radius:2px!important;
+}
+.wave-head .mini-label,.enemy-count .mini-label{color:#827782!important}
+.wave-head .tiny-fraction{color:#877b83!important}
+.enemy-count strong{color:#a45c72!important}
+.wave-track{background:#e2dcdb!important;border-radius:0!important}
+.wave-track span{background:#b3748d!important;border-radius:0!important}
+.board-frame{
+ background:var(--world-floor)!important;
+ border:1px solid #746773!important;border-radius:0!important;
+ box-shadow:0 1px 0 #f7eee6!important;
+}
+.board-frame:before{display:none!important}
+.speed-button{
+ background:#e6e3df!important;color:#4b4355!important;
+ border:1px solid #d0c8c8!important;border-radius:2px!important;
+ box-shadow:none!important;clip-path:none!important;
+}
+.masthead{z-index:40!important}
+.icon-button{
+ border-radius:3px!important;box-shadow:none!important;
+ background:#f8f6f2eb!important;color:#5b5263!important;
+ border:1px solid #bdb4bd!important;
+}
+.icon-button svg{stroke-width:2}
+#pauseButton{background:#aa6d85!important;color:white!important}
+/* Only meaningful interactions are visible by default. */
+.command-deck-kicker,.command-deck-alert,.selection-empty,.reserve-preview,
+.selection-empty-kicker,.selection-empty-tip,
+.world-decoration,#worldTypeText{display:none!important}
+.selection-panel:not(.has-selection){display:none!important}
+.team-strip-caption{display:none!important}
+.team-strip:has(.team-strip-hint):not(:has(.team-unit)){display:none!important}
+.resource-row,.main-actions{border-radius:0!important;box-shadow:none!important}
+.resource-card{border:0!important}
+.resource-card strong{color:#37323f!important}
+.resource-card .mini-label{color:#7b6c78!important;font-size:10px!important}
+.resource-icon{filter:none!important}
+.summon-action{
+ background:#e7bd86!important;color:#382f39!important;
+ border:0!important;border-bottom:4px solid #ad805d!important;border-radius:4px!important;
+ clip-path:none!important;box-shadow:none!important;
+}
+.summon-action:before,.summon-arrow{display:none!important}
+.summon-action .summon-text strong{color:#382f39!important;font-weight:900!important}
+.summon-action .summon-text small{color:#775e5b!important}
+.secondary-actions>.square-action,#heartButton{
+ background:#f5f2ed!important;color:#504853!important;
+ border:1px solid #c9bec5!important;border-radius:3px!important;
+ box-shadow:none!important;
+}
+.secondary-actions>.square-action:hover{background:#ece6e3!important}
+
+/* Desktop 1080+: field centered; HUD is typeset in the surrounding world,
+   with just the action group in the bottom-right. */
+@media (orientation:landscape) and (min-width:1080px) and (min-height:570px){
+ .game-layout{
+  display:block!important;position:absolute!important;inset:0!important;
+ }
+ .battle{
+  display:flex!important;flex-direction:column!important;
+  position:absolute!important;inset:0!important;
+  align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100dvh!important;
+  overflow:hidden!important;gap:0!important;
+  padding:7px 0!important;
+ }
+ .battle-header,.wave-panel,.board-frame{
+  align-self:center!important;grid-column:auto!important;grid-row:auto!important;
+  margin:0!important;
+  width:min(calc(100vw - 630px),calc((100dvh - 120px)*var(--map-ratio,.916667)))!important;
+  max-width:660px!important;
+ }
+ .battle-header{flex:0 0 34px!important;min-height:34px!important;height:34px!important;padding:0 8px!important}
+ .wave-panel{flex:0 0 30px!important;min-height:30px!important;height:30px!important;padding:0 8px!important}
+ .board-frame{
+  flex:0 1 auto!important;height:auto!important;
+  max-height:calc(100dvh - 120px)!important;min-height:0!important;
+  aspect-ratio:var(--map-aspect,11/12)!important;
+ }
+ .sidepanel{display:contents!important}
+ .command-deck-head{
+  position:fixed!important;z-index:12!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  top:calc(36px + env(safe-area-inset-top))!important;
+  bottom:auto!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:12px!important;width:260px!important;min-height:56px!important;height:56px!important;
+  padding:0!important;
+  background:none!important;color:#3d3543!important;border:0!important;
+  box-shadow:none!important;border-radius:0!important;
+ }
+ .command-deck-heading{display:flex!important;flex-direction:column!important;gap:6px!important}
+ #commandWorldName{font-size:21px!important;font-weight:900!important;letter-spacing:-.04em!important;color:#403449!important;line-height:1.15!important}
+ #commandDifficulty{font-size:12px!important;color:#786a78!important;font-weight:700!important}
+ #commandWorldCrest{width:49px!important;height:49px!important;object-fit:contain!important}
+ .resource-row{
+  position:fixed!important;z-index:15!important;
+  top:calc(38px + env(safe-area-inset-top))!important;
+  right:clamp(22px,3vw,45px)!important;left:auto!important;bottom:auto!important;
+  width:280px!important;height:62px!important;min-height:62px!important;
+  padding:3px 0!important;display:flex!important;align-items:center!important;
+  gap:8px!important;
+  background:transparent!important;border:0!important;
+ }
+ .resource-card{
+  display:flex!important;flex:1 1 50%!important;gap:6px!important;
+  align-items:center!important;justify-content:center!important;
+  padding:0 3px!important;height:100%!important;border:0!important;
+ }
+ .resource-card>div{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important}
+ .resource-card .mini-label{font-size:10px!important}
+ .resource-card strong{font-size:23px!important;line-height:1!important}
+ .resource-icon{width:28px!important;height:28px!important;flex:0 0 28px!important}
+ .field-summary{
+  position:fixed!important;z-index:12!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  top:calc(106px + env(safe-area-inset-top))!important;bottom:auto!important;
+  height:32px!important;min-height:32px!important;width:250px!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:7px!important;padding:0!important;
+  background:none!important;color:#4c4151!important;border:0!important;
+ }
+ .field-summary img{width:22px!important;height:22px!important;object-fit:contain!important}
+ .field-summary .field-summary-name{font-size:12px!important}
+ .field-summary strong{font-size:16px!important;color:#4d3a50!important}
+ .field-summary small{font-size:11px!important}
+ .field-summary i{display:none!important}
+ .field-summary .field-star{font-size:12px!important;margin-left:11px!important;color:#8b697c!important}
+ .team-strip{
+  position:fixed!important;z-index:13!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  bottom:calc(32px + env(safe-area-inset-bottom))!important;top:auto!important;
+  transform:none!important;display:flex!important;flex-direction:column!important;
+  width:272px!important;max-width:272px!important;min-width:0!important;
+  height:auto!important;max-height:50dvh!important;
+  margin:0!important;padding:0!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  overflow-y:auto!important;
+ }
+ .team-strip-slots{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;max-height:320px!important;overflow-y:auto!important;
+ }
+ .team-unit{
+  width:55px!important;height:57px!important;flex:none!important;
+  border:1px solid #baabb5!important;border-radius:3px!important;
+  background:#f6f2ec!important;
+ }
+ .team-unit img{width:53px!important;height:46px!important;object-fit:contain!important}
+ .team-heart-progress,.team-tactics{display:none!important}
+ .selection-panel{
+  position:fixed!important;z-index:25!important;
+  right:clamp(23px,3vw,47px)!important;left:auto!important;
+  top:calc(121px + env(safe-area-inset-top))!important;bottom:auto!important;
+  width:284px!important;max-width:284px!important;
+  min-height:0!important;max-height:calc(100dvh - 370px)!important;
+  padding:12px!important;margin:0!important;overflow-y:auto!important;
+  background:#fbf8f2f7!important;
+  border:1px solid #c6bac1!important;border-left:3px solid var(--hud-accent)!important;
+  border-radius:2px!important;box-shadow:0 4px 12px #29202d20!important;
+ }
+ .selection-panel:not(.has-selection){display:none!important}
+ .selection-panel.has-selection{display:block!important}
+ .selection-panel .selection-content{display:block!important}
+ .selection-panel .selected-hero{margin-bottom:7px!important}
+ .selection-panel .hero-portrait{width:62px!important;height:70px!important;background:#f0e9e7!important}
+ .selection-panel .hero-stats{margin:5px 0!important;background:#f2eeeb!important}
+ .selection-panel .hero-actions .minor-button{min-height:37px!important;border-radius:2px!important}
+ .main-actions{
+  position:fixed!important;z-index:17!important;
+  right:clamp(23px,3vw,47px)!important;left:auto!important;
+  bottom:calc(29px + env(safe-area-inset-bottom))!important;top:auto!important;
+  width:286px!important;height:153px!important;min-height:153px!important;
+  margin:0!important;padding:0!important;
+  display:grid!important;grid-template-columns:1fr!important;
+  grid-template-rows:75px 69px!important;gap:9px!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+ }
+ .main-actions>.summon-action{
+  grid-column:1!important;grid-row:1!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:center!important;gap:15px!important;
+  width:100%!important;height:75px!important;min-height:75px!important;
+  padding:8px 14px!important;
+ }
+ .summon-action .summon-symbol,.summon-action .summon-symbol svg{width:31px!important;height:31px!important}
+ .summon-text{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important}
+ .summon-text strong{font-size:25px!important}
+ .summon-text small{font-size:12px!important}
+ .main-actions>.secondary-actions{
+  grid-row:2!important;grid-column:1!important;display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:1fr!important;
+  gap:7px!important;width:100%!important;height:69px!important;
+ }
+ .secondary-actions>.square-action,#heartButton{
+  grid-row:1!important;grid-column:auto!important;
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  align-items:center!important;gap:5px!important;
+  width:100%!important;height:69px!important;min-height:69px!important;
+  padding:6px 3px!important;
+ }
+ .secondary-actions>.square-action>span,.secondary-actions>.square-action svg{height:24px!important;width:24px!important}
+ .secondary-actions>.square-action strong{font-size:11px!important;line-height:1.25!important;white-space:normal!important;word-break:keep-all!important}
+ .secondary-actions>.square-action small{font-size:10px!important}
+ .upgrades{
+  position:fixed!important;z-index:28!important;
+  right:clamp(23px,3vw,47px)!important;left:auto!important;
+  width:286px!important;max-width:286px!important;
+  max-height:75dvh!important;
+ }
+ #battleDialogue.battle-dialogue{
+  position:fixed!important;z-index:20!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  top:auto!important;bottom:calc(205px + env(safe-area-inset-bottom))!important;
+  transform:none!important;width:272px!important;max-width:272px!important;
+  background:#f9f6eff0!important;border:1px solid #c9bbc2!important;
+  border-left:3px solid var(--hud-accent)!important;border-radius:2px!important;
+  box-shadow:none!important;
+ }
+}
+
+/* In narrow landscape, keep existing tested horizontal rail behavior,
+   removing decorative instructions without changing controls. */
+@media(orientation:landscape) and (max-height:569px){
+ .command-deck-head,.field-summary{display:none!important}
+ .selection-panel:not(.has-selection){display:none!important}
+}
+/* Mobile gameplay: existing generous touch area, no decorative overlays. */
+@media(orientation:portrait){
+ .team-strip,.command-deck-head,.field-summary,.command-deck-alert{display:none!important}
+ .resource-row{
+  background:#f6f4ef!important;border-top:1px solid #c4b9c0!important;
+  color:#3d3441!important;
+ }
+ .main-actions{
+  background:#f7f5f1!important;
+  border-top:1px solid #c9bdc4!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:42px minmax(0,1fr)!important;
+  gap:7px!important;
+ }
+ .main-actions>.secondary-actions{
+  grid-row:1!important;grid-column:1!important;
+  display:grid!important;grid-template-columns:repeat(3,1fr)!important;
+  grid-template-rows:42px!important;height:42px!important;
+  gap:6px!important;
+ }
+ .main-actions>.secondary-actions>.square-action,#heartButton{
+  grid-row:1!important;grid-column:auto!important;height:42px!important;min-height:42px!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+  gap:5px!important;padding:4px!important;
+ }
+ .main-actions>.secondary-actions>.square-action>span,.main-actions>.secondary-actions svg{height:19px!important;width:19px!important}
+ .main-actions>.secondary-actions strong{font-size:11px!important;white-space:normal!important}
+ .main-actions>.summon-action{
+  grid-row:2!important;grid-column:1!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:center!important;width:100%!important;height:100%!important;min-height:0!important;
+  gap:10px!important;padding:6px 12px!important;
+ }
+ .main-actions>.summon-action .summon-symbol,.main-actions>.summon-action svg{height:26px!important;width:26px!important}
+ .main-actions>.summon-action .summon-text{display:flex!important;flex-direction:row!important;align-items:center!important;gap:9px!important}
+ .main-actions>.summon-action strong{font-size:20px!important}
+ .main-actions>.summon-action small{font-size:11px!important}
+ .battle-header,.wave-panel{background:#faf7f3f3!important}
+ .board-frame{box-shadow:0 1px 0 #574b56!important}
+}
+@media (orientation:portrait){
+ #titleOverlay .title-backdrop .title-enemies,
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-final{
+  left:50%!important;top:54%!important;width:168vw!important;
+ }
+ #titleOverlay .title-backdrop-filter{
+  background:linear-gradient(180deg,#fffaf299 0%,transparent 31%,transparent 72%,#2923349c 100%)!important;
+ }
+ #titleOverlay .title-logo-wrap{
+  top:clamp(70px,11dvh,118px)!important;left:50%!important;
+  width:min(94vw,485px)!important;transform:translateX(-50%)!important;
+ }
+ #titleOverlay .title-logo-image{max-height:24dvh!important}
+ #titleOverlay .title-bottom{
+  bottom:calc(25px + env(safe-area-inset-bottom))!important;
+  left:50%!important;right:auto!important;
+  width:min(315px,86vw)!important;transform:translateX(-50%)!important;
+ }
+ #titleOverlay .title-enter{height:56px!important;min-height:56px!important;font-size:19px!important}
+ #lobbyOverlay .lobby-dialog{
+  display:grid!important;grid-template-columns:1fr!important;
+  grid-template-rows:47px clamp(125px,27dvh,222px) minmax(0,1fr) 76px!important;
+  height:100dvh!important;max-height:none!important;
+ }
+ #lobbyOverlay .lobby-top{position:relative!important;grid-row:1!important;grid-column:1!important;height:47px!important;inset:auto!important}
+ #lobbyOverlay .lobby-art{position:relative!important;grid-row:2!important;grid-column:1!important;height:100%!important;inset:auto!important;min-height:0!important}
+ #lobbyOverlay .lobby-art-copy{left:14px!important;bottom:11px!important;gap:2px!important}
+ #lobbyOverlay #lobbyCrest{display:none!important}
+ #lobbyOverlay #lobbyWorldName{font-size:clamp(20px,5vw,28px)!important}
+ #lobbyOverlay #lobbyWorldIndex{font-size:11px!important}
+ #lobbyOverlay .lobby-content{
+  position:relative!important;grid-row:3!important;grid-column:1!important;
+  inset:auto!important;height:100%!important;max-height:none!important;
+  min-height:0!important;overflow-y:auto!important;padding:10px 13px!important;gap:10px!important;
+ }
+ #lobbyOverlay .lobby-bottom{
+  position:relative!important;grid-row:4!important;grid-column:1!important;
+  inset:auto!important;height:76px!important;min-height:76px!important;
+  padding:11px 14px!important;gap:0!important;
+ }
+ #lobbyOverlay #startButton{height:52px!important;min-height:52px!important}
+ #lobbyOverlay .map-choices{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 9px!important}
+ #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{
+  height:46px!important;min-height:46px!important;
+  padding:7px 3px 7px 8px!important;
+ }
+ #lobbyOverlay .map-choice strong{font-size:12px!important}
+ #lobbyOverlay .choice-button{min-height:36px!important;font-size:11px!important}
+}
+@media(orientation:portrait) and (max-height:620px){
+ #lobbyOverlay .lobby-dialog{grid-template-rows:42px 110px minmax(0,1fr) 67px!important}
+ #lobbyOverlay .lobby-top{height:42px!important}
+ #lobbyOverlay .lobby-content{padding:6px 10px!important;gap:5px!important}
+ #lobbyOverlay .lobby-bottom{height:67px!important;padding:6px 10px!important}
+ #lobbyOverlay #startButton{height:48px!important;min-height:48px!important}
+ #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{height:44px!important;min-height:44px!important}
+ #lobbyOverlay .choice-button{min-height:32px!important}
+ #titleOverlay .title-logo-wrap{top:72px!important}
+ .main-actions{grid-template-rows:40px minmax(0,1fr)!important;gap:4px!important}
+ .main-actions>.secondary-actions,.main-actions>.secondary-actions>.square-action,#heartButton{
+  min-height:40px!important;height:40px!important;
+ }
+}
+@media (orientation:landscape) and (max-height:470px){
+ #lobbyOverlay .lobby-dialog{
+  display:grid!important;grid-template-columns:55% 45%!important;
+  grid-template-rows:40px minmax(0,1fr) 56px!important;
+ }
+ #lobbyOverlay .lobby-top{position:relative!important;grid-column:1/3!important;grid-row:1!important;height:40px!important;inset:auto!important}
+ #lobbyOverlay .lobby-art{position:relative!important;grid-column:1!important;grid-row:2/4!important;min-height:0!important;height:100%!important;inset:auto!important}
+ #lobbyOverlay .lobby-content{position:relative!important;grid-column:2!important;grid-row:2!important;overflow-y:auto!important;min-height:0!important;inset:auto!important;padding:8px!important;gap:7px!important}
+ #lobbyOverlay .lobby-bottom{position:relative!important;grid-column:2!important;grid-row:3!important;height:56px!important;inset:auto!important;padding:5px 8px!important;gap:0!important}
+ #lobbyOverlay #startButton{height:43px!important;min-height:43px!important;font-size:14px!important}
+ #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{min-height:42px!important;height:42px!important;padding:4px 8px!important}
+ #lobbyOverlay .map-choice strong{font-size:11px!important}
+ #titleOverlay .title-logo-wrap{top:clamp(46px,9dvh,61px)!important;left:27%!important;width:min(44vw,315px)!important}
+ #titleOverlay .title-bottom{left:28%!important;bottom:9px!important;width:min(34vw,275px)!important}
+ #titleOverlay .title-enter{min-height:38px!important;height:38px!important;font-size:14px!important}
+}
+
+/* ===== END styles/play-first-v132.css ===== */
