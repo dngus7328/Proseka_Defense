@@ -72,8 +72,8 @@
  transform:translateX(-50%)!important;
  width:min(320px,80vw)!important;max-width:none!important;
 }
-#titleOverlay .title-copy,#titleOverlay .title-credit,
-#titleOverlay .title-skip{display:none!important}
+#titleOverlay .title-copy,#titleOverlay .title-credit{display:none!important}
+#titleOverlay .title-skip{left:16px!important;right:auto!important;bottom:calc(16px + env(safe-area-inset-bottom))!important;background:#fbf8f2e6!important;color:#544759!important;border:1px solid #d6cbd0!important;border-radius:3px!important;box-shadow:none!important;font-size:12px!important}
 #titleOverlay .title-enter{
  width:100%!important;
  height:59px!important;min-height:59px!important;
