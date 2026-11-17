@@ -743,10 +743,10 @@ button:focus-visible{outline:3px solid #dca25f!important;outline-offset:2px!impo
    dock height or moving the map out of the usable viewport. */
 @media (orientation:portrait) and (max-height:620px){
  .main-actions{
-  grid-template-rows:39px minmax(0,1fr)!important;
+  grid-template-rows:42px minmax(0,1fr)!important;
   gap:4px!important;padding-top:5px!important;padding-bottom:calc(6px + env(safe-area-inset-bottom))!important;
  }
  .main-actions>.secondary-actions,.main-actions>.secondary-actions>.square-action{
-  min-height:39px!important;height:39px!important;
+  min-height:42px!important;height:42px!important;
  }
 }
