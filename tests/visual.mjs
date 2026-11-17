@@ -214,26 +214,33 @@ try{
    assert(/^#/.test(palette),vp.name+' SEKAI accent palette was not applied');
   }
   const structuralBattle=await page.evaluate(()=>{
-   const d=document.querySelector('.command-deck-head'),
-    b=d.getBoundingClientRect(),pane=document.querySelector('.sidepanel').getBoundingClientRect(),
-    rect=document.querySelector('.board-frame').getBoundingClientRect();
-   return {commandDisplay:getComputedStyle(d).display,
-    command:{x:b.x,w:b.width,h:b.height},pane:{x:pane.x,w:pane.width,h:pane.height},
-    board:{x:rect.x,y:rect.y,w:rect.width,h:rect.height},
+   const box=sel=>{const r=document.querySelector(sel).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
+   return {
+    command:box('.command-deck-head'),
+    leftRoster:box('.team-strip'),
+    rightInfo:box('.selection-panel'),
+    rightActions:box('.main-actions'),
+    board:box('.board-frame'),
     chapter:document.getElementById('commandWorldName').textContent,
     situation:document.getElementById('deckSituation').textContent,
-    view:{w:innerWidth,h:innerHeight}};
+    view:{w:innerWidth,h:innerHeight}
+   };
   });
   if(vp.name==='desktop'){
-   assert(structuralBattle.commandDisplay!=='none'&&structuralBattle.pane.w>=292,
-    vp.name+' real desktop command panel failed: '+JSON.stringify(structuralBattle));
-   assert(structuralBattle.command.x>structuralBattle.board.x+structuralBattle.board.w-30,
-    vp.name+' tactical sidebar overlaps map: '+JSON.stringify(structuralBattle));
+   const {command,leftRoster,rightInfo,rightActions,board}=structuralBattle;
+   assert(command.w>=200&&rightInfo.w>=200&&rightActions.w>=200,
+    'Compact game HUD pieces missing: '+JSON.stringify(structuralBattle));
+   assert(command.x+command.w<board.x-8&&leftRoster.x+leftRoster.w<board.x-8,
+    'Left game information obscures the play field: '+JSON.stringify(structuralBattle));
+   assert(rightInfo.x>board.x+board.w+8&&rightActions.x>board.x+board.w+8,
+    'Right contextual actions obscure the play field: '+JSON.stringify(structuralBattle));
+   assert(board.w>450,
+    'Game board is not visually dominant: '+JSON.stringify(structuralBattle));
    assert(structuralBattle.chapter.includes('세카이')&&structuralBattle.situation.length>15,
-    vp.name+' live command panel lacks gameplay data: '+JSON.stringify(structuralBattle));
+    'World-specific gameplay data missing: '+JSON.stringify(structuralBattle));
   }
 
-  // The previous isolated location plaque was retired. The new right-side
+  // The separate map sign is retired. The compact left world header
   // command header now carries the world crest and localized world name.
   if(vp.name==='desktop'){
    const command=await page.evaluate(()=>({
