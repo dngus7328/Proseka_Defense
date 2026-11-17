@@ -132,6 +132,8 @@ try{
     heading:{x:title.x,y:title.y,w:title.width,h:title.height},
     screen:{scrollWidth:document.documentElement.scrollWidth,width:innerWidth}};
   });
+  assert(await page.locator('#lobbyOverlay').evaluate(e=>e.dataset.theme==='school'),
+   vp.name+' lobby scene palette did not match the selected SEKAI');
   assert(selectionLayout.columns.includes('px')&&selectionLayout.columns.trim().split(/\s+/).length>=2,
    vp.name+' world selection is not a card grid: '+JSON.stringify(selectionLayout));
   assert(selectionLayout.first.w>70&&selectionLayout.first.h>=40,
@@ -201,27 +203,46 @@ try{
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
 
+  // SEKAI-first display should have a real character lineup rather than the
+  // previous empty admin panel. Standby is supplied by existing sprite assets.
+  if(vp.name==='desktop'){
+   const roster=await page.locator('#reservePreview .reserve-member').count();
+   assert.equal(roster,4,vp.name+' missing real SEKAI standby portraits');
+   const images=await page.locator('#reservePreview img').evaluateAll(nodes=>nodes.map(e=>e.naturalWidth));
+   assert(images.every(w=>w>0),vp.name+' member images failed to load');
+   const palette=await page.locator('.app').evaluate(el=>getComputedStyle(el).getPropertyValue('--ui-accent').trim());
+   assert(/^#/.test(palette),vp.name+' SEKAI accent palette was not applied');
+  }
   const structuralBattle=await page.evaluate(()=>{
-   const d=document.querySelector('.command-deck-head'),
-    b=d.getBoundingClientRect(),pane=document.querySelector('.sidepanel').getBoundingClientRect(),
-    rect=document.querySelector('.board-frame').getBoundingClientRect();
-   return {commandDisplay:getComputedStyle(d).display,
-    command:{x:b.x,w:b.width,h:b.height},pane:{x:pane.x,w:pane.width,h:pane.height},
-    board:{x:rect.x,y:rect.y,w:rect.width,h:rect.height},
+   const box=sel=>{const r=document.querySelector(sel).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
+   return {
+    command:box('.command-deck-head'),
+    leftRoster:box('.team-strip'),
+    rightInfo:box('.selection-panel'),
+    rightActions:box('.main-actions'),
+    board:box('.board-frame'),
     chapter:document.getElementById('commandWorldName').textContent,
     situation:document.getElementById('deckSituation').textContent,
-    view:{w:innerWidth,h:innerHeight}};
+    view:{w:innerWidth,h:innerHeight}
+   };
   });
   if(vp.name==='desktop'){
-   assert(structuralBattle.commandDisplay!=='none'&&structuralBattle.pane.w>=292,
-    vp.name+' real desktop command panel failed: '+JSON.stringify(structuralBattle));
-   assert(structuralBattle.command.x>structuralBattle.board.x+structuralBattle.board.w-30,
-    vp.name+' tactical sidebar overlaps map: '+JSON.stringify(structuralBattle));
+   const {command,leftRoster,rightInfo,rightActions,board}=structuralBattle;
+   assert(command.w>=200&&rightInfo.w>=200&&rightActions.w>=200,
+    'Compact game HUD pieces missing: '+JSON.stringify(structuralBattle));
+   assert(command.x+command.w<board.x-8&&leftRoster.x+leftRoster.w<board.x-8,
+    'Left game information obscures the play field: '+JSON.stringify(structuralBattle));
+   assert(rightInfo.x>board.x+board.w+8&&rightActions.x>board.x+board.w+8,
+    'Right contextual actions obscure the play field: '+JSON.stringify(structuralBattle));
+   assert(board.w>450,
+    'Game board is not visually dominant: '+JSON.stringify(structuralBattle));
+   assert(Math.abs(board.x+board.w/2-vp.width/2)<20,
+    'Game board is not centered in arena: '+JSON.stringify(structuralBattle));
    assert(structuralBattle.chapter.includes('세카이')&&structuralBattle.situation.length>15,
-    vp.name+' live command panel lacks gameplay data: '+JSON.stringify(structuralBattle));
+    'World-specific gameplay data missing: '+JSON.stringify(structuralBattle));
   }
 
-  // The previous isolated location plaque was retired. The new right-side
+  // The separate map sign is retired. The compact left world header
   // command header now carries the world crest and localized world name.
   if(vp.name==='desktop'){
    const command=await page.evaluate(()=>({
@@ -279,11 +300,15 @@ try{
   const overlap=await page.evaluate(()=>{
    const dialogue=document.getElementById('battleDialogue');
    const wave=document.querySelector('.wave-panel');
-   if(dialogue?.hidden||!wave)return false;
+   if(dialogue?.hidden||!wave)return {overlaps:false};
    const a=dialogue.getBoundingClientRect(),b=wave.getBoundingClientRect();
-   return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+   const rect=x=>({x:x.x,y:x.y,w:x.width,h:x.height});
+   return {overlaps:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,
+    speech:rect(a),wave:rect(b),position:getComputedStyle(dialogue).position,
+    left:getComputedStyle(dialogue).left,right:getComputedStyle(dialogue).right,
+    transform:getComputedStyle(dialogue).transform};
   });
-  assert(!overlap,vp.name+' character dialogue obscures the wave bar');
+  assert(!overlap.overlaps,vp.name+' character dialogue obscures the wave bar: '+JSON.stringify(overlap));
   assert(layout.board&&layout.board.w>110&&layout.board.h>110,vp.name+' canvas not visible');
   assert(Math.abs(layout.board.w/layout.board.h-layout.map[0]/layout.map[1])<.04,vp.name+' map aspect wrong');
   assert(layout.board.x>=-2&&layout.board.y>=-2&&layout.board.x+layout.board.w<=vp.width+2&&layout.board.y+layout.board.h<=vp.height+2,vp.name+' board clips viewport');

@@ -197,6 +197,24 @@ export class Interface {
   const url=`./Assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;
   for(const id of ['battleCrest','worldCrest','lobbyCrest','statusWorldIcon','commandWorldCrest'])if(el(id))el(id).src=url;
   if(el('worldTypeText'))el('worldTypeText').textContent=AREA_TYPES[map.id]||'SEKAI';
+  if(el('lobbyOverlay'))el('lobbyOverlay').dataset.theme=map.theme;
+  if(el('reservePreview')){
+   const host=el('reservePreview');
+   const chosen=(map.sekaiMembers||[]).slice(0,6);
+   host.replaceChildren();
+   for(const id of chosen){
+    const character=CHARACTER_BY_ID[id];
+    if(!character)continue;
+    const frame=document.createElement('span');
+    frame.className='reserve-member';
+    frame.title=character.names[this.save.language]||character.names.ko;
+    const img=document.createElement('img');
+    img.src='./Assets/characters/'+id+'/front.png';
+    img.alt=character.names[this.save.language]||character.names.ko;
+    img.loading='lazy';
+    frame.append(img);host.append(frame);
+   }
+  }
   if(el('lobbyWorldName'))el('lobbyWorldName').textContent=map.names[this.save.language]||map.names.ko;
   if(el('commandWorldName'))el('commandWorldName').textContent=map.names[this.save.language]||map.names.ko;
   if(el('lobbyWorldIndex'))el('lobbyWorldIndex').textContent=`${map.order} / ${String(MAPS.length).padStart(2,'0')}`;
