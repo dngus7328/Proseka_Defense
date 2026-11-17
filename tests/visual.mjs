@@ -209,6 +209,10 @@ try{
   if(vp.name==='desktop'){
    const standby=await page.locator('.selection-empty').evaluate(e=>getComputedStyle(e).display);
    assert.equal(standby,'none',vp.name+' decorative standby card is still visible');
+   await page.waitForFunction(()=>{
+    const nodes=[...document.querySelectorAll('#teamStripSlots .team-unit img')];
+    return nodes.length>0&&nodes.every(img=>img.complete&&img.naturalWidth>0);
+   },{timeout:12000});
    const portraits=await page.locator('#teamStripSlots .team-unit img').evaluateAll(nodes=>nodes.map(e=>e.naturalWidth));
    assert(portraits.length>0&&portraits.every(w=>w>0),
     vp.name+' deployed characters are absent from quick select');
