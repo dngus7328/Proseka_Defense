@@ -132,6 +132,8 @@ try{
     heading:{x:title.x,y:title.y,w:title.width,h:title.height},
     screen:{scrollWidth:document.documentElement.scrollWidth,width:innerWidth}};
   });
+  assert(await page.locator('#lobbyOverlay').evaluate(e=>e.dataset.theme==='school'),
+   vp.name+' lobby scene palette did not match the selected SEKAI');
   assert(selectionLayout.columns.includes('px')&&selectionLayout.columns.trim().split(/\s+/).length>=2,
    vp.name+' world selection is not a card grid: '+JSON.stringify(selectionLayout));
   assert(selectionLayout.first.w>70&&selectionLayout.first.h>=40,
@@ -201,6 +203,16 @@ try{
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
 
+  // SEKAI-first display should have a real character lineup rather than the
+  // previous empty admin panel. Standby is supplied by existing sprite assets.
+  if(vp.name==='desktop'){
+   const roster=await page.locator('#reservePreview .reserve-member').count();
+   assert.equal(roster,4,vp.name+' missing real SEKAI standby portraits');
+   const images=await page.locator('#reservePreview img').evaluateAll(nodes=>nodes.map(e=>e.naturalWidth));
+   assert(images.every(w=>w>0),vp.name+' member images failed to load');
+   const palette=await page.locator('.app').evaluate(el=>getComputedStyle(el).getPropertyValue('--ui-accent').trim());
+   assert(/^#/.test(palette),vp.name+' SEKAI accent palette was not applied');
+  }
   const structuralBattle=await page.evaluate(()=>{
    const d=document.querySelector('.command-deck-head'),
     b=d.getBoundingClientRect(),pane=document.querySelector('.sidepanel').getBoundingClientRect(),
