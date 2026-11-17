@@ -750,3 +750,34 @@ button:focus-visible{outline:3px solid #dca25f!important;outline-offset:2px!impo
   min-height:42px!important;height:42px!important;
  }
 }
+
+/* Short character chatter occupies the unused world margin instead of
+   covering the wave counter or the active road on desktop. */
+@media (min-width:900px) and (min-height:500px) and (orientation:landscape){
+ .battle-dialogue{
+  position:fixed!important;z-index:29!important;
+  left:clamp(8px,1.3vw,19px)!important;right:auto!important;
+  top:auto!important;bottom:clamp(74px,10dvh,98px)!important;
+  transform:none!important;
+  width:clamp(117px,14vw,190px)!important;
+  max-width:calc((100vw - clamp(292px,25vw,350px) - (100dvh - 170px)*var(--map-ratio,.916667))/2 - 22px)!important;
+  min-height:58px!important;max-height:128px!important;
+  padding:8px!important;
+  background:#f6f1e8ef!important;border:1px solid #93a9a8!important;
+  border-left:3px solid #b87d92!important;border-radius:2px!important;
+  box-shadow:none!important;overflow:hidden!important;
+  gap:5px!important;
+ }
+ .battle-dialogue>img{
+  width:33px!important;height:33px!important;min-width:33px!important;
+  background:#dbe3dc!important;border:0!important;border-radius:2px!important;
+ }
+ .battle-dialogue-copy strong{font-size:10px!important}
+ .battle-dialogue-copy span{
+  font-size:11px!important;line-height:1.33!important;
+  -webkit-line-clamp:3!important;
+ }
+}
+@media (min-width:900px) and (max-width:1100px) and (orientation:landscape){
+ .battle-dialogue>img{display:none!important}
+}
