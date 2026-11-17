@@ -523,7 +523,7 @@
  #lobbyOverlay .lobby-content{padding:6px 10px!important;gap:5px!important}
  #lobbyOverlay .lobby-bottom{height:67px!important;padding:6px 10px!important}
  #lobbyOverlay #startButton{height:48px!important;min-height:48px!important}
- #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{height:39px!important;min-height:39px!important}
+ #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{height:44px!important;min-height:44px!important}
  #lobbyOverlay .choice-button{min-height:32px!important}
  #titleOverlay .title-logo-wrap{top:72px!important}
  .main-actions{grid-template-rows:40px minmax(0,1fr)!important;gap:4px!important}
