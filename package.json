@@ -1,7 +1,7 @@
 {
   "name": "sekai-random-defense-fan-prototype",
   "private": true,
-  "version": "1.29.0",
+  "version": "1.30.0",
   "type": "module",
   "scripts": {
     "test": "node tests/smoke.mjs && node tests/experience.mjs && node tests/sekai-hearts.mjs && node tests/sekai-visual-v123.mjs && node tests/story-route-v125.mjs && node tests/system-copy-v127.mjs && node tests/music-v128.mjs"

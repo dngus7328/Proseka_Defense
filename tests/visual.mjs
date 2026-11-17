@@ -61,6 +61,10 @@ try{
     vp.name+' title has clipped '+id+': '+JSON.stringify(r));
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
 
+  assert((await page.locator('#titleOverlay .title-copy p').textContent()).length>=20,
+   vp.name+' new title action panel copy is missing');
+
+
   // Opening settings from the title MUST retain the title artwork behind
   // the settings scrim; the hidden battle app must not become its background.
   await page.locator('#titleSettings').click({timeout:12000});
@@ -116,6 +120,25 @@ try{
   },null,{timeout:12000});
   await page.waitForTimeout(520);
   await page.screenshot({path:path.join('artifacts',vp.name+'-lobby.png')});
+
+  const selectionLayout=await page.evaluate(()=>{
+   const list=document.getElementById('mapChoices');
+   const first=list.querySelector('.map-choice'),r=first.getBoundingClientRect(),
+    art=document.querySelector('.lobby-art').getBoundingClientRect(),
+    title=document.querySelector('.lobby-content-heading').getBoundingClientRect();
+   return {columns:getComputedStyle(list).gridTemplateColumns,
+    first:{x:r.x,y:r.y,w:r.width,h:r.height},
+    art:{x:art.x,y:art.y,w:art.width,h:art.height},
+    heading:{x:title.x,y:title.y,w:title.width,h:title.height},
+    screen:{scrollWidth:document.documentElement.scrollWidth,width:innerWidth}};
+  });
+  assert(selectionLayout.columns.includes('px')&&selectionLayout.columns.trim().split(/\s+/).length>=2,
+   vp.name+' world selection is not a card grid: '+JSON.stringify(selectionLayout));
+  assert(selectionLayout.first.w>70&&selectionLayout.first.h>=40,
+   vp.name+' new SEKAI cards are too small: '+JSON.stringify(selectionLayout));
+  assert(selectionLayout.heading.w>140&&selectionLayout.art.h>=100,
+   vp.name+' stage preparation screen lost the world preview: '+JSON.stringify(selectionLayout));
+
 
   await page.locator('#lobbySettings').click({timeout:12000});
   assert(await page.locator('#lobbyOverlay').evaluate(e=>e.classList.contains('visible')),
@@ -177,14 +200,37 @@ try{
   await page.locator('#summonButton').click({timeout:12000});
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
+
+  const structuralBattle=await page.evaluate(()=>{
+   const d=document.querySelector('.command-deck-head'),
+    b=d.getBoundingClientRect(),pane=document.querySelector('.sidepanel').getBoundingClientRect(),
+    rect=document.querySelector('.board-frame').getBoundingClientRect();
+   return {commandDisplay:getComputedStyle(d).display,
+    command:{x:b.x,w:b.width,h:b.height},pane:{x:pane.x,w:pane.width,h:pane.height},
+    board:{x:rect.x,y:rect.y,w:rect.width,h:rect.height},
+    chapter:document.getElementById('commandWorldName').textContent,
+    situation:document.getElementById('deckSituation').textContent,
+    view:{w:innerWidth,h:innerHeight}};
+  });
   if(vp.name==='desktop'){
-   const ambient=await page.evaluate(()=>{
-    const e=document.querySelector('.world-decoration'),r=e?.getBoundingClientRect(),c=e&&getComputedStyle(e);
-    return {cssMatch:matchMedia('(min-width:1280px) and (min-height:620px) and (orientation:landscape)').matches,display:c?.display,opacity:c?.opacity,z:c?.zIndex,
-     bounds:r?{x:r.x,y:r.y,width:r.width,height:r.height}:null,html:e?.outerHTML.slice(0,350)};
-   });
-   assert(ambient.cssMatch&&ambient.display!=='none'&&ambient.bounds?.width>120&&ambient.bounds.x>=0,
-    'Desktop must display a real SEKAI location plaque in otherwise empty space: '+JSON.stringify(ambient));
+   assert(structuralBattle.commandDisplay!=='none'&&structuralBattle.pane.w>=292,
+    vp.name+' real desktop command panel failed: '+JSON.stringify(structuralBattle));
+   assert(structuralBattle.command.x>structuralBattle.board.x+structuralBattle.board.w-30,
+    vp.name+' tactical sidebar overlaps map: '+JSON.stringify(structuralBattle));
+   assert(structuralBattle.chapter.includes('세카이')&&structuralBattle.situation.length>15,
+    vp.name+' live command panel lacks gameplay data: '+JSON.stringify(structuralBattle));
+  }
+
+  // The previous isolated location plaque was retired. The new right-side
+  // command header now carries the world crest and localized world name.
+  if(vp.name==='desktop'){
+   const command=await page.evaluate(()=>({
+    crest:document.getElementById('commandWorldCrest').naturalWidth,
+    name:document.getElementById('commandWorldName').textContent,
+    panel:getComputedStyle(document.querySelector('.command-deck-head')).display
+   }));
+   assert(command.crest>0&&command.name.includes('세카이')&&command.panel!=='none',
+    'Desktop command header must replace the obsolete floating plaque: '+JSON.stringify(command));
   }
 
   // The upgrade sheet must explain the mechanics, not just show labels and prices.
@@ -209,8 +255,15 @@ try{
   assert((await page.locator('.heart-guide').textContent()).includes('자동으로 발동합니다'),
    vp.name+' Hearts catalog did not receive formal gameplay instructions');
 
-  // A landscape roster must show actionable information rather than empty space.
-  if(vp.width>vp.height){
+  // Desktop now has a dedicated command panel. Compact landscape keeps the
+  // existing roster/tactics strip where there is no room for a sidebar.
+  if(vp.name==='desktop'){
+   const tactical=await page.locator('.command-deck-alert').boundingBox();
+   assert(tactical&&tactical.width>220&&tactical.height>45,
+    vp.name+' new command status area missing');
+   assert((await page.locator('#deckSituation').textContent()).trim().length>13);
+   assert(await page.locator('#commandWorldCrest').evaluate(e=>e.naturalWidth>0));
+  }else if(vp.width>vp.height){
    const tactics=await page.locator('#teamTactics').boundingBox();
    assert(tactics&&tactics.width>120&&tactics.height>55,vp.name+' tactics panel missing');
    assert((await page.locator('#teamTacticsDescription').textContent()).trim().length>10);

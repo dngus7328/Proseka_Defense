@@ -5,7 +5,7 @@ import {heartEffectDetails,heartCasterDescription} from '../data/heartEffects.js
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {upgradeExplanation} from '../data/upgradeDescriptions.js';
-import {getText,LANGUAGES} from '../data/locales.js?v=1.29.0';
+import {getText,LANGUAGES} from '../data/locales.js?v=1.30.0';
 import {TITLE_LOGOS} from '../data/branding.js';
 import {TitleIntro} from './TitleIntro.js?v=1.20.0';
 import {persistSave} from '../core/Save.js';
@@ -195,9 +195,10 @@ export class Interface {
  syncMapArtwork(map){
   if(!map)return;
   const url=`./Assets/ui/${AREA_ICONS[map.id]||'roof'}.png`;
-  for(const id of ['battleCrest','worldCrest','lobbyCrest','statusWorldIcon'])if(el(id))el(id).src=url;
+  for(const id of ['battleCrest','worldCrest','lobbyCrest','statusWorldIcon','commandWorldCrest'])if(el(id))el(id).src=url;
   if(el('worldTypeText'))el('worldTypeText').textContent=AREA_TYPES[map.id]||'SEKAI';
   if(el('lobbyWorldName'))el('lobbyWorldName').textContent=map.names[this.save.language]||map.names.ko;
+  if(el('commandWorldName'))el('commandWorldName').textContent=map.names[this.save.language]||map.names.ko;
   if(el('lobbyWorldIndex'))el('lobbyWorldIndex').textContent=`${map.order} / ${String(MAPS.length).padStart(2,'0')}`;
  }
  openSettings(){
@@ -430,6 +431,19 @@ export class Interface {
   el('headerMode').textContent=g.difficulty.toUpperCase();
   el('mapTitle').textContent=`${g.map.order} / ${g.map.names[this.save.language]}`;
   el('modeTitle').textContent=this.t(g.difficulty).toUpperCase();
+  const commandName=el('commandWorldName');if(commandName)commandName.textContent=g.map.names[this.save.language]||g.map.names.ko;
+  const commandDiff=el('commandDifficulty');if(commandDiff)commandDiff.textContent=this.t(g.difficulty)+' · WAVE '+String(g.wave).padStart(2,'0');
+  const situation=el('deckSituation');
+  if(situation){
+   const cap=g.capacity,pressure=g.enemies.length/cap;
+   situation.textContent=g.phase!=='playing'?
+    (this.save.language==='ja'?'戦闘を一時停止しています。':this.save.language==='en'?'Combat is paused.':'전투가 일시정지되었습니다.'):
+    pressure>=.85?
+    (this.save.language==='ja'?'敵の数が上限に近づいています。':this.save.language==='en'?'Enemy count is approaching the limit.':'적의 수가 한계에 가까워지고 있습니다.'):
+    g.units.length===0?
+    (this.save.language==='ja'?'メンバーを召喚して配置してください。':this.save.language==='en'?'Summon and deploy your first member.':'멤버를 소환하여 첫 배치를 진행해 주세요.'):
+    (this.save.language==='ja'?'敵の進行状況と合成可能なメンバーを確認してください。':this.save.language==='en'?'Monitor the route and available merges.':'적의 이동 경로와 합성 가능한 멤버를 확인해 주세요.');
+  }
   el('timerText').textContent=timeText(g.realTime);
   el('speedText').textContent=`${g.speed}×`;
   const finalSeconds=g.finalCleanupSecondsLeft;
