@@ -61,8 +61,9 @@ try{
     vp.name+' title has clipped '+id+': '+JSON.stringify(r));
   await page.screenshot({path:path.join('artifacts',vp.name+'-title.png')});
 
-  assert((await page.locator('#titleOverlay .title-copy p').textContent()).length>=20,
-   vp.name+' new title action panel copy is missing');
+  const titleCTA=await page.locator('#titleEnter').boundingBox();
+  assert(titleCTA&&titleCTA.width>=210&&titleCTA.height>=38,
+   vp.name+' the single primary title action must remain prominent');
 
 
   // Opening settings from the title MUST retain the title artwork behind
@@ -134,12 +135,12 @@ try{
   });
   assert(await page.locator('#lobbyOverlay').evaluate(e=>e.dataset.theme==='school'),
    vp.name+' lobby scene palette did not match the selected SEKAI');
-  assert(selectionLayout.columns.includes('px')&&selectionLayout.columns.trim().split(/\s+/).length>=2,
-   vp.name+' world selection is not a card grid: '+JSON.stringify(selectionLayout));
+  assert(selectionLayout.columns.includes('px')&&selectionLayout.columns.trim().split(/\s+/).length>=(vp.width>vp.height?1:2),
+   vp.name+' simple world selection layout is broken: '+JSON.stringify(selectionLayout));
   assert(selectionLayout.first.w>70&&selectionLayout.first.h>=40,
    vp.name+' new SEKAI cards are too small: '+JSON.stringify(selectionLayout));
-  assert(selectionLayout.heading.w>140&&selectionLayout.art.h>=100,
-   vp.name+' stage preparation screen lost the world preview: '+JSON.stringify(selectionLayout));
+  assert(selectionLayout.art.h>=100&&selectionLayout.art.w>=130,
+   vp.name+' world preview must remain the dominant selection illustration: '+JSON.stringify(selectionLayout));
 
 
   await page.locator('#lobbySettings').click({timeout:12000});
@@ -203,15 +204,18 @@ try{
   await page.waitForFunction(()=>window.__sekaiTest.getGame().units.length>=1,{timeout:10000});
   await page.screenshot({path:path.join('artifacts',vp.name+'-battle.png')});
 
-  // SEKAI-first display should have a real character lineup rather than the
-  // previous empty admin panel. Standby is supplied by existing sprite assets.
+  // No permanent standby card: original member sprites appear on the board
+  // and in the quick-select strip after summoning.
   if(vp.name==='desktop'){
-   const roster=await page.locator('#reservePreview .reserve-member').count();
-   assert.equal(roster,4,vp.name+' missing real SEKAI standby portraits');
-   const images=await page.locator('#reservePreview img').evaluateAll(nodes=>nodes.map(e=>e.naturalWidth));
-   assert(images.every(w=>w>0),vp.name+' member images failed to load');
-   const palette=await page.locator('.app').evaluate(el=>getComputedStyle(el).getPropertyValue('--ui-accent').trim());
-   assert(/^#/.test(palette),vp.name+' SEKAI accent palette was not applied');
+   const standby=await page.locator('.selection-empty').evaluate(e=>getComputedStyle(e).display);
+   assert.equal(standby,'none',vp.name+' decorative standby card is still visible');
+   await page.waitForFunction(()=>{
+    const nodes=[...document.querySelectorAll('#teamStripSlots .team-unit img')];
+    return nodes.length>0&&nodes.every(img=>img.complete&&img.naturalWidth>0);
+   },{timeout:12000});
+   const portraits=await page.locator('#teamStripSlots .team-unit img').evaluateAll(nodes=>nodes.map(e=>e.naturalWidth));
+   assert(portraits.length>0&&portraits.every(w=>w>0),
+    vp.name+' deployed characters are absent from quick select');
   }
   const structuralBattle=await page.evaluate(()=>{
    const box=sel=>{const r=document.querySelector(sel).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
@@ -228,12 +232,12 @@ try{
   });
   if(vp.name==='desktop'){
    const {command,leftRoster,rightInfo,rightActions,board}=structuralBattle;
-   assert(command.w>=200&&rightInfo.w>=200&&rightActions.w>=200,
-    'Compact game HUD pieces missing: '+JSON.stringify(structuralBattle));
+   assert(command.w>=200&&rightActions.w>=240,
+    'Minimal game HUD pieces missing: '+JSON.stringify(structuralBattle));
    assert(command.x+command.w<board.x-8&&leftRoster.x+leftRoster.w<board.x-8,
     'Left game information obscures the play field: '+JSON.stringify(structuralBattle));
-   assert(rightInfo.x>board.x+board.w+8&&rightActions.x>board.x+board.w+8,
-    'Right contextual actions obscure the play field: '+JSON.stringify(structuralBattle));
+   assert(rightActions.x>board.x+board.w+8,
+    'Play controls obscure the play field: '+JSON.stringify(structuralBattle));
    assert(board.w>450,
     'Game board is not visually dominant: '+JSON.stringify(structuralBattle));
    assert(Math.abs(board.x+board.w/2-vp.width/2)<20,
@@ -276,13 +280,11 @@ try{
   assert((await page.locator('.heart-guide').textContent()).includes('자동으로 발동합니다'),
    vp.name+' Hearts catalog did not receive formal gameplay instructions');
 
-  // Desktop now has a dedicated command panel. Compact landscape keeps the
-  // existing roster/tactics strip where there is no room for a sidebar.
+  // Contextual unit info appears only when selected; decorative status
+  // panels and idle 'help' windows must not consume permanent screen space.
   if(vp.name==='desktop'){
-   const tactical=await page.locator('.command-deck-alert').boundingBox();
-   assert(tactical&&tactical.width>220&&tactical.height>45,
-    vp.name+' new command status area missing');
-   assert((await page.locator('#deckSituation').textContent()).trim().length>13);
+   const idle=await page.locator('.selection-empty').evaluate(e=>getComputedStyle(e).display);
+   assert.equal(idle,'none',vp.name+' idle unit details are visible');
    assert(await page.locator('#commandWorldCrest').evaluate(e=>e.naturalWidth>0));
   }else if(vp.width>vp.height){
    const tactics=await page.locator('#teamTactics').boundingBox();
