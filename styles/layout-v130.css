@@ -659,3 +659,27 @@ button:focus-visible{outline:3px solid #dca25f!important;outline-offset:2px!impo
  #titleOverlay .title-backdrop .title-characters,
  #titleOverlay .title-backdrop .title-final{left:65%!important;top:51%!important;width:100vw!important}
 }
+
+/* Empty unit slot is contextual command guidance, not an idle white slab. */
+@media (min-width:900px) and (min-height:500px) and (orientation:landscape){
+ .sidepanel>.selection-panel:not(.has-selection){
+  background:#213e4f!important;color:#e1ece8!important;
+  border-bottom:1px solid #557584!important;
+  justify-content:center!important;
+ }
+ .sidepanel>.selection-panel:not(.has-selection) .selection-empty{
+  display:flex!important;align-items:center!important;gap:13px!important;
+ }
+ .sidepanel>.selection-panel .selection-empty .empty-glyph{
+  width:49px!important;height:49px!important;flex:0 0 49px!important;
+  background:#304e5d!important;color:#f0cf99!important;border:1px solid #62828c!important;
+  font-size:21px!important;
+ }
+ .sidepanel>.selection-panel .selection-empty>div:last-child{
+  display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+  gap:5px!important;min-width:0!important;
+ }
+ .sidepanel>.selection-panel .selection-empty strong{color:#fff7e9!important;font-size:15px!important}
+ .selection-empty-kicker{font-family:"Rajdhani",sans-serif!important;letter-spacing:.13em!important;color:#b0c8ca!important;font-size:12px!important}
+ .selection-empty-tip{display:block!important;margin:0!important;color:#c2d2d4!important;font-size:11px!important;line-height:1.5!important;word-break:keep-all!important}
+}
