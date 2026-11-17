@@ -132,7 +132,7 @@ try{
     heading:{x:title.x,y:title.y,w:title.width,h:title.height},
     screen:{scrollWidth:document.documentElement.scrollWidth,width:innerWidth}};
   });
-  assert(selectionLayout.columns.includes('px')&&selectionLayout.columns.trim().split(/\\s+/).length>=2,
+  assert(selectionLayout.columns.includes('px')&&selectionLayout.columns.trim().split(/\s+/).length>=2,
    vp.name+' world selection is not a card grid: '+JSON.stringify(selectionLayout));
   assert(selectionLayout.first.w>70&&selectionLayout.first.h>=40,
    vp.name+' new SEKAI cards are too small: '+JSON.stringify(selectionLayout));
