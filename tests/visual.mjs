@@ -298,11 +298,15 @@ try{
   const overlap=await page.evaluate(()=>{
    const dialogue=document.getElementById('battleDialogue');
    const wave=document.querySelector('.wave-panel');
-   if(dialogue?.hidden||!wave)return false;
+   if(dialogue?.hidden||!wave)return {overlaps:false};
    const a=dialogue.getBoundingClientRect(),b=wave.getBoundingClientRect();
-   return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+   const rect=x=>({x:x.x,y:x.y,w:x.width,h:x.height});
+   return {overlaps:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,
+    speech:rect(a),wave:rect(b),position:getComputedStyle(dialogue).position,
+    left:getComputedStyle(dialogue).left,right:getComputedStyle(dialogue).right,
+    transform:getComputedStyle(dialogue).transform};
   });
-  assert(!overlap,vp.name+' character dialogue obscures the wave bar');
+  assert(!overlap.overlaps,vp.name+' character dialogue obscures the wave bar: '+JSON.stringify(overlap));
   assert(layout.board&&layout.board.w>110&&layout.board.h>110,vp.name+' canvas not visible');
   assert(Math.abs(layout.board.w/layout.board.h-layout.map[0]/layout.map[1])<.04,vp.name+' map aspect wrong');
   assert(layout.board.x>=-2&&layout.board.y>=-2&&layout.board.x+layout.board.w<=vp.width+2&&layout.board.y+layout.board.h<=vp.height+2,vp.name+' board clips viewport');
