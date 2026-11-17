@@ -128,14 +128,21 @@ function base(c,m,p){
 // Subtle buildable-tile outlines: readable placement geography without
 // a solid checkerboard or stickers on every square. Obstacles are excluded.
 function buildPads(c,m,p){
- c.save();
+ // A battlefield is not a level-editor grid. Indicate deployable cells with
+ // four very small engraved corner ticks instead of outlining every tile.
+ // Interactive movement highlights remain bright in Renderer.drawPlacement.
+ c.save();c.lineWidth=1;
  for(const at of m.available){
   const x=at.x*TILE,y=at.y*TILE;
-  c.globalAlpha=.115;
-  rect(c,x+2,y+2,TILE-4,TILE-4,p.mark);
-  c.globalAlpha=.28;
-  c.strokeStyle=p.edge;c.lineWidth=1;
-  c.strokeRect(x+3.5,y+3.5,TILE-7,TILE-7);
+  c.strokeStyle=p.edge;c.globalAlpha=.26;
+  c.beginPath();
+  for(const [px,py,dx,dy] of [
+   [x+5,y+5,1,1],[x+TILE-5,y+5,-1,1],
+   [x+5,y+TILE-5,1,-1],[x+TILE-5,y+TILE-5,-1,-1]
+  ]){
+   c.moveTo(px+dx*5,py);c.lineTo(px,py);c.lineTo(px,py+dy*5);
+  }
+  c.stroke();
  }
  c.restore();
 }
@@ -288,6 +295,154 @@ function sceneProps(c,m,p){
   for(const [x,y] of [[17,94],[326,185],[16,326],[331,310]])flower(c,x,y,'#e8bfd0');
  }
 }
+/* Scene identity pass: readable architectural objects instead of decorative
+   UI stickers. All objects are behind the combat route, and never modify
+   blocked cells, collision geometry, enemy behavior or user images. */
+function worldArchitecture(c,m){
+ const w=m.w*TILE,h=m.h*TILE;
+ c.save();
+ const line=(a,b,ink,thickness=1)=>stroke(c,[a,b],ink,thickness);
+ const picture=(x,y,w,h,frame,paper)=>{
+  rect(c,x,y,w,h,frame);rect(c,x+3,y+3,w-6,h-6,paper);
+ };
+ if(m.theme==='school'){
+  // Classroom: timber planks, north wall, blackboard, coat hooks and books.
+  for(let y=59;y<h-32;y+=21)rect(c,0,y,w,1,'#b9807452');
+  rect(c,0,0,w,59,'#c99f93');
+  rect(c,0,52,w,7,'#846879');
+  rect(c,0,0,w,6,'#f0d6be');
+  pane(c,13,9,83,37,'#d5dfe2','#fff0d7');
+  pane(c,256,9,83,37,'#d5dfe2','#fff0d7');
+  rect(c,112,10,128,35,'#76576b');
+  rect(c,116,14,120,27,'#496e69');
+  rect(c,119,38,113,2,'#d2bcaf');
+  for(let i=0;i<4;i++)note(c,136+i*26,31,'#c1d9cd');
+  // Teacher's desk, a music stand, wall shelves and boxed instruments.
+  round(c,16,101,37,27,2,'#87576a','#f0c6a8',2);
+  rect(c,20,106,28,17,'#d2a890');rect(c,25,109,12,3,'#f4e9d4');
+  round(c,15,226,36,52,2,'#9a7783','#ebc8a8',2);
+  for(let i=0;i<3;i++){
+   rect(c,19,230+i*15,28,2,'#f5d8b8');
+   rect(c,22,235+i*15,7,9,i%2?'#5b6d83':'#b77c89');
+   rect(c,31,233+i*15,6,11,'#e8d2b2');
+  }
+  rect(c,0,h-34,w,34,'#ae847f');
+  rect(c,0,h-35,w,3,'#e4c6a9');
+  for(let i=0;i<11;i++)line([i*34,h-31],[i*34,h-2],'#815d6870',1);
+  picture(w-47,h-82,30,36,'#866779','#f1dcc0');
+  note(c,w-30,h-55,'#76617b');
+  // Small recognisable classroom entrance in the lower corner.
+  rect(c,w-64,h-32,48,30,'#74576c');
+  rect(c,w-59,h-28,39,26,'#c49b8f');
+  disc(c,w-24,h-16,2,'#fcdf9e');
+ }
+ if(m.theme==='stage'){
+  // Idol rehearsal stage: curtain folds, footlights, monitor towers, podium.
+  rect(c,0,0,w,59,'#806383');
+  for(let i=0;i<10;i++){
+   const px=i*39;
+   shape(c,[[px,0],[px+35,0],[px+28,56],[px+5,56]],i%2?'#a780aa':'#906c9a');
+  }
+  rect(c,0,57,w,4,'#e9ccb8');
+  for(let i=0;i<9;i++)disc(c,18+i*39,61,4,i%2?'#f7e2b0':'#d0e5d6');
+  rect(c,0,h-35,w,35,'#735b83');
+  rect(c,0,h-39,w,4,'#eac2cf');
+  for(let i=0;i<8;i++)rect(c,i*47+12,h-30,23,4,'#f7d9a9');
+  for(const x of [7,w-34]){
+   round(c,x,95,27,49,3,'#51465e','#d0a9bf',2);
+   disc(c,x+14,109,8,'#a488b7');disc(c,x+14,132,5,'#b0c3c6');
+  }
+  truss(c,28,85,w-56,9,'#7b6389');
+  for(let i=0;i<7;i++)disc(c,40+i*46,92,3,'#f2dab9');
+ }
+ if(m.theme==='street'){
+  // Street: a real shopfront and patched tarmac, not a room with stickers.
+  rect(c,0,0,w,56,'#a98d87');
+  rect(c,0,54,w,5,'#66576b');
+  for(let i=0;i<9;i++){
+   rect(c,i*42,2,40,2,'#edcfb850');
+   rect(c,i*42+19,27,2,24,'#edcfb850');
+  }
+  rect(c,15,7,139,44,'#70576a');
+  awning(c,17,8,135,'#be7b80','#f3d7bd');
+  picture(40,28,33,19,'#6f5e66','#bfc4bb');
+  picture(79,28,56,19,'#6f5e66','#dbb6a4');
+  rect(c,209,7,120,43,'#76687c');
+  for(let i=0;i<7;i++)rect(c,214,15+i*5,110,2,'#a89a9a');
+  rect(c,0,h-39,w,39,'#766c70');
+  rect(c,0,h-42,w,3,'#e4bd9d');
+  for(let i=0;i<8;i++)rect(c,18+i*44,h-21,22,2,'#ecdbbf');
+  // A visible wall poster and instrument shop sign.
+  picture(7,114,40,48,'#5c586f','#c5aa9f');
+  note(c,28,146,'#645570');
+  round(c,292,219,41,48,2,'#d5b5aa','#655c74',2);
+  rect(c,301,228,23,32,'#756b7d');
+  for(let y=231;y<259;y+=6)rect(c,302,y,21,1,'#c7b7b4');
+ }
+ if(m.theme==='wonderland'){
+  // Performance park: boardwalk, tickets, scalloped awnings and star arches.
+  rect(c,0,0,w,53,'#e3b5aa');rect(c,0,51,w,4,'#fff0d1');
+  for(let i=0;i<8;i++){
+   const px=i*47;
+   shape(c,[[px,0],[px+30,0],[px+41,48],[px+11,48]],i%2?'#f6d4b8':'#e9a0b9');
+   star(c,px+24,34,7,'#fff1c9');
+  }
+  round(c,11,77,54,54,4,'#cb90aa','#fff0dc',3);
+  awning(c,13,80,50,'#e4a0b1','#f7ddbd');
+  rect(c,21,102,33,21,'#ffebd6');star(c,39,112,8,'#cf8ba2');
+  round(c,w-60,74,49,57,4,'#9fcabd','#fff1dd',3);
+  awning(c,w-58,78,45,'#d8a8bb','#f6e3b7');
+  star(c,w-37,113,10,'#f7d79b');
+  rect(c,0,h-29,w,29,'#c994aa');
+  for(let i=0;i<12;i++)star(c,i*32+10,h-15,4,i%2?'#fff4d5':'#b0d8c7');
+ }
+ if(m.theme==='empty'){
+  // Empty SEKAI: no festive props; quiet suspended architecture and void.
+  rect(c,0,0,w,57,'#c0c3d0');rect(c,0,55,w,2,'#f5f3f3');
+  rect(c,0,h-43,w,43,'#bec1ce');
+  rect(c,0,h-44,w,2,'#f8f6f5');
+  for(const x of [22,110,226,312]){
+   rect(c,x,0,2,48,'#e6e7ed');
+   rect(c,x+5,10,18,1,'#e6e7ed');
+  }
+  for(const [x,y] of [[10,112],[299,118],[15,264],[302,277]]){
+   rect(c,x,y,29,2,'#9fa5b8');rect(c,x,y+2,2,33,'#9fa5b8');
+   rect(c,x+27,y+2,2,33,'#e2e4ec');
+  }
+ }
+ if(m.theme==='closed'){
+  // The sealed room: repeating heavy frames, muted cracks, dense shadow.
+  rect(c,0,0,w,59,'#454052');rect(c,0,57,w,3,'#ac8ba2');
+  for(const x of [11,101,211,302]){
+   pane(c,x,8,37,40,'#696076','#b99cad');
+   rect(c,x+2,8,33,4,'#524c68');
+   for(let i=0;i<4;i++)rect(c,x+4,18+i*8,29,3,'#464052');
+  }
+  rect(c,0,h-42,w,42,'#49435c');
+  rect(c,0,h-43,w,3,'#a4869e');
+  for(const x of [22,148,278]){
+   rect(c,x,h-36,38,30,'#625b76');
+   rect(c,x+9,h-33,3,25,'#8d778e');
+   rect(c,x+20,h-33,3,25,'#8d778e');
+  }
+ }
+ if(m.theme==='open'){
+  // The open room: airy sunny windows and cutout curtains at the edges.
+  rect(c,0,0,w,58,'#b9d3d4');rect(c,0,56,w,3,'#f7f0e2');
+  for(const x of [14,124,234]){
+   pane(c,x,8,91,39,'#d5e7e6','#fff9e6',true);
+   shape(c,[[x+1,5],[x+18,5],[x+14,46],[x+1,47]],'#f7f0debd');
+   shape(c,[[x+90,5],[x+72,5],[x+76,46],[x+90,47]],'#f7f0debd');
+  }
+  rect(c,0,h-34,w,34,'#c2d9d4');
+  rect(c,0,h-35,w,3,'#fff8eb');
+  for(const x of [22,148,274]){
+   disc(c,x,h-13,8,'#f6d9c3');disc(c,x+16,h-9,5,'#e3eacb');
+  }
+ }
+ c.restore();
+}
+
 function entrance(c,m,p,time){
  const {x,y}=tileLandmark(m.path[0]);
  c.save();c.translate(x,y);
@@ -326,7 +481,7 @@ function cached(m){
   if(cv){
    const c=cv.getContext('2d');
    const p=STYLES[m.theme]||STYLES.school;
-   base(c,m,p);buildPads(c,m,p);sceneProps(c,m,p);route(c,m,p);STATIC.set(m,cv);
+   base(c,m,p);worldArchitecture(c,m);buildPads(c,m,p);sceneProps(c,m,p);route(c,m,p);STATIC.set(m,cv);
   }
  }catch{cv=null;}
  return cv;
@@ -335,7 +490,7 @@ export function drawSekaiWorld(c,m,time=0,reduced=false){
  c.save();
  const p=STYLES[m.theme]||STYLES.school,layer=cached(m);
  if(layer)c.drawImage(layer,0,0);
- else{base(c,m,p);buildPads(c,m,p);sceneProps(c,m,p);route(c,m,p);}
+ else{base(c,m,p);worldArchitecture(c,m);buildPads(c,m,p);sceneProps(c,m,p);route(c,m,p);}
  ambient(c,m,time,reduced);entrance(c,m,p,time);
  c.restore();
 }
