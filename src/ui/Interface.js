@@ -5,7 +5,7 @@ import {heartEffectDetails,heartCasterDescription} from '../data/heartEffects.js
 import {SKILL_DIALOGUE} from '../data/skillDialogue.js';
 import {DIFFICULTIES,UPGRADE_DATA,upgradeCost} from '../data/enemies.js';
 import {upgradeExplanation} from '../data/upgradeDescriptions.js';
-import {getText,LANGUAGES} from '../data/locales.js?v=1.29.0';
+import {getText,LANGUAGES} from '../data/locales.js?v=1.30.0';
 import {TITLE_LOGOS} from '../data/branding.js';
 import {TitleIntro} from './TitleIntro.js?v=1.20.0';
 import {persistSave} from '../core/Save.js';
