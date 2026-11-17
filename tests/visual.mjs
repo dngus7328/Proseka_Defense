@@ -287,11 +287,16 @@ try{
    assert.equal(idle,'none',vp.name+' idle unit details are visible');
    assert(await page.locator('#commandWorldCrest').evaluate(e=>e.naturalWidth>0));
   }else if(vp.width>vp.height){
-   const tactics=await page.locator('#teamTactics').boundingBox();
-   assert(tactics&&tactics.width>120&&tactics.height>55,vp.name+' tactics panel missing');
-   assert((await page.locator('#teamTacticsDescription').textContent()).trim().length>10);
-   assert(await page.locator('#teamHeartProgress .team-heart-member').count()>=4,
-    vp.name+' combination target portraits are missing');
+   // The old decorative tactics rail is intentionally removed in v1.32.
+   // Compact landscape must retain the battle map and usable summon controls.
+   const board=await page.locator('#gameCanvas').boundingBox();
+   const summon=await page.locator('#summonButton').boundingBox();
+   assert(board&&board.width>165&&board.height>170,
+    vp.name+' compact landscape battle board is missing');
+   assert(summon&&summon.width>65&&summon.height>35,
+    vp.name+' compact landscape summon control is inaccessible');
+   const tacticsVisible=await page.locator('#teamTactics').evaluate(e=>getComputedStyle(e).display);
+   assert.equal(tacticsVisible,'none',vp.name+' obsolete guidance panel returned');
   }
   const layout=await page.evaluate(()=>{
    const box=sel=>{const e=document.querySelector(sel);if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
