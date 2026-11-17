@@ -15,6 +15,8 @@ import {LANGUAGES} from '../src/data/locales.js';
 import {TITLE_LOGOS} from '../src/data/branding.js';
 
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const bundledCore=fs.readFileSync(path.join(root,'styles/bundle-core-v134.css'),'utf8');
+const bundledOverlays=fs.readFileSync(path.join(root,'styles/bundle-overrides-v134.css'),'utf8');
 assert.equal(CHARACTERS.length,26);
 assert.equal(MAPS.length,7);
 assert.deepEqual(LANGUAGES,['ko','ja','en']);
@@ -81,7 +83,8 @@ for(const hero of CHARACTERS){
  game.heartUpdate(.2,1);
  assert(events.includes('end'));
 }
-assert(interfaceHtml.includes('./styles/skill-cutin.css'));
+assert(bundledCore.includes('SOURCE styles/skill-cutin.css'));
+assert(interfaceHtml.includes('./styles/bundle-core-v134.css'));
 assert(interfaceJs.includes('skill-cutin-dialogue'));
 console.log('OK — 26×4 transparent character sprites and delayed skill cut-in events');
 console.log('OK — transparent resource PNGs wired to HUD, summon and upgrade costs');
@@ -251,7 +254,7 @@ console.log('OK — adaptive 45fps pacing retains fractional render credits');
  const css=fs.readFileSync(path.join(root,'styles/gameplay-v21.css'),'utf8');
  assert(index.includes('id="teamStrip"'),'missing roster quick-select');
  assert(index.includes('id="skillCondition"'),'missing skill combination progress');
- assert(index.includes('gameplay-v21.css'),'game-first HUD stylesheet not loaded');
+ assert(bundledCore.includes('SOURCE styles/gameplay-v21.css'),'game-first HUD stylesheet not bundled');
  assert(ui.includes('updateTeamStrip('),'roster controls not wired');
  assert(ui.includes('updateSkillCondition('),'skill roster tracker not wired');
  assert(css.includes('.team-unit')&&css.includes('.skill-condition'),'missing responsive mobile HUD');
@@ -316,9 +319,9 @@ console.log('OK — layered title intro, cache revision and failed-image retry')
 {
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const layout=fs.readFileSync(path.join(root,'styles','title-stage-v3.css'),'utf8');
- assert.ok(html.includes('title-stage-v3.css?v=1.16.0'),'new title layout missing');
+ assert.ok(bundledCore.includes('SOURCE styles/title-stage-v3.css'),'new title layout missing');
  assert.ok(!html.includes('title-layout-v2.css'),'outdated letterbox title layout still loaded');
- assert.ok(html.indexOf('title-stage-v3.css')>html.indexOf('title-intro.css'),'title override order incorrect');
+ assert.ok(bundledCore.indexOf('SOURCE styles/title-stage-v3.css')>bundledCore.indexOf('SOURCE styles/title-intro.css'),'title override order incorrect');
  assert.ok(layout.includes('object-fit:contain !important'),'character assets must retain native proportion');
  assert.ok(layout.includes('object-fit:cover !important'),'scenic background should fill screen');
  assert.ok(layout.includes('.title-backdrop.art-ready .title-final{display:none !important}'),'non-native ratios must not render rectangular source');

@@ -53,7 +53,8 @@ const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const ui=fs.readFileSync(new URL('../src/ui/Interface.js',import.meta.url),'utf8');
 for(const phrase of ['id="heartGuide"','id="upgradeIntro"']){ /* paragraphs use class for heart guide */ }
 assert(html.includes('class="heart-guide"')&&html.includes('id="upgradeIntro"'));
-assert(html.includes('system-copy-v127.css'));
+assert(html.includes('bundle-overrides-v134.css'));
+assert(fs.readFileSync(new URL('../styles/bundle-overrides-v134.css',import.meta.url),'utf8').includes('SOURCE styles/system-copy-v127.css'));
 assert(ui.includes("className='upgrade-card-description'")&&ui.includes("className='upgrade-card-progress'"));
 assert(ui.includes('JSON.stringify([g.upgrades,Math.floor(g.crystals)'));
 assert(ui.includes("this.t('crystals')"));

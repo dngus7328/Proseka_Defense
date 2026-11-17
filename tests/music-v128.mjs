@@ -62,5 +62,6 @@ assert(ui.includes("this.sound.playScene('lobby')"));
 assert(html.includes('id="musicVolumeRange"'));
 assert(html.includes('id="musicVolumeValue"'));
 assert(html.includes('id="effectVolumeValue"'));
-assert(html.includes('game-polish-v128.css'));
+assert(html.includes('bundle-overrides-v134.css'));
+assert(fs.readFileSync(new URL('../styles/bundle-overrides-v134.css',import.meta.url),'utf8').includes('SOURCE styles/game-polish-v128.css'));
 console.log('OK — 10 submitted tracks mapped; gapless sources, title/lobby/SEKAI/boss switching and volume control wired');
