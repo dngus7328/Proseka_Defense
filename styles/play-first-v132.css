@@ -423,7 +423,7 @@
 /* In narrow landscape, keep existing tested horizontal rail behavior,
    removing decorative instructions without changing controls. */
 @media(orientation:landscape) and (max-height:569px){
- .command-deck-head,.field-summary{display:none!important}
+ .command-deck-head,.field-summary,.team-tactics,.team-heart-progress{display:none!important}
  .selection-panel:not(.has-selection){display:none!important}
 }
 /* Mobile gameplay: existing generous touch area, no decorative overlays. */
