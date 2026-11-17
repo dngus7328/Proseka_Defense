@@ -236,6 +236,8 @@ try{
     'Right contextual actions obscure the play field: '+JSON.stringify(structuralBattle));
    assert(board.w>450,
     'Game board is not visually dominant: '+JSON.stringify(structuralBattle));
+   assert(Math.abs(board.x+board.w/2-vp.width/2)<20,
+    'Game board is not centered in arena: '+JSON.stringify(structuralBattle));
    assert(structuralBattle.chapter.includes('세카이')&&structuralBattle.situation.length>15,
     'World-specific gameplay data missing: '+JSON.stringify(structuralBattle));
   }
