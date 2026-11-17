@@ -277,7 +277,9 @@ for(const role of ['tether','stage','armor','barrier','rescue','mirror']){
  const cinema=fs.readFileSync(path.join(root,'styles/skill-cinema-v118.css'),'utf8');
  const main=fs.readFileSync(path.join(root,'src/main.js'),'utf8');
  const audio=fs.readFileSync(path.join(root,'src/core/Audio.js'),'utf8');
- assert(html.includes('gameplay-v118.css')&&html.includes('skill-cinema-v118.css'));
+ assert(html.includes('bundle-core-v134.css')&&html.includes('bundle-overrides-v134.css'));
+ assert(fs.readFileSync(path.join(root,'styles/bundle-core-v134.css'),'utf8').includes('SOURCE styles/gameplay-v118.css'));
+ assert(fs.readFileSync(path.join(root,'styles/bundle-core-v134.css'),'utf8').includes('SOURCE styles/skill-cinema-v118.css'));
  assert(responsive.includes('aspect-ratio:var(--map-aspect,11/12)'));
  assert(responsive.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
  assert(cinema.includes('skill-cutin.impact')&&cinema.includes('skill-cutin-lead'));
@@ -298,7 +300,7 @@ for(const role of ['tether','stage','armor','barrier','rescue','mirror']){
   'persistent on-board abilities are not rendered');
  assert(director.includes('heartAfterMovement')&&director.includes('heartHeroIntervalFactor'),
   'world-changing roles are not connected to movement and attacks');
- assert(html.includes('title-game-v121.css')&&html.includes('heart-skills-v121.css'),
+ assert(fs.readFileSync(path.join(root,'styles/bundle-overrides-v134.css'),'utf8').includes('SOURCE styles/title-game-v121.css')&&fs.readFileSync(path.join(root,'styles/bundle-overrides-v134.css'),'utf8').includes('SOURCE styles/heart-skills-v121.css'),
   'new title and live skills status must load');
  assert(uiSource.includes('heartEffectDetails(heart,strength,lang)'),
   'skill banner must name the actual applied ability');
