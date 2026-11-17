@@ -1,0 +1,549 @@
+/* SEKAI DEFENSE / Screen composition v1.32
+   Stop treating the battle as a dashboard.
+   Primary: game board and world. Secondary: waves, currency, summoning.
+   Tertiary: unit details (visible only when actively selected).
+   No fake metallic framing, light blooms, ornamental English or card stacks.
+*/
+:root{
+ --hud-text:#292a38;
+ --hud-paper:#f9f7f2;
+ --hud-accent:#b96986;
+ --hud-accent-darker:#95516e;
+ --hud-muted:#747380;
+ font-family:"Noto Sans KR","Apple SD Gothic Neo",sans-serif!important;
+}
+.app{--world-floor:#d6b6a2;--world-edge:#aa8e9a;--hud-accent:#b96986;--hud-accent-darker:#95516e}
+.app[data-theme="stage"]{--world-floor:#dcc6d9;--world-edge:#a28da9;--hud-accent:#b37fa8;--hud-accent-darker:#896488}
+.app[data-theme="street"]{--world-floor:#c8b5ac;--world-edge:#948392;--hud-accent:#b17f70;--hud-accent-darker:#805b5c}
+.app[data-theme="wonderland"]{--world-floor:#efceb9;--world-edge:#b790a9;--hud-accent:#c17a9c;--hud-accent-darker:#9a5c82}
+.app[data-theme="empty"]{--world-floor:#e6e6eb;--world-edge:#bbb9c5;--hud-accent:#8e92ab;--hud-accent-darker:#686c89}
+.app[data-theme="closed"]{--world-floor:#9a8d9d;--world-edge:#66566f;--hud-accent:#957290;--hud-accent-darker:#6c536f}
+.app[data-theme="open"]{--world-floor:#e5e9df;--world-edge:#9cbcc4;--hud-accent:#77aab6;--hud-accent-darker:#4d7f8e}
+.app{
+ background:var(--world-floor)!important;
+}
+.battle{
+ background:var(--world-floor)!important;
+}
+.battle:before{
+ background:
+  repeating-linear-gradient(0deg,transparent 0,transparent 63px,#51485a0b 63px,#51485a0b 64px),
+  repeating-linear-gradient(90deg,transparent 0,transparent 63px,#51485a0b 63px,#51485a0b 64px)!important;
+ opacity:.55!important;
+}
+.battle:after{display:none!important}
+.world-decoration,.board-grain,.board-corner,.footnote{display:none!important}
+#titleOverlay .title-art-caption,#titleOverlay .title-ellipse{display:none!important}
+#titleOverlay .title-main::before{display:none!important}
+#titleOverlay .title-backdrop-filter{
+ background:linear-gradient(180deg,#ffffff44 0%,transparent 31%,transparent 69%,#231b2e66 100%)!important;
+ filter:none!important;backdrop-filter:none!important;
+}
+#titleOverlay .title-backdrop .title-bg{object-position:center!important}
+#titleOverlay .title-backdrop .title-enemies,
+#titleOverlay .title-backdrop .title-characters,
+#titleOverlay .title-backdrop .title-final{
+ top:53%!important;left:50%!important;
+ width:min(112vw,calc(100dvh * 2.02))!important;
+ transform:translate(-50%,-50%)!important;
+}
+#titleOverlay .title-logo-wrap{
+ top:clamp(56px,9dvh,98px)!important;left:50%!important;
+ right:auto!important;transform:translateX(-50%)!important;
+ justify-items:center!important;width:min(49vw,620px)!important;
+}
+#titleOverlay .title-logo-image{
+ max-height:30dvh!important;
+ filter:drop-shadow(0 2px 3px #fffdf7aa)!important;
+}
+#titleOverlay .title-header{
+ padding:calc(14px + env(safe-area-inset-top)) 21px 0!important;
+}
+#titleOverlay .title-small-control{
+ background:#fbf9f3f0!important;
+ color:#554358!important;
+ border:1px solid #e1ced2!important;
+ box-shadow:none!important;border-radius:4px!important;
+}
+#titleOverlay .title-issue{display:none!important}
+#titleOverlay .title-bottom{
+ left:50%!important;right:auto!important;
+ bottom:calc(6.7dvh + env(safe-area-inset-bottom))!important;
+ transform:translateX(-50%)!important;
+ width:min(320px,80vw)!important;max-width:none!important;
+}
+#titleOverlay .title-copy,#titleOverlay .title-credit,
+#titleOverlay .title-skip{display:none!important}
+#titleOverlay .title-enter{
+ width:100%!important;
+ height:59px!important;min-height:59px!important;
+ background:#b96b87!important;color:#fffaf8!important;
+ border:2px solid #fffaf4!important;border-bottom:4px solid #87445f!important;
+ border-radius:5px!important;padding:9px 18px!important;
+ box-shadow:0 3px 11px #241b2b44!important;
+ font-size:21px!important;font-weight:900!important;
+}
+#titleOverlay .title-enter::before{display:none!important}
+#titleOverlay .title-enter svg{width:25px!important;height:25px!important}
+/* LOBBY: one world preview, one choice list and one departure button.
+   There is no need to repeat miniature maps for every world beside the preview. */
+#lobbyOverlay{background:#eae7e0!important}
+#lobbyOverlay .lobby-dialog{
+ background:var(--hud-paper)!important;color:var(--hud-text)!important;
+ border:0!important;box-shadow:none!important;
+}
+#lobbyOverlay .lobby-top{
+ background:#f9f7f1!important;color:#34313a!important;
+ border-bottom:1px solid #ddd7d6!important;
+}
+#lobbyOverlay .lobby-fan{font-size:16px!important;color:#4b4351!important;font-weight:900!important}
+#lobbyOverlay .lobby-back,
+#lobbyOverlay .lobby-top .icon-button{
+ background:#f1ece9!important;color:#625361!important;
+ border:1px solid #d7cbd0!important;box-shadow:none!important;border-radius:3px!important;
+}
+#lobbyOverlay .lobby-art{background:#e7dedb!important;border:0!important;overflow:hidden!important}
+#lobbyOverlay .lobby-art canvas{
+ image-rendering:pixelated!important;
+ filter:none!important;object-fit:contain!important;
+}
+#lobbyOverlay .lobby-art-mask{
+ background:linear-gradient(180deg,transparent 46%,#252034b7 100%)!important;
+}
+#lobbyOverlay .lobby-art-copy{
+ background:transparent!important;border:0!important;
+ gap:5px!important;padding:0!important;
+ left:clamp(17px,3vw,38px)!important;
+ bottom:clamp(20px,3vw,39px)!important;
+ color:#fff!important;
+ text-shadow:0 2px 8px #100f1b9b!important;
+}
+#lobbyOverlay .lobby-art-kicker,#lobbyOverlay .map-affinity{display:none!important}
+#lobbyOverlay #lobbyWorldName{
+ color:#fff!important;font-weight:900!important;
+ font-size:clamp(30px,3.8vw,49px)!important;letter-spacing:-.05em!important;
+}
+#lobbyOverlay #lobbyWorldIndex{
+ color:#fff5eb!important;font-family:"Noto Sans KR",sans-serif!important;
+ font-weight:750!important;letter-spacing:.05em!important;
+}
+#lobbyOverlay #lobbyCrest{
+ display:block!important;width:64px!important;height:64px!important;object-fit:contain!important;
+}
+#lobbyOverlay .lobby-content{
+ background:#f9f7f2!important;color:#302e3e!important;
+ border:0!important;
+}
+#lobbyOverlay .lobby-content-heading{display:none!important}
+#lobbyOverlay .lobby-block{gap:8px!important}
+#lobbyOverlay .block-label strong{color:#5b505b!important;font-size:13px!important;letter-spacing:0!important}
+#lobbyOverlay .block-rule{background:#ded4d3!important}
+#lobbyOverlay .choice-grid{gap:5px!important}
+#lobbyOverlay .choice-button{
+ background:#efebe7!important;color:#675b64!important;
+ border:1px solid #ddd5d4!important;border-radius:3px!important;box-shadow:none!important;
+ min-height:42px!important;font-weight:850!important;
+}
+#lobbyOverlay .choice-button.active{
+ border-color:#ad788f!important;
+ color:#69455a!important;background:#f6e6eb!important;
+ box-shadow:inset 0 -3px #b66f8c!important;
+}
+#lobbyOverlay .map-choices{
+ display:grid!important;grid-template-columns:1fr!important;gap:0!important;
+ padding:0!important;overflow-y:auto!important;overflow-x:hidden!important;
+}
+#lobbyOverlay .map-choice,
+#lobbyOverlay .map-choice.active{
+ display:flex!important;align-items:center!important;gap:7px!important;
+ width:100%!important;min-width:0!important;
+ height:48px!important;min-height:48px!important;
+ padding:9px 14px!important;flex:none!important;
+ background:transparent!important;box-shadow:none!important;
+ border:0!important;border-bottom:1px solid #e6ddda!important;
+ border-left:4px solid transparent!important;border-radius:0!important;
+ color:#746b70!important;text-align:left!important;
+}
+#lobbyOverlay .map-choice:hover:not(.active){background:#f3ede8!important}
+#lobbyOverlay .map-choice.active{
+ border-left-color:#b56e8b!important;
+ background:#f7e9ec!important;color:#553f54!important;
+}
+#lobbyOverlay .map-thumb,#lobbyOverlay .map-icon{display:none!important}
+#lobbyOverlay .map-choice strong{
+ display:block!important;grid-column:auto!important;grid-row:auto!important;
+ font-size:14px!important;line-height:1.5!important;font-weight:800!important;
+}
+#lobbyOverlay .lobby-bottom{
+ background:#f5f0e8!important;border:0!important;border-top:1px solid #e4dad6!important;
+ box-shadow:none!important;
+}
+#lobbyOverlay .lobby-dispatch-meta{display:none!important}
+#lobbyOverlay #startButton{
+ min-height:54px!important;background:#b7728d!important;color:#fff!important;
+ border:0!important;border-radius:3px!important;
+ box-shadow:none!important;font-size:18px!important;
+}
+
+/* MAP is the dominant layer. HUD has no ambient cards or large floating info. */
+.battle-header,.wave-panel{
+ background:#f8f6f0ee!important;color:#35313c!important;
+ box-shadow:none!important;border:0!important;
+ border-radius:0!important;
+}
+.battle-header{border-bottom:1px solid #877988!important}
+.wave-panel{border-top:1px solid #cbc5bf!important}
+.battle-hud,.stage-id{color:#484354!important}
+#mapTitle,.wave-head strong{color:#36313c!important}
+.stage-signal,.muted-dot{display:none!important}
+.stage-mode{
+ font-size:10px!important;background:#e7e0e3!important;color:#77566b!important;
+ padding:3px 7px!important;border-radius:2px!important;
+}
+.wave-head .mini-label,.enemy-count .mini-label{color:#827782!important}
+.wave-head .tiny-fraction{color:#877b83!important}
+.enemy-count strong{color:#a45c72!important}
+.wave-track{background:#e2dcdb!important;border-radius:0!important}
+.wave-track span{background:#b3748d!important;border-radius:0!important}
+.board-frame{
+ background:var(--world-floor)!important;
+ border:1px solid #746773!important;border-radius:0!important;
+ box-shadow:0 1px 0 #f7eee6!important;
+}
+.board-frame:before{display:none!important}
+.speed-button{
+ background:#e6e3df!important;color:#4b4355!important;
+ border:1px solid #d0c8c8!important;border-radius:2px!important;
+ box-shadow:none!important;clip-path:none!important;
+}
+.masthead{z-index:40!important}
+.icon-button{
+ border-radius:3px!important;box-shadow:none!important;
+ background:#f8f6f2eb!important;color:#5b5263!important;
+ border:1px solid #bdb4bd!important;
+}
+.icon-button svg{stroke-width:2}
+#pauseButton{background:#aa6d85!important;color:white!important}
+/* Only meaningful interactions are visible by default. */
+.command-deck-kicker,.command-deck-alert,.selection-empty,.reserve-preview,
+.selection-empty-kicker,.selection-empty-tip,
+.world-decoration,#worldTypeText{display:none!important}
+.selection-panel:not(.has-selection){display:none!important}
+.team-strip-caption{display:none!important}
+.team-strip:has(.team-strip-hint):not(:has(.team-unit)){display:none!important}
+.resource-row,.main-actions{border-radius:0!important;box-shadow:none!important}
+.resource-card{border:0!important}
+.resource-card strong{color:#37323f!important}
+.resource-card .mini-label{color:#7b6c78!important;font-size:10px!important}
+.resource-icon{filter:none!important}
+.summon-action{
+ background:#e7bd86!important;color:#382f39!important;
+ border:0!important;border-bottom:4px solid #ad805d!important;border-radius:4px!important;
+ clip-path:none!important;box-shadow:none!important;
+}
+.summon-action:before,.summon-arrow{display:none!important}
+.summon-action .summon-text strong{color:#382f39!important;font-weight:900!important}
+.summon-action .summon-text small{color:#775e5b!important}
+.secondary-actions>.square-action,#heartButton{
+ background:#f5f2ed!important;color:#504853!important;
+ border:1px solid #c9bec5!important;border-radius:3px!important;
+ box-shadow:none!important;
+}
+.secondary-actions>.square-action:hover{background:#ece6e3!important}
+
+/* Desktop 1080+: field centered; HUD is typeset in the surrounding world,
+   with just the action group in the bottom-right. */
+@media (orientation:landscape) and (min-width:1080px) and (min-height:570px){
+ .game-layout{
+  display:block!important;position:absolute!important;inset:0!important;
+ }
+ .battle{
+  display:flex!important;flex-direction:column!important;
+  position:absolute!important;inset:0!important;
+  align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100dvh!important;
+  overflow:hidden!important;gap:0!important;
+  padding:7px 0!important;
+ }
+ .battle-header,.wave-panel,.board-frame{
+  align-self:center!important;grid-column:auto!important;grid-row:auto!important;
+  margin:0!important;
+  width:min(calc(100vw - 630px),calc((100dvh - 120px)*var(--map-ratio,.916667)))!important;
+  max-width:660px!important;
+ }
+ .battle-header{flex:0 0 34px!important;min-height:34px!important;height:34px!important;padding:0 8px!important}
+ .wave-panel{flex:0 0 30px!important;min-height:30px!important;height:30px!important;padding:0 8px!important}
+ .board-frame{
+  flex:0 1 auto!important;height:auto!important;
+  max-height:calc(100dvh - 120px)!important;min-height:0!important;
+  aspect-ratio:var(--map-aspect,11/12)!important;
+ }
+ .sidepanel{display:contents!important}
+ .command-deck-head{
+  position:fixed!important;z-index:12!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  top:calc(36px + env(safe-area-inset-top))!important;
+  bottom:auto!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:12px!important;width:260px!important;min-height:56px!important;height:56px!important;
+  padding:0!important;
+  background:none!important;color:#3d3543!important;border:0!important;
+  box-shadow:none!important;border-radius:0!important;
+ }
+ .command-deck-heading{display:flex!important;flex-direction:column!important;gap:6px!important}
+ #commandWorldName{font-size:21px!important;font-weight:900!important;letter-spacing:-.04em!important;color:#403449!important;line-height:1.15!important}
+ #commandDifficulty{font-size:12px!important;color:#786a78!important;font-weight:700!important}
+ #commandWorldCrest{width:49px!important;height:49px!important;object-fit:contain!important}
+ .resource-row{
+  position:fixed!important;z-index:15!important;
+  top:calc(38px + env(safe-area-inset-top))!important;
+  right:clamp(22px,3vw,45px)!important;left:auto!important;bottom:auto!important;
+  width:280px!important;height:62px!important;min-height:62px!important;
+  padding:3px 0!important;display:flex!important;align-items:center!important;
+  gap:8px!important;
+  background:transparent!important;border:0!important;
+ }
+ .resource-card{
+  display:flex!important;flex:1 1 50%!important;gap:6px!important;
+  align-items:center!important;justify-content:center!important;
+  padding:0 3px!important;height:100%!important;border:0!important;
+ }
+ .resource-card>div{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important}
+ .resource-card .mini-label{font-size:10px!important}
+ .resource-card strong{font-size:23px!important;line-height:1!important}
+ .resource-icon{width:28px!important;height:28px!important;flex:0 0 28px!important}
+ .field-summary{
+  position:fixed!important;z-index:12!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  top:calc(106px + env(safe-area-inset-top))!important;bottom:auto!important;
+  height:32px!important;min-height:32px!important;width:250px!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:7px!important;padding:0!important;
+  background:none!important;color:#4c4151!important;border:0!important;
+ }
+ .field-summary img{width:22px!important;height:22px!important;object-fit:contain!important}
+ .field-summary .field-summary-name{font-size:12px!important}
+ .field-summary strong{font-size:16px!important;color:#4d3a50!important}
+ .field-summary small{font-size:11px!important}
+ .field-summary i{display:none!important}
+ .field-summary .field-star{font-size:12px!important;margin-left:11px!important;color:#8b697c!important}
+ .team-strip{
+  position:fixed!important;z-index:13!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  bottom:calc(32px + env(safe-area-inset-bottom))!important;top:auto!important;
+  transform:none!important;display:flex!important;flex-direction:column!important;
+  width:272px!important;max-width:272px!important;min-width:0!important;
+  height:auto!important;max-height:50dvh!important;
+  margin:0!important;padding:0!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  overflow-y:auto!important;
+ }
+ .team-strip-slots{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;max-height:320px!important;overflow-y:auto!important;
+ }
+ .team-unit{
+  width:55px!important;height:57px!important;flex:none!important;
+  border:1px solid #baabb5!important;border-radius:3px!important;
+  background:#f6f2ec!important;
+ }
+ .team-unit img{width:53px!important;height:46px!important;object-fit:contain!important}
+ .team-heart-progress,.team-tactics{display:none!important}
+ .selection-panel{
+  position:fixed!important;z-index:25!important;
+  right:clamp(23px,3vw,47px)!important;left:auto!important;
+  top:calc(121px + env(safe-area-inset-top))!important;bottom:auto!important;
+  width:284px!important;max-width:284px!important;
+  min-height:0!important;max-height:calc(100dvh - 370px)!important;
+  padding:12px!important;margin:0!important;overflow-y:auto!important;
+  background:#fbf8f2f7!important;
+  border:1px solid #c6bac1!important;border-left:3px solid var(--hud-accent)!important;
+  border-radius:2px!important;box-shadow:0 4px 12px #29202d20!important;
+ }
+ .selection-panel:not(.has-selection){display:none!important}
+ .selection-panel.has-selection{display:block!important}
+ .selection-panel .selection-content{display:block!important}
+ .selection-panel .selected-hero{margin-bottom:7px!important}
+ .selection-panel .hero-portrait{width:62px!important;height:70px!important;background:#f0e9e7!important}
+ .selection-panel .hero-stats{margin:5px 0!important;background:#f2eeeb!important}
+ .selection-panel .hero-actions .minor-button{min-height:37px!important;border-radius:2px!important}
+ .main-actions{
+  position:fixed!important;z-index:17!important;
+  right:clamp(23px,3vw,47px)!important;left:auto!important;
+  bottom:calc(29px + env(safe-area-inset-bottom))!important;top:auto!important;
+  width:286px!important;height:153px!important;min-height:153px!important;
+  margin:0!important;padding:0!important;
+  display:grid!important;grid-template-columns:1fr!important;
+  grid-template-rows:75px 69px!important;gap:9px!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+ }
+ .main-actions>.summon-action{
+  grid-column:1!important;grid-row:1!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:center!important;gap:15px!important;
+  width:100%!important;height:75px!important;min-height:75px!important;
+  padding:8px 14px!important;
+ }
+ .summon-action .summon-symbol,.summon-action .summon-symbol svg{width:31px!important;height:31px!important}
+ .summon-text{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important}
+ .summon-text strong{font-size:25px!important}
+ .summon-text small{font-size:12px!important}
+ .main-actions>.secondary-actions{
+  grid-row:2!important;grid-column:1!important;display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-template-rows:1fr!important;
+  gap:7px!important;width:100%!important;height:69px!important;
+ }
+ .secondary-actions>.square-action,#heartButton{
+  grid-row:1!important;grid-column:auto!important;
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  align-items:center!important;gap:5px!important;
+  width:100%!important;height:69px!important;min-height:69px!important;
+  padding:6px 3px!important;
+ }
+ .secondary-actions>.square-action>span,.secondary-actions>.square-action svg{height:24px!important;width:24px!important}
+ .secondary-actions>.square-action strong{font-size:11px!important;line-height:1.25!important;white-space:normal!important;word-break:keep-all!important}
+ .secondary-actions>.square-action small{font-size:10px!important}
+ .upgrades{
+  position:fixed!important;z-index:28!important;
+  right:clamp(23px,3vw,47px)!important;left:auto!important;
+  width:286px!important;max-width:286px!important;
+  max-height:75dvh!important;
+ }
+ #battleDialogue.battle-dialogue{
+  position:fixed!important;z-index:20!important;
+  left:clamp(24px,3vw,48px)!important;right:auto!important;
+  top:auto!important;bottom:calc(205px + env(safe-area-inset-bottom))!important;
+  transform:none!important;width:272px!important;max-width:272px!important;
+  background:#f9f6eff0!important;border:1px solid #c9bbc2!important;
+  border-left:3px solid var(--hud-accent)!important;border-radius:2px!important;
+  box-shadow:none!important;
+ }
+}
+
+/* In narrow landscape, keep existing tested horizontal rail behavior,
+   removing decorative instructions without changing controls. */
+@media(orientation:landscape) and (max-height:569px){
+ .command-deck-head,.field-summary{display:none!important}
+ .selection-panel:not(.has-selection){display:none!important}
+}
+/* Mobile gameplay: existing generous touch area, no decorative overlays. */
+@media(orientation:portrait){
+ .team-strip,.command-deck-head,.field-summary,.command-deck-alert{display:none!important}
+ .resource-row{
+  background:#f6f4ef!important;border-top:1px solid #c4b9c0!important;
+  color:#3d3441!important;
+ }
+ .main-actions{
+  background:#f7f5f1!important;
+  border-top:1px solid #c9bdc4!important;
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:42px minmax(0,1fr)!important;
+  gap:7px!important;
+ }
+ .main-actions>.secondary-actions{
+  grid-row:1!important;grid-column:1!important;
+  display:grid!important;grid-template-columns:repeat(3,1fr)!important;
+  grid-template-rows:42px!important;height:42px!important;
+  gap:6px!important;
+ }
+ .main-actions>.secondary-actions>.square-action,#heartButton{
+  grid-row:1!important;grid-column:auto!important;height:42px!important;min-height:42px!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+  gap:5px!important;padding:4px!important;
+ }
+ .main-actions>.secondary-actions>.square-action>span,.main-actions>.secondary-actions svg{height:19px!important;width:19px!important}
+ .main-actions>.secondary-actions strong{font-size:11px!important;white-space:normal!important}
+ .main-actions>.summon-action{
+  grid-row:2!important;grid-column:1!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:center!important;width:100%!important;height:100%!important;min-height:0!important;
+  gap:10px!important;padding:6px 12px!important;
+ }
+ .main-actions>.summon-action .summon-symbol,.main-actions>.summon-action svg{height:26px!important;width:26px!important}
+ .main-actions>.summon-action .summon-text{display:flex!important;flex-direction:row!important;align-items:center!important;gap:9px!important}
+ .main-actions>.summon-action strong{font-size:20px!important}
+ .main-actions>.summon-action small{font-size:11px!important}
+ .battle-header,.wave-panel{background:#faf7f3f3!important}
+ .board-frame{box-shadow:0 1px 0 #574b56!important}
+}
+@media (orientation:portrait){
+ #titleOverlay .title-backdrop .title-enemies,
+ #titleOverlay .title-backdrop .title-characters,
+ #titleOverlay .title-backdrop .title-final{
+  left:50%!important;top:54%!important;width:168vw!important;
+ }
+ #titleOverlay .title-backdrop-filter{
+  background:linear-gradient(180deg,#fffaf299 0%,transparent 31%,transparent 72%,#2923349c 100%)!important;
+ }
+ #titleOverlay .title-logo-wrap{
+  top:clamp(70px,11dvh,118px)!important;left:50%!important;
+  width:min(94vw,485px)!important;transform:translateX(-50%)!important;
+ }
+ #titleOverlay .title-logo-image{max-height:24dvh!important}
+ #titleOverlay .title-bottom{
+  bottom:calc(25px + env(safe-area-inset-bottom))!important;
+  left:50%!important;right:auto!important;
+  width:min(315px,86vw)!important;transform:translateX(-50%)!important;
+ }
+ #titleOverlay .title-enter{height:56px!important;min-height:56px!important;font-size:19px!important}
+ #lobbyOverlay .lobby-dialog{
+  display:grid!important;grid-template-columns:1fr!important;
+  grid-template-rows:47px clamp(125px,27dvh,222px) minmax(0,1fr) 76px!important;
+  height:100dvh!important;max-height:none!important;
+ }
+ #lobbyOverlay .lobby-top{position:relative!important;grid-row:1!important;grid-column:1!important;height:47px!important;inset:auto!important}
+ #lobbyOverlay .lobby-art{position:relative!important;grid-row:2!important;grid-column:1!important;height:100%!important;inset:auto!important;min-height:0!important}
+ #lobbyOverlay .lobby-art-copy{left:14px!important;bottom:11px!important;gap:2px!important}
+ #lobbyOverlay #lobbyCrest{display:none!important}
+ #lobbyOverlay #lobbyWorldName{font-size:clamp(20px,5vw,28px)!important}
+ #lobbyOverlay #lobbyWorldIndex{font-size:11px!important}
+ #lobbyOverlay .lobby-content{
+  position:relative!important;grid-row:3!important;grid-column:1!important;
+  inset:auto!important;height:100%!important;max-height:none!important;
+  min-height:0!important;overflow-y:auto!important;padding:10px 13px!important;gap:10px!important;
+ }
+ #lobbyOverlay .lobby-bottom{
+  position:relative!important;grid-row:4!important;grid-column:1!important;
+  inset:auto!important;height:76px!important;min-height:76px!important;
+  padding:11px 14px!important;gap:0!important;
+ }
+ #lobbyOverlay #startButton{height:52px!important;min-height:52px!important}
+ #lobbyOverlay .map-choices{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 9px!important}
+ #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{
+  height:46px!important;min-height:46px!important;
+  padding:7px 3px 7px 8px!important;
+ }
+ #lobbyOverlay .map-choice strong{font-size:12px!important}
+ #lobbyOverlay .choice-button{min-height:36px!important;font-size:11px!important}
+}
+@media(orientation:portrait) and (max-height:620px){
+ #lobbyOverlay .lobby-dialog{grid-template-rows:42px 110px minmax(0,1fr) 67px!important}
+ #lobbyOverlay .lobby-top{height:42px!important}
+ #lobbyOverlay .lobby-content{padding:6px 10px!important;gap:5px!important}
+ #lobbyOverlay .lobby-bottom{height:67px!important;padding:6px 10px!important}
+ #lobbyOverlay #startButton{height:48px!important;min-height:48px!important}
+ #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{height:39px!important;min-height:39px!important}
+ #lobbyOverlay .choice-button{min-height:32px!important}
+ #titleOverlay .title-logo-wrap{top:72px!important}
+ .main-actions{grid-template-rows:40px minmax(0,1fr)!important;gap:4px!important}
+ .main-actions>.secondary-actions,.main-actions>.secondary-actions>.square-action,#heartButton{
+  min-height:40px!important;height:40px!important;
+ }
+}
+@media (orientation:landscape) and (max-height:470px){
+ #lobbyOverlay .lobby-dialog{
+  display:grid!important;grid-template-columns:55% 45%!important;
+  grid-template-rows:40px minmax(0,1fr) 56px!important;
+ }
+ #lobbyOverlay .lobby-top{position:relative!important;grid-column:1/3!important;grid-row:1!important;height:40px!important;inset:auto!important}
+ #lobbyOverlay .lobby-art{position:relative!important;grid-column:1!important;grid-row:2/4!important;min-height:0!important;height:100%!important;inset:auto!important}
+ #lobbyOverlay .lobby-content{position:relative!important;grid-column:2!important;grid-row:2!important;overflow-y:auto!important;min-height:0!important;inset:auto!important;padding:8px!important;gap:7px!important}
+ #lobbyOverlay .lobby-bottom{position:relative!important;grid-column:2!important;grid-row:3!important;height:56px!important;inset:auto!important;padding:5px 8px!important;gap:0!important}
+ #lobbyOverlay #startButton{height:43px!important;min-height:43px!important;font-size:14px!important}
+ #lobbyOverlay .map-choice,#lobbyOverlay .map-choice.active{min-height:35px!important;height:35px!important;padding:4px 8px!important}
+ #lobbyOverlay .map-choice strong{font-size:11px!important}
+ #titleOverlay .title-logo-wrap{top:clamp(46px,9dvh,61px)!important;left:27%!important;width:min(44vw,315px)!important}
+ #titleOverlay .title-bottom{left:28%!important;bottom:9px!important;width:min(34vw,275px)!important}
+ #titleOverlay .title-enter{min-height:38px!important;height:38px!important;font-size:14px!important}
+}
