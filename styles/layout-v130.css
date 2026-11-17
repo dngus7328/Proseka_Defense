@@ -781,3 +781,20 @@ button:focus-visible{outline:3px solid #dca25f!important;outline-offset:2px!impo
 @media (min-width:900px) and (max-width:1100px) and (orientation:landscape){
  .battle-dialogue>img{display:none!important}
 }
+
+/* Desktop spoken lines appear in the command deck, not across the board or
+   wave meter. Explicit ID selector takes precedence over legacy layouts. */
+@media (min-width:900px) and (min-height:500px) and (orientation:landscape){
+ #battleDialogue.battle-dialogue{
+  position:fixed!important;
+  left:auto!important;right:12px!important;
+  top:calc(213px + env(safe-area-inset-top))!important;
+  bottom:auto!important;transform:none!important;
+  width:calc(clamp(292px,25vw,350px) - 24px)!important;
+  max-width:none!important;min-width:0!important;
+  min-height:56px!important;max-height:105px!important;
+  z-index:30!important;
+ }
+ #battleDialogue.battle-dialogue>img{display:block!important;width:38px!important;height:38px!important;min-width:38px!important}
+ #battleDialogue .battle-dialogue-copy span{font-size:12px!important;-webkit-line-clamp:3!important}
+}
